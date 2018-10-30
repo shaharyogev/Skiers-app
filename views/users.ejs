@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Users</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1>Users list</h1>
+    <ul>
+    <% for( var index in userslist ){  %>
+    <li> User Name:  <%= userslist[index].name %>  Email: <%=userslist[index].email %> Password: <%=userslist[index].password %></li>
+  <% } %>
+  </ul>
+  </body>
+</html>
