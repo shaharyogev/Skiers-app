@@ -1,6 +1,16 @@
 var express = require('express');
 var router = express.Router();
 var mongodb = require('mongodb');
+var async = require('async');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
+const myPlaintextPassword = 's0/\/\P4$$w0rD';
+const someOtherPlaintextPassword = 'not_bacon';
+
+
+var MongoClient = mongodb.MongoClient;
+var userdbUrl = 'mongodb://127.0.0.1:27017/usersdb';
+var pasUrl ='mongodb://127.0.0.1:27017/padb';
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -9,10 +19,9 @@ router.get('/', function(req, res, next) {
 
 
 router.get('/users',function(req,res){
-  var MongoClient = mongodb.MongoClient;
-  var url = 'mongodb://127.0.0.1:27017/usersdb';
 
-  MongoClient.connect(url, function(err, db){
+
+  MongoClient.connect(userdbUrl, function(err, db){
     if(err){
       console.log('Unable to connect to the server', err);
     
@@ -47,33 +56,95 @@ router.get('/newuser', function(req, res){
 
 
 router.post('/adduser', function(req, res){
-  var MongoClient = mongodb.MongoClient;
-  var url = 'mongodb://127.0.0.1:27017/usersdb';
+MongoClient.connect(userdbUrl, function(err, db){
+if(err){
+  console.log('Unable to connect to the server', err);
 
-  MongoClient.connect(url, function(err, db){
+}else{ 
+  var mydb = db.db('usersdb');
+  var collection = mydb.collection('userslist');
+  var newuser ={name: req.body.name, email: req.body.email};
+  console.log('newuser ', newuser);
+
+  collection.insert([newuser], function(err, result){
     if(err){
-      console.log('Unable to connect to the server', err);
+      console.log('The new user did not update', err);
+      db.close();
+    }else{
+      res.redirect('users');
     
-    }else{ 
-      console.log('Connection Established', url);
+    db.close();
 
-      var mydb = db.db('usersdb');
-      var collection = mydb.collection('userslist');
-      //console.log('collection ', collection);
-
-      var newuser ={name: req.body.name, email: req.body.email, password: req.body.password};
-      console.log('newuser ', newuser);
-
-      collection.insert([newuser], function(err, result){
-        if(err){
-          console.log('The new user did not update', err);
-        
-        }else{
-          res.redirect('users');
-        }
-        db.close();
-      });
+    MongoClient.connect(pasUrl, function(err, pasdb){
+      if(err){
+        console.log('Unable to connect to the server', err);
+      
+      }else{
+        try{ 
+        var pascollection = pasdb.db('padb').collection('uh');
+        bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
+          pascollection.insert([{email: req.body.email, key: hash}]);
+          pasdb.close();
+        });
+      }catch(error){
+        console.log("pas error", error);
+      };
+      };
+    });
     }
   });
+  }
+});
+});
+
+router.get('/login', function(req, res){
+  res.render('login', {title:'Hi User'});
+});
+
+
+
+router.post('/loginattempt', function(req,res){
+MongoClient.connect(userdbUrl, function(err, db){
+if(err){
+  console.log('Unable to connect to the server', err);
+
+}else{ 
+  var mydb = db.db('usersdb');
+  var collection = mydb.collection('userslist');
+  var checkUser ={password: req.body.password, email: req.body.email};
+  var loginUser ={email: req.body.email};
+
+MongoClient.connect(pasUrl, function(err, pasdb){
+  if(err){
+    console.log('Unable to connect to the server', err);
+  
+  }else{
+    try{ 
+    var pascollection = pasdb.db('padb').collection('uh');
+    var testKey= pascollection.find({email: req.body.email},{_id:0,key:1});
+    console.log('The test key ',testKey);
+
+    bcrypt.compare(req.body.password, testKey, function(err, response) {
+      if(response){     
+      res.redirect('users');
+      pasdb.close();
+      
+      collection.update({email:loginUser},{$inc:{loginSuccessfully: +1}})
+      db.close();
+      }else{
+        console.log('The password is not corect');
+        pasdb.close();
+        collection.update({email:loginUser},{$inc:{loginUnsuccessfully: +1}})
+        db.close();
+      }
+      
+    });
+  }catch(error){
+    console.log("pas error", error);
+  };
+  };
+});
+} 
+});
 });
 module.exports = router;
