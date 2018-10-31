@@ -34,7 +34,7 @@ mongo
 or 
 
 ```
-mongod --dbpath C:\Users\Shahar Yogev LP\Dropbox\Coding\Javascript\Database\database\data
+mongod --dbpath "C:\Users\Shahar Yogev LP\Dropbox\Coding\Javascript\Database\database\data"
 
 mongo
 ```

@@ -19,14 +19,13 @@ router.get('/', function(req, res, next) {
 
 
 router.get('/users',function(req,res){
-
+  console.log('users was calld ')
 
   MongoClient.connect(userdbUrl, function(err, db){
     if(err){
       console.log('Unable to connect to the server', err);
-    
     }else{ 
-      console.log('Connection Established', url);
+      console.log('Connection Established', userdbUrl);
 
       var mydb = db.db('usersdb');
       var collection = mydb.collection('userslist');
@@ -56,6 +55,7 @@ router.get('/newuser', function(req, res){
 
 
 router.post('/adduser', function(req, res){
+
 MongoClient.connect(userdbUrl, function(err, db){
 if(err){
   console.log('Unable to connect to the server', err);
@@ -71,7 +71,7 @@ if(err){
       console.log('The new user did not update', err);
       db.close();
     }else{
-      res.redirect('users');
+      
     
     db.close();
 
@@ -91,6 +91,7 @@ if(err){
       };
       };
     });
+    res.redirect('users');
     }
   });
   }
@@ -121,8 +122,8 @@ MongoClient.connect(pasUrl, function(err, pasdb){
   }else{
     try{ 
     var pascollection = pasdb.db('padb').collection('uh');
-    var testKey= pascollection.find({email: req.body.email},{_id:0,key:1});
-    console.log('The test key ',testKey);
+    var testKey= pascollection.findOne({email: req.body.email});
+    console.log('The test key ',testKey.key);
 
     bcrypt.compare(req.body.password, testKey, function(err, response) {
       if(response){     
