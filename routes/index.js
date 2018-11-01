@@ -115,7 +115,7 @@ if(err){
           collection.updateOne(loginUser,{$inc:{loginSuccessfully: +1},function(err, res){
             if(err)throw err;
             console.log('The password is corect');
-            res.redirect('users');
+            res.redirect('userprofile');
 
             db.close();
           }});
@@ -125,6 +125,7 @@ if(err){
         collection.updateOne(loginUser,{$inc:{loginUnsuccessfully: +1},function(err, res){
           if(err)throw err;
           console.log('The password is not corect');
+          
           db.close();
         }});
         }
@@ -135,6 +136,30 @@ if(err){
 
   });
 });
+
+router.get('/addmovie', function(req, res){
+  res.render('addmovie');
+});
+
+router.post('addmovietodb', function(){
+MongoClient.connect(userdbUrl, function(err, db){
+  if(err){console.log('Unable to connect to the server', err);}
+
+  var newMovie = {titel:req.body.title}
+  var inventory = req.body.inventory
+  var mydb = db.db('usersdb');
+  var collection = mydb.collection('movieslist');
+
+  collection.find(loginUser,{projection: {_id:0, key:1}
+  }).toArray(function(err, result){
+    if(err) throw err;
+    console.log(result[0].key);
+
+  });
+
+  });
+
+  });
 
 
 module.exports = router;

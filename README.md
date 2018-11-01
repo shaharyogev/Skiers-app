@@ -42,3 +42,24 @@ mongo
 
 The database is on port 27017 - 
 http://localhost:27017/
+
+
+Schema:
+db users
+collections:
+userslist
+    user name ~
+    email ~
+    has ~
+    movies
+    log
+    login sucsses ~
+    login faliur ~
+
+movieslist
+    movie name
+    inventory status +-
+    users ids
+    log
+
+
