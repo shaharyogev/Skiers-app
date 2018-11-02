@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <form id='rentMovie' name='rentmovie' method='post' action='/submitrent'>
+      <span>Movie title</span>
+      <span>&nbsp;</span>
+      <input id='movieTitle' type='text' placeholder='Movie title' name='title'> 
+      <br>
+      <br>
+      <span>Inventory</span>
+      <span>&nbsp;</span>
+      <input id='titleInventory' type='number' placeholder='0-100'  name='inventory'> 
+      <br>
+      <br>
+      <span>User Email</span>
+      <span>&nbsp;</span>
+      <input id='userEmail' type='text' placeholder='Valid email' name='email'> 
+      <br>
+      <br>
+      <button id='submitInventory' type='submit' > Sbumit</button>
+    </form>
+    <h3></h3>
+  </body>
+</html>

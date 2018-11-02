@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Movies list</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1>Movies list</h1>
+    <ul>
+    <% for( var index in movieslist ){  %>
+    <li> Movie title:  <%= movieslist[index].title %>  Corent inventory: <%=movieslist[index].inventory %> </li>
+  <% } %>
+  </ul>
+  </body>
+</html>
