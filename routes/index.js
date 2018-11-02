@@ -1,31 +1,35 @@
-var express = require('express');
-var router = express.Router();
-var mongodb = require('mongodb');
-var async = require('async');
+const express = require('express');
+const router = express.Router();
+const mongodb = require('mongodb');
+const async = require('async');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const myPlaintextPassword = 's0/\/\P4$$w0rD';
 const someOtherPlaintextPassword = 'not_bacon';
 
 
-var MongoClient = mongodb.MongoClient;
-var userdbUrl = 'mongodb://127.0.0.1:27017/usersdb';
+const MongoClient = mongodb.MongoClient;
+const usersdbUrl = 'mongodb://127.0.0.1:27017/usersdb';
+MongoClient.connect(usersdbUrl, function(err, db){
+  if(err) throw err;
+  var mydb = db.db('usersdb');
+  
 
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
-
+/*
 
 router.get('/users',function(req,res){
   console.log('users was calld ')
 
-  MongoClient.connect(userdbUrl, function(err, db){
+  MongoClient.connect(usersdbUrl, function(err, db){
     if(err){
       console.log('Unable to connect to the server', err);
     }else{ 
-      console.log('Connection Established', userdbUrl);
+      console.log('Connection Established', usersdbUrl);
 
       var mydb = db.db('usersdb');
       var collection = mydb.collection('userslist');
@@ -56,7 +60,7 @@ router.get('/newuser', function(req, res){
 
 router.post('/adduser', function(req, res){
 
-MongoClient.connect(userdbUrl, function(err, db){
+MongoClient.connect(usersdbUrl, function(err, db){
 if(err){
   console.log('Unable to connect to the server', err);
 
@@ -95,13 +99,7 @@ router.get('/login', function(req, res){
 
 
 router.post('/loginattempt', function(req,res){
-MongoClient.connect(userdbUrl, function(err, db){
-if(err){
-  console.log('Unable to connect to the server', err);
-}
 
-  var mydb = db.db('usersdb');
-  var collection = mydb.collection('userslist');
   var loginUser ={email: req.body.email};
 
   collection.find(loginUser,{projection: {_id:0, key:1}
@@ -137,28 +135,45 @@ if(err){
   });
 });
 
+*/
 router.get('/addmovie', function(req, res){
-  res.render('addmovie');
+  res.render('addmovie',{title: 'Hi, add a new moive to the inventory', status: 'Waiting for submission'});
 });
 
-router.post('addmovietodb', function(){
-MongoClient.connect(userdbUrl, function(err, db){
-  if(err){console.log('Unable to connect to the server', err);}
-
-  var newMovie = {titel:req.body.title}
-  var inventory = req.body.inventory
-  var mydb = db.db('usersdb');
+router.post('/addmovietodb', function(req, res){
+  var newMovieTitle = {title: req.body.title};
+  var movieTitle = req.body.title;
+  var newInventory =  parseInt(req.body.inventory, 10);
+  var newMovie = {title: movieTitle, inventory: newInventory};
   var collection = mydb.collection('movieslist');
 
-  collection.find(loginUser,{projection: {_id:0, key:1}
+  collection.find(newMovieTitle,{projection: {_id:0, inventory:1}
   }).toArray(function(err, result){
+  if(err) throw err;
+    console.log(result , ' is the result for new')
+  if(result[0] === undefined){
+    collection.insertOne(newMovie, function(err, success){
     if(err) throw err;
-    console.log(result[0].key);
+    if(success)
+      console.log('The new movie was add to the database');
+  });
+  res.render('addmovie',{title: movieTitle + ' was add to the inventory as a new movie', status: 'Add another new moive to the inventory'});
+
+
+  }else{
+    console.log('find was successfule', result[0].inventory)
+    console.log( newMovieTitle, ' newMovieTitle')
+    collection.updateOne(newMovieTitle, { $inc: {inventory: newInventory}},function(err, success){
+    if(err) throw err
+    if(success)
+      console.log( newMovieTitle, ' inventory was updated');
+    });
+    res.render('addmovie',{title: movieTitle +' inventory was updeted successfuly', status: ' Add another moive to the inventory'});
+
+  };
 
   });
-
   });
-
   });
 
 
