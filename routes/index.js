@@ -109,33 +109,47 @@ router.post('/addmovietodb', function(req, res){
   let movieTitle = req.body.title;
   let newInventory =  parseInt(req.body.inventory, 10);
   let newMovie = {title: movieTitle, inventory: newInventory};
+  let status = '';
+  let title = '';
   const collection = mydb.collection('movieslist');
 
   collection.find(newMovieTitle,{projection: {_id:0, inventory:1}
   }).toArray(function(err, result){
   if(err) throw err;
-    console.log(result , ' is the result for new')
+  console.log('We find:', result)
   
-    if(result[0] === undefined){
-    collection.insertOne(newMovie, function(err, success){
-    if(err) throw err;
-    if(success)
-      console.log('The new movie was add to the database');
+  if(result[0] === undefined){
+  collection.insertOne(newMovie, function(err, success){
+  if(err) throw err;
+  if(success)
+    console.log('The new movie was add to the database');
   });
-  res.render('addmovie',{title: movieTitle + ' was add to the inventory as a new movie', status: 'Add another new moive to the inventory'});
 
   }else{
-    console.log('find was successfule', result[0].inventory)
-    console.log( newMovieTitle, ' newMovieTitle')
+    if(result[0].inventory+newInventory <0){
+      console.log('The minimum inventory to raduse is: '+ result[0].inventory)
+      title = movieTitle +' inventory was not update - inventory is too low';
+      status = 'The maximum inventory to raduse is: '+ result[0].inventory;
+
+    }else{
     collection.updateOne(newMovieTitle, { $inc: {inventory: newInventory}},function(err, success){
     if(err) throw err
     if(success)
       console.log( newMovieTitle, ' inventory was updated');
     });
-    res.render('addmovie',{title: movieTitle +' inventory was updeted successfuly', status: ' Add another moive to the inventory'});
-   };
-  });
+    title = movieTitle +' inventory was updeted successfuly';
+    status = ' Add another moive to the inventory';
+
+    }
+   }
  });
+
+ collection.find({},{projection: {_id:0,title:1, inventory:1}}).sort({inventory:1}).limit(50).toArray(function(err, resultt){
+  if(err) throw (err);
+
+  res.render('movies',{movieslist: resultt, title: title, status: status});
+ });
+});
 
 
 router.get('/movies', function(req, res){
@@ -144,13 +158,29 @@ router.get('/movies', function(req, res){
   }).toArray(function(err, result){
     if(err) throw err;
 
-  res.render('movies',{'movieslist': result});
+  res.render('movies',{'movieslist': result, title: 'Hi, add a new moive to the inventory', status: 'Waiting for submission'});
 });
 });
+
+
+/*
+router.post('/movies', function(req, res){
+  const collection = mydb.collection('movieslist');
+  collection.find({},{projection: {_id:0,title:1, inventory:1}
+  }).toArray(function(err, result){
+    if(err) throw err;
+    let title = req.body.title;
+    let status = req.body.status;
+    console.log('Movies post was activated')
+  res.render('movies',{'movieslist': result, title:title, status:status});
+});
+});*/
 
 router.get('/rentamovie', function(req, res){
   res.render('rentamovie', {title:'Hi User'});
 });
+
+
 
 router.post('/submitrent', function(req, res){
   const collection = mydb.collection('movieslist');
@@ -158,31 +188,98 @@ router.post('/submitrent', function(req, res){
   let movieTitle = req.body.title;
   let newInventory =  parseInt(req.body.inventory, 10);
   let userRenting =  {email: req.body.email, inventory: newInventory};
-  let userEmail = {email: req.body.email};
+  let status = '';
+  let title = '';
   
-  collection.find(newMovieTitle,{projection: {_id:0, inventory:1}
+  collection.find(newMovieTitle,{projection: {_id:0, inventory:1, activeusers:1}
   }).toArray(function(err, result){
   if(err) throw err;
-    console.log(result , ' is the result for new')
+    console.log('Was find :', result);
+
   if(result[0] === undefined){
     console.log('The movie is  out of stock');
+    title = 'This movie is not available to rent '+req.body.title;
+    status = 'Ask from '+req.body.email + ' to choose a difrent movie';
+
   }else if(result[0].inventory < newInventory){
     let available = result[0].inventory;
     console.log('The available inventory is: ', available);
-  }else{
+    title = 'The available inventory is: '+ available +' for '+req.body.title;
+    status = 'Ask from '+req.body.email + ' to rduce the quantity or choose a difrent movie';
+    
+  }else if( result[0].activeusers === undefined){  
     collection.updateOne(newMovieTitle, { $addToSet: {activeusers: userRenting}, $inc: {inventory: -newInventory}},function(err, success){
       if(err) throw err
       if(success)
-        console.log( movieTitle, ' inventory was updated');
-        
+      console.log( movieTitle, ' inventory was updated');
       });
+      title = movieTitle +' inventory was updated to'+ result[0].inventory-newInventory ;
+      status = req.body.email + ' got '+ newInventory+ ' copies';
     
+      
+  }else if( result[0].activeusers[0].email === req.body.email){
+    collection.updateOne({title: movieTitle}, { $inc: {inventory: -newInventory, 'activeusers.$[elem].inventory': newInventory}},{arrayFilters:[{'elem.email':req.body.email}]},function(err, success){
+    if(err) throw err
+    if(success)
+    console.log( movieTitle, ' inventory was updated ' +req.body.email);
+    });
+    title = movieTitle +' inventory was updated to'+ (result[0].inventory-newInventory) ;
+    status = req.body.email +' have' +(result[0].activeusers[0].inventory+newInventory) + ' include the new '+ newInventory+ ' copies';
   }
-  res.render('movies',{'movieslist': result});
+    
+
+  collection.find({},{projection: {_id:0,title:1, inventory:1}}).sort({inventory:1}).limit(50).toArray(function(err, result){
+  if(err) throw (err);
+
+  res.render('movies',{movieslist: result, title: title, status: status});
+  });
 });
 });
 
 
+
+router.post('/submitreturn', function(req, res){
+  const collection = mydb.collection('movieslist');
+  let movieTitle = req.body.title;
+  let userEmail =   req.body.email;
+  let newInventory =  parseInt(req.body.inventory, 10);
+  let userRenting =  {email: req.body.email, inventory: newInventory};
+  let title = "";
+  let status = "";
+ 
+  collection.find({ title: movieTitle,  activeusers: {$elemMatch:{email: userEmail, inventory:{ $gte:1} }}
+  },{projection: {_id:0, activeusers: 1}}
+  ).toArray(function(err, result){
+  
+  if(err) throw err;
+  console.log('Was find :', result);
+  
+  if(result === undefined){
+    console.log('The movie is  out of stock');
+
+  }else if(result[0].activeusers[0].inventory === newInventory){
+  collection.update({title: movieTitle}, { $pull: {activeusers: userRenting}, $inc: {inventory: newInventory}},function(err, success){
+    if(err) throw err
+    if(success)
+    console.log(movieTitle, ' inventory was updated');
+  });
+    title = "The user: "+req.body.email+' rented successfuly the movie: '+req.body.title;
+    status = 'inventory was updated by: '+newInventory;
+  
+  }else if(result[0].activeusers[0].inventory < newInventory){
+    let available = result[0].activeusers[0].inventory;
+    console.log('The available inventory is: ', available);
+    title = 'The available inventory is: '+ available;
+    status = 'inventory was updated by: '+newInventory;
+  }
+  });
+
+  collection.find({},{projection: {_id:0,title:1, inventory:1}}).sort({inventory:1}).limit(50).toArray(function(err, result){
+  if(err) throw (err);
+  
+  res.render('movies',{movieslist: result, title: title, status: status});
+  });
+ });
 });
 
 module.exports = router;
