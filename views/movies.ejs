@@ -5,9 +5,52 @@
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
-      <button><a href='movies'> Movies inventory</a></button>
-      <button><a href='rentamovie'> Customers Rent/Return </a></button>
-      
+    <h1>Info:</h1>
+    <h2><%= title %></h2>
+    <h3><%= status %></h3>
+    <br>
+    <h1>Rent a movie</h1>
+    <form id='rentMovie' name='rentmovie' method='post' action='/submitrent'>
+      <span>Movie title</span>
+      <span>&nbsp;</span>
+      <input id='movieTitle' type='text' placeholder='Movie title' name='title'> 
+      <br>
+      <br>
+      <span>Inventory</span>
+      <span>&nbsp;</span>
+      <input id='titleInventory' type='number' placeholder='0-100'  name='inventory'> 
+      <br>
+      <br>
+      <span>User Email</span>
+      <span>&nbsp;</span>
+      <input id='userEmail' type='text' placeholder='Valid email' name='email'> 
+      <br>
+      <br>
+      <button id='submitInventory' type='submit' > Sbumit</button>
+    </form>
+    <br>
+    <br>
+    <h1>Return a movie</h1>
+    <form id='rentMovie' name='rentmovie' method='post' action='/submitreturn'>
+      <span>Movie title</span>
+      <span>&nbsp;</span>
+      <input id='movieTitle' type='text' placeholder='Movie title' name='title'> 
+      <br>
+      <br>
+      <span>Inventory</span>
+      <span>&nbsp;</span>
+      <input id='titleInventory' type='number' placeholder='0-100'  name='inventory'> 
+      <br>
+      <br>
+      <span>User Email</span>
+      <span>&nbsp;</span>
+      <input id='userEmail' type='text' placeholder='Valid email' name='email'> 
+      <br>
+      <br>
+      <button id='submitInventory' type='submit' > Sbumit</button>
+    </form>
+    <br>
+    <br>
     <h1>Add / Remove a movie to the list</h1>
     <form id='addMovie' name='addmovie' method='post' action='/addmovietodb'>
       <span>Movie title</span>
@@ -22,14 +65,18 @@
       <br>
       <button id='submitInventory' type='submit' > Sbumit</button>
     </form>
-    <h2><%= title %></h2>
-    <h3><%= status %></h3>
     <br>
     <br>
-    <h1>Movies list</h1>
+    <h1>Movies list:</h1>
     <ul>
     <% for( var index in movieslist ){  %>
     <li> Movie title:  <%= movieslist[index].title %>  Corent inventory: <%=movieslist[index].inventory %> </li>
+  <% } %>
+  </ul>
+  <h1>Users list:</h1>
+    <ul>
+    <% for( var index in userslist ){  %>
+    <li> Movie title:  <%= userslist[index].email %>  Corent inventory: <%=userslist[index].inventory %> </li>
   <% } %>
   </ul>
   

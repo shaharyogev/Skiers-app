@@ -15,8 +15,6 @@ MongoClient.connect(usersdbUrl, function(err, db){
   if(err) throw err;
   const mydb = db.db('usersdb');
   
-
-
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
@@ -41,11 +39,9 @@ router.get('/users',function(req,res){
 });
 
 
-
 router.get('/newuser', function(req, res){
   res.render('newuser', {title:'Add User'});
 });
-
 
 router.post('/adduser', function(req, res){
   const collection = mydb.collection('userslist');
@@ -68,25 +64,25 @@ router.post('/loginattempt', function(req,res){
 let loginUser ={email: req.body.email};
 const collection = mydb.collection('userslist');
 collection.find(loginUser,{projection: {_id:0, key:1}
-  }).toArray(function(err, result){
-    if(err) throw err;
-    console.log(result[0].key);
-    bcrypt.compare(req.body.password, result[0].key, function(err, response) {
-    console.log('bcrypt response: ', response)
-    if(response){
+}).toArray(function(err, result){
+  if(err) throw err;
+  console.log(result[0].key);
+  bcrypt.compare(req.body.password, result[0].key, function(err, response) {
+  console.log('bcrypt response: ', response)
+  if(response){
 
-      collection.updateOne(loginUser,{$inc:{loginSuccessfully: +1},function(err, res){
-        if(err)throw err;
-        console.log('The password is corect');
-      }});
-      res.render('userprofile', loginUser);
-    }else{
-    collection.updateOne(loginUser,{$inc:{loginUnsuccessfully: +1},function(err, res){
-      if(err) throw err;
-      console.log('The password is not corect');
-    }});
-   } 
-  });
+  collection.updateOne(loginUser,{$inc:{loginSuccessfully: +1},function(err, res){
+    if(err)throw err;
+    console.log('The password is corect');
+  }});
+    res.render('userprofile', loginUser);
+  }else{
+  collection.updateOne(loginUser,{$inc:{loginUnsuccessfully: +1},function(err, res){
+    if(err) throw err;
+    console.log('The password is not corect');
+  }});
+  } 
+});
  });
 });
 
@@ -100,9 +96,6 @@ router.post('/userprofile', function(req, res){
 });
 */
 
-router.get('/addmovie', function(req, res){
-  res.render('addmovie',{title: 'Hi, add a new moive to the inventory', status: 'Waiting for submission'});
-});
 
 router.post('/addmovietodb', function(req, res){
   let newMovieTitle = {title: req.body.title};
@@ -176,9 +169,6 @@ router.post('/movies', function(req, res){
 });
 });*/
 
-router.get('/rentamovie', function(req, res){
-  res.render('rentamovie', {title:'Hi User'});
-});
 
 
 
@@ -227,12 +217,22 @@ router.post('/submitrent', function(req, res){
     status = req.body.email +' have' +(result[0].activeusers[0].inventory+newInventory) + ' include the new '+ newInventory+ ' copies';
   }
     
-
+(async function(){
+  try{
+    let f = await collection.find({},{projection: {_id:0,title:1, inventory:1}}).sort({inventory:1}).limit(5).toArray();
+  }
+});
   collection.find({},{projection: {_id:0,title:1, inventory:1}}).sort({inventory:1}).limit(50).toArray(function(err, result){
   if(err) throw (err);
+   collection.find({activeusers:{ inventory:{$gte: 1}}},{projection: {_id:0,title:1, activeusers:1}}).limit(50).toArray(function(err, usersres){
+   if(err) throw (err);
+   
+   
 
-  res.render('movies',{movieslist: result, title: title, status: status});
+   res.render('movies',{movieslist: result ,userslist:usersres, title: title, status: status});
+   });
   });
+
 });
 });
 
