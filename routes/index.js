@@ -147,12 +147,15 @@ router.post('/addmovietodb', function(req, res){
 
 router.get('/movies', function(req, res){
   const collection = mydb.collection('movieslist');
-  collection.find({},{projection: {_id:0,title:1, inventory:1}
-  }).toArray(function(err, result){
-    if(err) throw err;
-
-  res.render('movies',{'movieslist': result, title: 'Hi, add a new moive to the inventory', status: 'Waiting for submission'});
-});
+  (async function(){
+    try{
+    let moviesList = await collection.find({},{projection: {_id:0,title:1, inventory:1}}).sort({inventory:1}).limit(5).toArray();
+    let usersList = await collection.find({},{projection: {_id:0, activeusers:1, title:1}}).filter({'activeusers.inventory':{$gte:1}}).limit(5).toArray();
+    res.render('movies',{movieslist: moviesList ,userslist:usersList, title: "This is the movies list", status: "We got in stock: "});
+    }catch(err){
+    console.log(err.stack);
+  }
+  })();
 });
 
 
@@ -216,22 +219,28 @@ router.post('/submitrent', function(req, res){
     title = movieTitle +' inventory was updated to'+ (result[0].inventory-newInventory) ;
     status = req.body.email +' have' +(result[0].activeusers[0].inventory+newInventory) + ' include the new '+ newInventory+ ' copies';
   }
-    
+  
+
 (async function(){
   try{
-    let f = await collection.find({},{projection: {_id:0,title:1, inventory:1}}).sort({inventory:1}).limit(5).toArray();
+    let moviesList = await collection.find({},{projection: {_id:0,title:1, inventory:1}}).sort({inventory:1}).limit(5).toArray();
+    let usersList = await collection.find({},{projection: {_id:0, activeusers:1, title:1}}).filter({'activeusers.inventory':{$gte:1}}).limit(5).toArray();
+    res.render('movies',{movieslist: moviesList ,userslist:usersList, title: title, status: status});
+  }catch(err){
+    console.log(err.stack);
   }
-});
+})();
+
+/*
+activeusers:{ inventory:{$gte: 1}}
   collection.find({},{projection: {_id:0,title:1, inventory:1}}).sort({inventory:1}).limit(50).toArray(function(err, result){
   if(err) throw (err);
    collection.find({activeusers:{ inventory:{$gte: 1}}},{projection: {_id:0,title:1, activeusers:1}}).limit(50).toArray(function(err, usersres){
    if(err) throw (err);
    
-   
-
-   res.render('movies',{movieslist: result ,userslist:usersres, title: title, status: status});
+   res.render('movies',{movieslist: moviesList ,userslist:usersList, title: title, status: status});
    });
-  });
+  });*/
 
 });
 });
@@ -256,6 +265,8 @@ router.post('/submitreturn', function(req, res){
   
   if(result === undefined){
     console.log('The movie is  out of stock');
+    title = 'The movie is  out of stock';
+    status = 'inventory was requsted by: '+newInventory;
 
   }else if(result[0].activeusers[0].inventory === newInventory){
   collection.update({title: movieTitle}, { $pull: {activeusers: userRenting}, $inc: {inventory: newInventory}},function(err, success){
@@ -274,12 +285,16 @@ router.post('/submitreturn', function(req, res){
   }
   });
 
-  collection.find({},{projection: {_id:0,title:1, inventory:1}}).sort({inventory:1}).limit(50).toArray(function(err, result){
-  if(err) throw (err);
-  
-  res.render('movies',{movieslist: result, title: title, status: status});
-  });
- });
-});
+(async function(){
+  try{
+  let moviesList = await collection.find({},{projection: {_id:0,title:1, inventory:1}}).sort({inventory:1}).limit(5).toArray();
+  let usersList = await collection.find({},{projection: {_id:0, activeusers:1, title:1}}).filter({'activeusers.inventory':{$gte:1}}).limit(5).toArray();
+  res.render('movies',{movieslist: moviesList ,userslist:usersList, title: title, status: status});
+  }catch(err){
+  console.log(err.stack);
+}
+})();
 
+});
+});
 module.exports = router;

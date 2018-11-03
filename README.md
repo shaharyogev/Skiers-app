@@ -18,6 +18,8 @@ conect the mongodb to env https://stackoverflow.com/questions/15053893/error-whe
 start nodejs - 
 ```
 npm start
+/
+nodemon /bin/www 
 ```
 
 The server is on port 3000 - 
