@@ -255,7 +255,19 @@ router.post('/submitreturn', function(req, res){
   let userRenting =  {email: req.body.email, inventory: newInventory};
   let title = "";
   let status = "";
+  let movieInventory = 0;
+  let userInventory = 0;
  
+
+  collection.findOneAndUpdate({title: req.body.title, 'activeusers.email': req.body.email},
+  {$inc:{'activeusers.inventory': -newInventory ,inventory: newInventory}},function(err, r){
+    if(err) console.log(err.stack)
+    movieInventory = r.value.inventory;
+    userInventory = r.value.activeusers.inventory;
+  });
+
+/*
+
   collection.find({ title: movieTitle,  activeusers: {$elemMatch:{email: userEmail, inventory:{ $gte:1} }}
   },{projection: {_id:0, activeusers: 1}}
   ).toArray(function(err, result){
@@ -276,7 +288,17 @@ router.post('/submitreturn', function(req, res){
   });
     title = "The user: "+req.body.email+' rented successfuly the movie: '+req.body.title;
     status = 'inventory was updated by: '+newInventory;
-  
+ 
+  }else if(result[0].activeusers[0].inventory > newInventory){
+    collection.update({title: movieTitle, activeusers:{email:userEmail}}, { $inc: {'activeusers.inventory': -newInventory}, $inc: {inventory: newInventory}},function(err, success){
+      if(err) throw err
+      if(success)
+      console.log(movieTitle, ' inventory was updated');
+    });
+      title = "The user: "+req.body.email+' rented successfuly the movie: '+req.body.title;
+      status = 'inventory was updated by: '+newInventory+ 'the user have : '+ (result[0].activeusers[0].inventory-newInventory)+' left to return.';
+    
+
   }else if(result[0].activeusers[0].inventory < newInventory){
     let available = result[0].activeusers[0].inventory;
     console.log('The available inventory is: ', available);
@@ -284,7 +306,7 @@ router.post('/submitreturn', function(req, res){
     status = 'inventory was updated by: '+newInventory;
   }
   });
-
+*/
 (async function(){
   try{
   let moviesList = await collection.find({},{projection: {_id:0,title:1, inventory:1}}).sort({inventory:1}).limit(5).toArray();
