@@ -12,7 +12,7 @@ const MongoClient = mongodb.MongoClient;
 const usersdbUrl = 'mongodb://127.0.0.1:27017/usersdb';
 
 MongoClient.connect(usersdbUrl, function(err, db){
-  if(err) throw err;
+  if(err) console.log(err.stack);
   const mydb = db.db('usersdb');
   
 /* GET home page. */
@@ -48,7 +48,7 @@ router.post('/adduser', function(req, res){
   bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
   var newuser ={name: req.body.name, email: req.body.email, key: hash};
   collection.insert([newuser], function(err, result){
-    if(err) throw err
+    if(err) console.log(err.stack)
     res.redirect('users');
   });
  });
@@ -65,7 +65,7 @@ let loginUser ={email: req.body.email};
 const collection = mydb.collection('userslist');
 collection.find(loginUser,{projection: {_id:0, key:1}
 }).toArray(function(err, result){
-  if(err) throw err;
+  if(err) console.log(err.stack);
   console.log(result[0].key);
   bcrypt.compare(req.body.password, result[0].key, function(err, response) {
   console.log('bcrypt response: ', response)
@@ -78,7 +78,7 @@ collection.find(loginUser,{projection: {_id:0, key:1}
     res.render('userprofile', loginUser);
   }else{
   collection.updateOne(loginUser,{$inc:{loginUnsuccessfully: +1},function(err, res){
-    if(err) throw err;
+    if(err) console.log(err.stack);
     console.log('The password is not corect');
   }});
   } 
@@ -108,12 +108,12 @@ router.post('/addmovietodb', function(req, res){
 
   collection.find(newMovieTitle,{projection: {_id:0, inventory:1}
   }).toArray(function(err, result){
-  if(err) throw err;
+  if(err) console.log(err.stack);
   console.log('We find:', result)
   
   if(result[0] === undefined){
   collection.insertOne(newMovie, function(err, success){
-  if(err) throw err;
+  if(err) console.log(err.stack);
   if(success)
     console.log('The new movie was add to the database');
   });
@@ -126,7 +126,7 @@ router.post('/addmovietodb', function(req, res){
 
     }else{
     collection.updateOne(newMovieTitle, { $inc: {inventory: newInventory}},function(err, success){
-    if(err) throw err
+    if(err) console.log(err.stack)
     if(success)
       console.log( newMovieTitle, ' inventory was updated');
     });
@@ -164,7 +164,7 @@ router.post('/movies', function(req, res){
   const collection = mydb.collection('movieslist');
   collection.find({},{projection: {_id:0,title:1, inventory:1}
   }).toArray(function(err, result){
-    if(err) throw err;
+    if(err) console.log(err.stack);
     let title = req.body.title;
     let status = req.body.status;
     console.log('Movies post was activated')
@@ -186,7 +186,7 @@ router.post('/submitrent', function(req, res){
   
   collection.find(newMovieTitle,{projection: {_id:0, inventory:1, activeusers:1}
   }).toArray(function(err, result){
-  if(err) throw err;
+  if(err) console.log(err.stack);
     console.log('Was find :', result);
 
   if(result[0] === undefined){
@@ -202,7 +202,7 @@ router.post('/submitrent', function(req, res){
     
   }else if( result[0].activeusers === undefined){  
     collection.updateOne(newMovieTitle, { $addToSet: {activeusers: userRenting}, $inc: {inventory: -newInventory}},function(err, success){
-      if(err) throw err
+      if(err) console.log(err.stack)
       if(success)
       console.log( movieTitle, ' inventory was updated');
       });
@@ -212,7 +212,7 @@ router.post('/submitrent', function(req, res){
       
   }else if( result[0].activeusers[0].email === req.body.email){
     collection.updateOne({title: movieTitle}, { $inc: {inventory: -newInventory, 'activeusers.$[elem].inventory': newInventory}},{arrayFilters:[{'elem.email':req.body.email}]},function(err, success){
-    if(err) throw err
+    if(err) console.log(err.stack)
     if(success)
     console.log( movieTitle, ' inventory was updated ' +req.body.email);
     });
@@ -262,8 +262,9 @@ router.post('/submitreturn', function(req, res){
   collection.findOneAndUpdate({title: req.body.title, 'activeusers.email': req.body.email},
   {$inc:{'activeusers.inventory': -newInventory ,inventory: newInventory}},function(err, r){
     if(err) console.log(err.stack)
-    movieInventory = r.value.inventory;
-    userInventory = r.value.activeusers.inventory;
+    movieInventory = r;
+    userInventory = r;
+    console.log('movie inventory: ', movieInventory);
   });
 
 /*
@@ -272,7 +273,7 @@ router.post('/submitreturn', function(req, res){
   },{projection: {_id:0, activeusers: 1}}
   ).toArray(function(err, result){
   
-  if(err) throw err;
+  if(err) console.log(err.stack);
   console.log('Was find :', result);
   
   if(result === undefined){
@@ -282,7 +283,7 @@ router.post('/submitreturn', function(req, res){
 
   }else if(result[0].activeusers[0].inventory === newInventory){
   collection.update({title: movieTitle}, { $pull: {activeusers: userRenting}, $inc: {inventory: newInventory}},function(err, success){
-    if(err) throw err
+    if(err) console.log(err.stack)
     if(success)
     console.log(movieTitle, ' inventory was updated');
   });
@@ -291,7 +292,7 @@ router.post('/submitreturn', function(req, res){
  
   }else if(result[0].activeusers[0].inventory > newInventory){
     collection.update({title: movieTitle, activeusers:{email:userEmail}}, { $inc: {'activeusers.inventory': -newInventory}, $inc: {inventory: newInventory}},function(err, success){
-      if(err) throw err
+      if(err) console.log(err.stack)
       if(success)
       console.log(movieTitle, ' inventory was updated');
     });
