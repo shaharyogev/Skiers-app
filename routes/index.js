@@ -137,11 +137,15 @@ router.post('/addmovietodb', function(req, res){
    }
  });
 
- collection.find({},{projection: {_id:0,title:1, inventory:1}}).sort({inventory:1}).limit(50).toArray(function(err, resultt){
-  if(err) throw (err);
-
-  res.render('movies',{movieslist: resultt, title: title, status: status});
- });
+ (async function(){
+  try{
+  let moviesList = await collection.find({},{projection: {_id:0,title:1, inventory:1}}).sort({inventory:1}).limit(5).toArray();
+  let usersList = await collection.find({},{projection: {_id:0, activeusers:1, title:1}}).filter({'activeusers.inventory':{$gte:1}}).limit(5).toArray();
+  res.render('movies',{movieslist: moviesList ,userslist:usersList, title: title, status: status});
+  }catch(err){
+  console.log(err.stack);
+}
+})();
 });
 
 
@@ -260,11 +264,18 @@ router.post('/submitreturn', function(req, res){
  
 
   collection.findOneAndUpdate({title: req.body.title, 'activeusers.email': req.body.email},
-  {$inc:{'activeusers.inventory': -newInventory ,inventory: newInventory}},function(err, r){
+  {$inc:{'activeusers.$.inventory': -newInventory, inventory:newInventory}},{
+    returnOriginal: false,
+    upsert:false
+  },function(err, r){
     if(err) console.log(err.stack)
-    movieInventory = r;
-    userInventory = r;
-    console.log('movie inventory: ', movieInventory);
+    console.log('The value is: ', r)
+    
+    if(r.valu!= null){
+      movieInventory = r.value.inventory;
+      userInventory = r.value.activeusers[0].inventory;
+      console.log('movie inventory: ', movieInventory,'User inventory: ', userInventory);
+    }
   });
 
 /*
