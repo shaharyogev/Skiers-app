@@ -252,18 +252,29 @@ activeusers:{ inventory:{$gte: 1}}
 
 
 router.post('/submitreturn', function(req, res){
-  const collection = mydb.collection('movieslist');
-  let movieTitle = req.body.title;
-  let userEmail =   req.body.email;
+  //let movieTitle = req.body.title;
+  //let userEmail =   req.body.email;
   let newInventory =  parseInt(req.body.inventory, 10);
-  let userRenting =  {email: req.body.email, inventory: newInventory};
+  ////let userRenting =  {email: req.body.email, inventory: newInventory};
   let title = "";
   let status = "";
   let movieInventory = 0;
   let userInventory = 0;
  
+function updateInventory(title, inventory, email){
+  const moviesCollection = mydb.collection('movieslist');
+  let query = {};
+  
+  if(title)
+    query.title = title.toLowerCase();
 
-  collection.findOneAndUpdate({title: req.body.title, 'activeusers.email': req.body.email},
+  if(inventory)
+    inventory = parseInt(inventory, 10);
+
+  if(email)
+    query.email = activeusers.email.toLowerCase();
+
+  moviesCollection.findOneAndUpdate({, 'activeusers.email': req.body.email},
   {$inc:{'activeusers.$.inventory': -newInventory, inventory:newInventory}},{
     returnOriginal: false,
     upsert:false
@@ -277,7 +288,7 @@ router.post('/submitreturn', function(req, res){
       console.log('movie inventory: ', movieInventory,'User inventory: ', userInventory);
     }
   });
-
+}
 /*
 
   collection.find({ title: movieTitle,  activeusers: {$elemMatch:{email: userEmail, inventory:{ $gte:1} }}
