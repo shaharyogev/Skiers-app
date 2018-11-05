@@ -20,6 +20,8 @@ start nodejs -
 npm start
 /
 nodemon /bin/www 
+
+npm run debug
 ```
 
 The server is on port 3000 - 
@@ -61,7 +63,7 @@ userslist
 movieslist
     movie name
     inventory status +-
-    users ids
+    users email + inventory 
     log
 
 
