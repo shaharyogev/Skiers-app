@@ -36,7 +36,6 @@ mongo
 ```
 
 or 
-
 ```
 mongod --dbpath "C:\Users\Shahar Yogev LP\Dropbox\Coding\Javascript\Database\database\data"
 

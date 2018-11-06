@@ -11,14 +11,14 @@
             "name": "Node: Nodemon",
             "processId": "${command:PickProcess}",
             "restart": true,
-            "protocol": "inspector",
+            "protocol": "inspector"
 				},
-				{
-					"type": "node",
-					"request": "launch",
-					"name": "Launch index",
-					"program": "${workspaceFolder}/app.js"
-			},
+            {
+                "type": "node",
+                "request": "launch",
+                "name": "Launch index",
+                "program": "${workspaceFolder}/app.js"
+        },
         {   
             "name": "Lance movies.ejs",
             "type": "chrome",
