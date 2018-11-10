@@ -77,8 +77,8 @@
   </ul>
   <h1>Users list:</h1>
     <ul>
-    <% for( var index in userslist ){  %>
-    <li> User:  <%= userslist[index].activeUsers[0].email %>  Corent inventory: <%=userslist[index].activeUsers[0].inventory %>  </li>
+    <% for( var index in userslist[0].activeUsers ){  %>
+    <li> User:  <%= userslist[0].activeUsers[index].email %>  Corent inventory: <%=userslist[0].activeUsers[index].inventory %>  </li>
   <% } %>
   </ul>
   
