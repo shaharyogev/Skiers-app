@@ -19,20 +19,6 @@
                 "name": "Launch index",
                 "program": "${workspaceFolder}/app.js"
         },
-        {   
-            "name": "Lance movies.ejs",
-            "type": "chrome",
-            "request": "launch",
-            "file":"${workspaceFolder}/views/movies.ejs"
-
-        },
-        {   
-            "name": "Lance localhost",
-            "type": "chrome",
-            "request": "launch",
-            "url":"http://localhost:3000/movies",
-            "webRoot":"${workspaceFolder}/routes/index.js"
-
-        },
+        
     ]
 }
