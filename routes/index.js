@@ -95,7 +95,7 @@ router.post('/loginattempt', function(req,res){
 
 
 function currentUserInventory(title, email, cb ){
-  collection.findOne({title: title, 'activeUsers.email': email }, {projection: { _id: 0, 'activeUsers.inventory': 1 }}, function(err, r ){
+  collection.findOne({title: title, activeUsers:{ $elemMatch:{email: email }}}, {projection: { _id: 0}}, function(err, r ){
     if(err) console.log(err);
     console.log('r user', r)
     if(r === null)
@@ -211,15 +211,7 @@ function updateRentInventory(title, inventory, email, res ){
   /*collection.find(query).toArray(function(err, r){
     console.log("r find: ", r);
   })*/
-  /*collection.updateOne({ title: title}, { $addToSet: { activeUsers: { email: email, inventory: inventory }}, $inc: { inventory: -inventory }},{ upsert: true },function(err, r){
-    if(err) console.log(err)
-    
-    console.log("r1 : ", r);
-
-    if(r.matchedCount == 1 && r.modifiedCount == 1)
-      title = title + ' inventory was updated to'+ ( - inventory ),
-      status = email + ' have ' + inventory + ' new copies',
-      inventoryStatus(title, status, res);*/
+  /**/
 
     
     collection.findOneAndUpdate( query ,{ 
@@ -231,8 +223,26 @@ function updateRentInventory(title, inventory, email, res ){
         console.log("r2 : ", r);
         
         if(r === null)
-          title = 'The available inventory is:' + inventory + ' for ' + title,
-          status = 'Please ask from : ' + email + ' to rduce the quantity or choose a difrent movie';
+          collection.updateOne({ title: title},
+          { $addToSet: { activeUsers: { email: email, inventory: inventory }},
+          $inc: { inventory: -inventory }},{ upsert: true },
+          function(err, r){
+          
+          if(err) console.log(err)
+        
+          console.log("r1 : ", r);
+      
+          if(r.matchedCount == 1 && r.modifiedCount == 1)
+            title = title + ' inventory was updated to'+ ( - inventory ),
+            status = email + ' have ' + inventory + ' new copies';
+
+          });
+
+
+            //inventoryStatus(title, status, res);
+
+          //title = 'The available inventory is:' + inventory + ' for ' + title,
+          //status = 'Please ask from : ' + email + ' to rduce the quantity or choose a difrent movie';
 
         else 
           title = title + ' inventory was updated to'+ ( r.value.inventory - inventory ),
