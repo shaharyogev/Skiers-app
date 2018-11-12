@@ -91,20 +91,26 @@ router.post('/loginattempt', function(req,res){
  });
 });
 
+db.movieslist.findOne({title:'1'},{activeUsers:{$elemMatch:{email:'1'}}})
+
 */
+//db.movieslist.findOne({title:'1'},{activeUsers:{$elemMatch:{email:'1'}}})
 
 
 function currentUserInventory(title, email, cb ){
-  collection.findOne({title: title, activeUsers:{ $elemMatch:{email: email }}}, {projection: { _id: 0}}, function(err, r ){
+  collection.findOne({title: title}, 
+  {_id:0 ,activeUsers:{ $elemMatch:{email:email }}},
+  function(err, r ){
     if(err) console.log(err);
-    console.log('r user', r)
+    console.log('r user inventory', r)
     if(r === null)
-      cb = 0;
+      cb = 0; 
     
     else
       cb = r.activeUsers[0].inventory,
       console.log('current user inventory is: ', cb);
-  });
+  
+});
 }
 
 
