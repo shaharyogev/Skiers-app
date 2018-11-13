@@ -20,6 +20,250 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
+
+
+
+function currentUserInventory(title, email, cb){
+  collection.findOne({title:title, activeUsers: { $elemMatch:{ email:email }}},{
+  projection: { _id:0, title:1, 'activeUsers.$.email':1}},
+  function(err, result ){
+    if(err) console.log(err);
+
+    let value  = 0;
+
+    if(result === null)
+      value = 0; 
+    
+    else
+      value = result.activeUsers[0].inventory,
+      console.log('current user inventory is: ', result.activeUsers[0].inventory );
+    
+    cb(null, value)
+}); 
+}
+
+
+
+
+function currentMovieInventory(title, cb){
+  collection.findOne({ title: title }, { projection: { _id: 0, inventory: 1 }},function(err, r){
+    if(err)
+      console.log(err)
+    
+    let value = 0;
+
+    if(r === null)
+      value = 0
+    
+    else
+      console.log('current movie inventory is: ',r.inventory ),
+      value = r.inventory;
+
+    cb(null, value)
+  
+  })
+}
+
+
+
+
+function inventoryStatus(title, status, res){
+
+  collection.find( {} ,{projection: {_id:0, title:1, inventory:1 }}).sort({ inventory: -1 }).limit(10).toArray(function(err, cb ){
+    if(err) console.log(err)
+    let moviesList = cb
+
+  collection.find( { 'activeUsers.inventory': { $gte: 1 }} ,{projection: {_id:0, activeUsers:1, title:1 }}).toArray(function(err,cb ){
+    if(err) console.log(err)
+    let usersList = cb
+    console.log('userList: ', usersList)
+  
+    res.render('movies',{movieslist: moviesList ,userslist: usersList, title: title, status: status});
+    })
+  })
+}
+
+
+
+
+function updateReturnedInventory(title, inventory, email, res){
+  let query = {};
+  let status = '';
+  let currentUserI = 0;
+  
+  if (title)
+    query.title = title
+
+  if (inventory)
+    inventory = parseInt(inventory, 10)
+  
+  if (email)
+    email = email.toLowerCase(),
+    query.activeUsers ={ $elemMatch:{email: email, inventory:{ $gte: inventory }}};
+    //currentUserInventory(title, email, currentUserI);
+
+  console.log('query return: ', query );
+
+  collection.findOneAndUpdate(query ,{
+    $inc:{'activeUsers.$.inventory': -inventory, inventory: inventory }},{
+    upsert: false },
+    function(err ,r){
+      if(err) console.log(err);
+
+      if(r.value == null)
+        currentUserInventory(title, email ,function(err,value){
+          title = 'The movie: ' + title + ' wasnt returnd to stock!',
+          status = 'The user: ' + email + ' cant return the amount of: ' + inventory + ' the current inventory for this user: ' + value;
+          inventoryStatus(title, status, res);
+      });
+        
+      if(r.value !== null )
+        title = 'The movie: ' + title + ' was returnd to stock, the current stock is: ' + (r.value.inventory + inventory),
+        status = 'The user: ' + email + ' returnd ' + inventory,
+        inventoryStatus(title, status, res);
+      
+      
+      console.log('r return: ', r);
+      console.log('r return value: ', r.value);
+
+      //inventoryStatus(title, status, res);
+    }
+  )
+}
+
+
+function updateRentInventory(title, inventory, email, res ){
+  let query = {};
+  let status = '';
+  let currentUserI =0;
+  let currentMovieI = 0;
+  
+  if (title)
+    query.title = title;
+
+  if (inventory)
+    inventory = parseInt(inventory, 10)
+    query.inventory = { $gte: inventory };
+  
+  if (email)
+    email = email.toLowerCase(),
+    query['activeUsers.email'] = email ,
+    console.log('query2: ', query );
+
+  collection.findOneAndUpdate( query ,{ 
+  $inc: { 'activeUsers.$.inventory': inventory, inventory: -inventory }},{
+  upsert: true },
+  function(err ,r){
+    if(err) console.log(err);
+
+    console.log("r2 : ", r);
+    
+    if(r === null)
+      collection.findOneAndUpdate({ title: title, inventory:{$gte: inventory}},{ 
+      $addToSet: { activeUsers: { email: email, inventory: inventory }},
+      $inc: { inventory: -inventory }},
+      function(err, r){
+      
+      if(err) console.log(err)
+    
+      console.log("r1 : ", r);
+
+      if(r.value !== null)
+        title = title + ' inventory was updated to'+  inventory ,
+        status = email + ' have ' + inventory + ' new copies',
+        inventoryStatus(title, status, res);  
+
+        
+      else
+      currentMovieInventory(title,function(err, value){
+        
+        currentMovieI = value;
+        title = title + ' inventory wasent updated, the corent inventory is: ' + currentMovieI,
+        status = email + ' can rent only: ' + currentMovieI + ' new copies',
+        inventoryStatus(title, status, res);  
+      })  
+    })
+
+    else 
+      title = title + ' inventory was updated to'+ ( r.value.inventory - inventory ),
+      status = email + ' have ' +( r.value.activeUsers[0].inventory + inventory ) + ' include the ' + inventory + ' new copies',
+      inventoryStatus(title, status, res);
+  })
+}
+
+
+
+
+function updateNewInventory(title, inventory, res ){
+  let query = {};
+  let status = '';
+  let currentMovieI = 0;
+  
+  if (title)
+    query.title = title;
+
+  if (inventory)
+    inventory = parseInt(inventory, 10);
+
+
+  currentMovieInventory(title, function(err,value){
+    
+    currentMovieI = value;
+
+    if((currentMovieI + inventory) <= 0 )
+      title = title + ' inventory was not update - inventory is too low',
+      status = 'The maximum inventory to raduse is: '+ currentMovieI,
+      inventoryStatus(title, status, res);
+
+
+    else
+      console.log("query new movie : ", query),
+      collection.findOneAndUpdate(query ,{ $inc: { inventory: inventory }}, { upsert: true }, function(err ,r){
+        if(err) console.log(err);
+        
+        console.log("r : ", r);
+
+        if(r == null)
+          title = 'The movie: ' + title + ' wasnt add to the Inventory!',
+          status = 'There was a problem'
+        
+        else if(r.value !== null )
+          title = title + ' inventory was updated successfuly',
+          status = 'The inventory is: ' + ( currentMovieI + inventory );  
+        
+        else if(r.lastErrorObject.upserted !== null )
+          title = title + ' is new, inventory updated successfuly',
+          status = 'The inventory is: ' + ( currentMovieI + inventory );  
+
+        inventoryStatus(title, status, res);
+      });
+  });
+}
+
+
+router.get('/movies', function(req, res){
+  inventoryStatus('This is the movies list','We got in stock: ', res);
+});
+
+router.post('/submitreturn', function(req, res){
+  updateReturnedInventory(req.body.title, req.body.inventory, req.body.email,res);
+});
+
+router.post('/submitrent', function(req, res){
+  updateRentInventory(req.body.title, req.body.inventory, req.body.email,res);
+});
+
+router.post('/addmovietodb', function(req, res){
+  updateNewInventory(req.body.title, req.body.inventory, res);
+});
+
+});
+module.exports = router;
+
+
+
+
+
 /*
 router.get('/users',function(req,res){
   console.log('users was calld ')
@@ -93,247 +337,8 @@ router.post('/loginattempt', function(req,res){
 
 db.movieslist.findOne({title:'1'},{activeUsers:{$elemMatch:{email:'1'}}})
 db.movieslist.findOne({title:'1'},{activeUsers:{$elemMatch:{email:'3'}},_id:0})
-*/
+
 //db.movieslist.findOne({title:'1'},{activeUsers:{$elemMatch:{email:'1'}}})
-
-
-function currentUserInventory(title, email, cb ){
-  collection.findOne({title:title, activeUsers: { $elemMatch:{ email:email }}},{
-  projection: { _id:0, title:1, 'activeUsers.$.email':1}},
-  function(err, result ){
-    if(err) console.log(err);
-
-    if(result === null)
-      cb = 0; 
-    
-    else
-      cb = result.activeUsers[0].inventory,
-      console.log('current user inventory is: ', cb);
-  
-});
-}
-
-function setTo(obj){
-  obj = obj
-}
-
-
-
-
-function currentMovieInventory(title, cb){
-  collection.findOne({ title: title }, { projection: { _id: 0, inventory: 1 }},function(err, r){
-    if(err)
-      console.log(err)
-
-    if(r === null)
-      return 0
-    
-    else
-      console.log('current movie inventory is: ',r.inventory )
-      return r.inventory
-  
-  })
-}
-
-
-
-
-function inventoryStatus(title, status, res){
-
-  collection.find( {} ,{projection: {_id:0, title:1, inventory:1 }}).sort({ inventory: -1 }).limit(10).toArray(function(err, cb ){
-    if(err) console.log(err)
-    let moviesList = cb
-
-  collection.find( { 'activeUsers.inventory': { $gte: 1 }} ,{projection: {_id:0, activeUsers:1, title:1 }}).toArray(function(err,cb ){
-    if(err) console.log(err)
-    let usersList = cb
-    console.log('userList: ', usersList)
-  
-    res.render('movies',{movieslist: moviesList ,userslist: usersList, title: title, status: status});
-    })
-  })
-}
-
-
-
-
-function updateReturnedInventory(title, inventory, email, res){
-  let query = {};
-  let status = '';
-  let currentUserI = 0;
-  
-  if (title)
-    query.title = title;
-
-  if (inventory)
-    inventory = parseInt(inventory, 10)
-    query['activeUsers.inventory'] = {$elemMatch: { $gte: inventory }};
-  
-  if (email)
-    query['activeUsers.email'] = email.toLowerCase(),
-    currentUserInventory(title, email, currentUserI);
-
-  console.log('query: ', query );
-
-  collection.findOneAndUpdate(query ,{
-    $inc:{'activeUsers.$.inventory': -inventory, inventory: inventory }},{
-    upsert: false },
-    function(err ,r){
-      if(err) console.log(err);
-
-      if(r.value == null)
-        title = 'The movie: ' + title + ' wasnt returnd to stock!',
-        status = 'The user: ' + email + ' cant return the amount of: ' + inventory + ' the current inventory for this user: ' + currentUserInventory(title, query['activeUsers.email'].email,currentUserI);
-
-      if(r.value !== null )
-        title = 'The movie: ' + title + ' was returnd to stock, the current stock is:' + (r.value.inventory + inventory),
-        status = 'The user: ' + email + ' returnd ' + inventory;
-      
-      
-      console.log('r: ', r);
-      console.log('r: ', r.value);
-
-      inventoryStatus(title, status, res);
-    }
-  )
-}
-
-
-function updateRentInventory(title, inventory, email, res ){
-  let query = {};
-  let status = '';
-  let currentUserI =0;
-  let currentMovieI = 0;
-  
-  if (title)
-    query.title = title;
-
-  if (inventory)
-    inventory = parseInt(inventory, 10)
-    query.inventory = { $gte: inventory },
-    currentUserInventory(title, email, currentUserI);
-  
-  if (email)
-    email = email.toLowerCase(),
-    query['activeUsers.email'] = email ,
-    console.log('query2: ', query );
-
-  collection.findOneAndUpdate( query ,{ 
-  $inc: { 'activeUsers.$.inventory': inventory, inventory: -inventory }},{
-  upsert: true },
-  function(err ,r){
-    if(err) console.log(err);
-
-    console.log("r2 : ", r);
-    
-    if(r === null)
-      collection.findOneAndUpdate({ title: title, inventory:{$gte: inventory}},{ 
-      $addToSet: { activeUsers: { email: email, inventory: inventory }},
-      $inc: { inventory: -inventory }},
-      function(err, r){
-      
-      if(err) console.log(err)
-    
-      console.log("r1 : ", r);
-
-      if(r.value !== null)
-        title = title + ' inventory was updated to'+  inventory ,
-        status = email + ' have ' + inventory + ' new copies',
-        inventoryStatus(title, status, res);  
-
-        
-      else
-        collection.findOne({ title: title }, { projection: { _id: 0, inventory: 1 }},function(err, r){
-          if(err)
-            console.log(err)
-      
-          if(r === null)
-          currentMovieI = 0
-          
-          else
-          currentMovieI = r.inventory;
-
-        title = title + ' inventory wasent updated, the corent inventory is: ' + currentMovieI,
-        status = email + ' can rent only: ' + currentMovieI + ' new copies',
-        inventoryStatus(title, status, res);  
-      })  
-    })
-
-    else 
-      title = title + ' inventory was updated to'+ ( r.value.inventory - inventory ),
-      status = email + ' have ' +( r.value.activeUsers[0].inventory + inventory ) + ' include the ' + inventory + ' new copies',
-      inventoryStatus(title, status, res);
-  })
-}
-
-
-
-
-function updateNewInventory(title, inventory, res ){
-  let query = {};
-  let status = '';
-  let currentMovieI = 0;
-  
-  if (title)
-    query.title = title;
-
-  if (inventory)
-    inventory = parseInt(inventory, 10),
-    currentMovieInventory(title, currentMovieI);
-
-  if( (currentMovieI + inventory) <= 0 )
-    title = title + ' inventory was not update - inventory is too low',
-    status = 'The maximum inventory to raduse is: '+ currentMovieI;
-
-
-  else
-    console.log("query new movie : ", query),
-    collection.findOneAndUpdate(query ,{ $inc: { inventory: inventory }}, { upsert: true }, function(err ,r){
-      if(err) console.log(err);
-      
-      console.log("r : ", r);
-
-      if(r == null)
-        title = 'The movie: ' + title + ' wasnt add to the Inventory!',
-        status = 'There was a problem'
-      
-      else if(r.value !== null )
-        title = title + ' inventory was updated successfuly',
-        status = 'The inventory is: ' + ( currentMovieI + inventory );  
-      
-      else if(r.lastErrorObject.upserted !== null )
-        title = title + ' is new, inventory updated successfuly',
-        status = 'The inventory is: ' + ( currentMovieI + inventory );  
-
-      inventoryStatus(title, status, res);
-    });
-  
-}
-
-
-router.get('/movies', function(req, res){
-  inventoryStatus('This is the movies list','We got in stock: ', res);
-});
-
-router.post('/submitreturn', function(req, res){
-  updateReturnedInventory(req.body.title, req.body.inventory, req.body.email,res);
-});
-
-router.post('/submitrent', function(req, res){
-  updateRentInventory(req.body.title, req.body.inventory, req.body.email,res);
-});
-
-router.post('/addmovietodb', function(req, res){
-  updateNewInventory(req.body.title, req.body.inventory, res);
-});
-
-});
-module.exports = router;
-
-
-
-
-/*
 router.post('/addmovietodb', function(req, res){
   let newMovieTitle = {title: req.body.title};
   let movieTitle = req.body.title;
@@ -389,7 +394,7 @@ router.post('/addmovietodb', function(req, res){
 
 
 
-/*
+
 
 router.post('/submitrent', function(req, res){
 
