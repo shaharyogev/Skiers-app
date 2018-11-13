@@ -32,15 +32,24 @@ function currentUserInventory(title, email, cb){
     let value  = 0;
 
     if(result === null)
-      value = 0; 
+      value = 0,
+      cb(null, value);
     
     else
-      value = result.activeUsers[0].inventory,
-      console.log('current user inventory is: ', result.activeUsers[0].inventory );
-    
-    cb(null, value)
+      value = result.activeUsers[0].inventory 
+      console.log('current user inventory is: ', result.activeUsers[0].inventory )
+      if(result.activeUsers[0].inventory === 0)
+        collection.findOneAndUpdate({ title: title, activeUsers:{ $elemMatch: {email: email, inventory:0}}},
+          { $pull: { activeUsers:{$in:{ email:email}},activeUsers:{ $eq:0}}},
+          function(err ,r){
+            if(err) console.log(err);
+
+            console.log('pull r: ', r)
+            cb(null, value)
+          });
 }); 
 }
+
 
 
 
@@ -69,13 +78,13 @@ function currentMovieInventory(title, cb){
 
 function inventoryStatus(title, status, res){
 
-  collection.find( {} ,{projection: {_id:0, title:1, inventory:1 }}).sort({ inventory: -1 }).limit(10).toArray(function(err, cb ){
+  collection.find( {} ,{projection: {_id:0, title:1, inventory:1 }}).sort({ inventory: -1 }).limit(10).toArray(function(err, result ){
     if(err) console.log(err)
-    let moviesList = cb
+    let moviesList = result
 
-  collection.find( { 'activeUsers.inventory': { $gte: 1 }} ,{projection: {_id:0, activeUsers:1, title:1 }}).toArray(function(err,cb ){
+  collection.find( { 'activeUsers.inventory': { $gte: 0 }} ,{projection: {_id:0, activeUsers:1, title:1 }}).toArray(function(err,result ){
     if(err) console.log(err)
-    let usersList = cb
+    let usersList = result
     console.log('userList: ', usersList)
   
     res.render('movies',{movieslist: moviesList ,userslist: usersList, title: title, status: status});
@@ -106,7 +115,7 @@ function updateReturnedInventory(title, inventory, email, res){
 
   collection.findOneAndUpdate(query ,{
     $inc:{'activeUsers.$.inventory': -inventory, inventory: inventory }},{
-    upsert: false },
+    upsert: false, returnNewDocument: true },
     function(err ,r){
       if(err) console.log(err);
 
@@ -118,10 +127,12 @@ function updateReturnedInventory(title, inventory, email, res){
       });
         
       if(r.value !== null )
+        currentUserInventory(title, email ,function(err,value){
         title = 'The movie: ' + title + ' was returnd to stock, the current stock is: ' + (r.value.inventory + inventory),
-        status = 'The user: ' + email + ' returnd ' + inventory,
+        status = 'The user: ' + email + ' returnd ' + inventory + 'his total inventory for now is: ' + value;
+
         inventoryStatus(title, status, res);
-      
+        });
       
       console.log('r return: ', r);
       console.log('r return value: ', r.value);
