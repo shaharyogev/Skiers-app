@@ -39,12 +39,12 @@ function currentUserInventory(title, email, cb){
       value = result.activeUsers[0].inventory 
       console.log('current user inventory is: ', result.activeUsers[0].inventory )
       if(result.activeUsers[0].inventory === 0)
-        collection.findOneAndUpdate({ title: title, activeUsers:{ $elemMatch: {email: email, inventory:0}}},
-          { $pull: { activeUsers:{$in:{ email:email}},activeUsers:{ $eq:0}}},
+        collection.updateOne({ title: title},
+          { $pull: { activeUsers:{ email:email, inventory:0}}},
           function(err ,r){
             if(err) console.log(err);
 
-            console.log('pull r: ', r)
+            console.log('pull r: ', r.result.nModified)
             cb(null, value)
           });
 }); 
