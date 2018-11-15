@@ -240,7 +240,7 @@ function updateNewInventory(title, inventory, res ){
 }
 
 
-function creatNewUser(name, email, password,cb){
+function creatNewUser(name, email, password, cb){
  if(name)
   name = name.toLowerCase;
   
@@ -258,42 +258,73 @@ function creatNewUser(name, email, password,cb){
   })
 }
 
+function newUserLogIn(err, result, email, name){
+  
+
+
+}
+
 
 function loginAttempt(email, password, cb){
   if (email)
     email = email.toLowerCase;
     
   if(password)
-    usersCollection.findOne({ email: email },{ projection: { _id:0, key:1 }},function(err, r ){
+    usersCollection.findOne({ email: email },{ projection: { _id:0, key:1 }}, function(err, r ){
     if(err) console.log(err.stack);
     
     if(r !== null)
-      console.log(r.key)
-      bcrypt.compare(password, r.key, function(err, response) {
+      console.log(r.key),
+      bcrypt.compare(password, r.key, function(err, cb) {
+        if(err) console.log(err);
       //console.log('bcrypt response: ', response)
-    
-      if(response){
-        usersCollection.updateOne({ email: email }, { $inc: { loginSuccessfully: + 1 },function(err, r){
+
+        usersCollection.updateOne({ email: email }, { $inc: { loginSuccessfully: + 1 }}, function(err, r){
           if(err) console.log(err);
           
           console.log('The password is corect');
           cb(err, email, password)
-        }})
+        })
+      });
       
     
-    }else{
-      usersCollection.updateOne( {email:email},{ $inc: { loginUnsuccessfully: + 1 },function(err, res){
+    else //login fail for regesterd user
+      usersCollection.updateOne( {email:email},{ $inc: { loginUnsuccessfully: + 1 }}, function(err, r){
         if(err) console.log(err.stack);
+
+        if(r === null)
+          console.log('The user is not regestered'),
+          cb(err, email, password);// the user is not regestered !
+          
+        else
+          console.log('The password is not corect'),
+          cb(err, email, password)// the password is not correct!
       //console.log('The password is not corect');
-      }})
-    } 
   })
  })
-
-
-
-
 }
+
+
+function userLogIn(err, email, res ){
+  console.log('The user: ' + email + ' is logdin successfuly')
+
+  collection.find({email:email}, {projection:{_id:0, 'activeUsers.$.email': 1, 'activeUsers.$.inventory':1, title:1 },function(err, r){
+    if(err) console.log(err)
+
+    if(r === null)
+      status = 'the user dont have any inventory in the movies lists',
+      res.render('users',{response: r, status:status});
+
+    else
+      status = 'Movis list for: ' + email,
+      res.render('users',{response: r, status:status});
+  }
+ })  
+}
+
+router.get('/login', function(req, res){
+  loginAttempt(email, password, userLogIn(err, email, res));
+});
 
 router.get('/movies', function(req, res){
   inventoryStatus('This is the movies list','We got in stock: ', res);
@@ -305,7 +336,7 @@ router.post('/submitreturn', function(req, res){
 
 router.post('/submitrent', function(req, res){
   updateRentInventory(req.body.title, req.body.inventory, req.body.email,res);
-});
+});-
 
 router.post('/addmovietodb', function(req, res){
   updateNewInventory(req.body.title, req.body.inventory, res);
