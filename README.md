@@ -47,6 +47,8 @@ The database is on port 27017 -
 http://localhost:27017/
 
 
+DropDown - https://codepen.io/ejsado/pen/dAtra
+
 Schema:
 db users
 collections:
@@ -63,6 +65,15 @@ movieslist
     movie name
     inventory status +-
     users email + inventory 
-    log
+    
+    dropdown bi - db querys
+        Most rented movies
+        The movie with the higest inventory
+        The movie with the lowst inventory
+        The user with the higest inventory
+        The user with the higest movies veraity 
+        Top 10 movies for rent
+        
+
 
 

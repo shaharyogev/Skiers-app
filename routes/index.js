@@ -6,6 +6,8 @@ const saltRounds = 10;
 const myPlaintextPassword = 's0/\/\P4$$w0rD';
 const someOtherPlaintextPassword = 'not_bacon';
 
+
+
 const MongoClient = mongodb.MongoClient;
 const usersdbUrl = 'mongodb://127.0.0.1:27017/usersdb';
 
@@ -258,11 +260,7 @@ function creatNewUser(name, email, password, cb){
   })
 }
 
-function newUserLogIn(err, result, email, name){
-  
-
-
-}
+//function newUserLogIn(err, result, email, name){}
 
 
 function loginAttempt(email, password, cb){
