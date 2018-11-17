@@ -74,12 +74,15 @@ function currentMovieInventory(title, cb ){
 }
 
 
+
+
 function inventoryStatus(title, status, res){
   collection.find( {} ,{ projection: { _id: 0, title: 1, inventory: 1 }}).sort({ inventory: -1 }).limit(10).toArray(function(err, result ){
     if(err) console.log(err)
     let moviesList = result;
+    
 
-  collection.find( { 'activeUsers.inventory': { $gte: 0 }} ,{projection: { _id: 0, activeUsers: 1, title: 1 }}).toArray(function(err, result ){
+  collection.find( { 'activeUsers.inventory': { $gte: 0 }} ,{projection: { _id: 0, 'activeUsers.email': 1, title: 1 }}).toArray(function(err, result ){
     if(err) console.log(err)
     let usersList = result
     //console.log('userList: ', usersList)
@@ -181,7 +184,7 @@ function updateRentInventory(title, inventory, email, res ){
       else
         currentMovieInventory(title, function(err, value){
         currentMovieI = value;
-        title = title + ' inventory wasent updated, the corent inventory is: ' + currentMovieI,
+        title = title + ' inventory wasent updated, the current inventory is: ' + currentMovieI,
         status = email + ' can rent only: ' + currentMovieI + ' new copies',
         inventoryStatus(title, status, res);  
       })  
@@ -280,7 +283,7 @@ function loginAttempt(email, password, cb){
         usersCollection.updateOne({ email: email }, { $inc: { loginSuccessfully: + 1 }}, function(err, r){
           if(err) console.log(err);
           
-          console.log('The password is corect');
+          console.log('The password is correct');
           cb(err, email, password)
         })
       });
@@ -295,9 +298,9 @@ function loginAttempt(email, password, cb){
           cb(err, email, password);// the user is not regestered !
           
         else
-          console.log('The password is not corect'),
+          console.log('The password is not correct'),
           cb(err, email, password)// the password is not correct!
-      //console.log('The password is not corect');
+      //console.log('The password is not correct');
   })
  })
 }
@@ -320,9 +323,121 @@ function userLogIn(err, email, res ){
  })  
 }
 
+
+//Querys: 
+
+
+function topTenMovies(title, status, res){
+  collection.find( {'activeUsers.inventory':{$gte:1}} ,{ projection: { _id: 0, title: 1, 'activeUsers.inventory':1 }}).sort({ 'activeUsers.$.inventory': -1 }).toArray(function(err, result ){
+    if(err) console.log(err);
+    let moviesList = [];
+
+    for(var index in result){
+      moviesList[result[index].title]
+      let currentMovieRented =0;
+
+      for(var indexb in result[index].activeUsers){
+        currentMovieRented += result[index].activeUsers[indexb].inventory 
+      }
+      moviesList[index] = {title: result[index].title , inventory:currentMovieRented }
+    }
+    moviesList.sort(function(a,b){return b.inventory - a.inventory })
+    
+    title = 'The top 10 most rented movies are:';
+    status = '';
+    
+    if(res)
+      res.render('movies', { movieslist: moviesList, userslist: [], title: title, status: status });
+    
+    else
+      return  moviesList
+  })
+}
+
+
+
+function topTenUsers(title, status, res){
+  collection.find( {'activeUsers.inventory':{$gte:1}} ,{ projection: { _id: 0, 'activeUsers.email':1, 'activeUsers.inventory':1 }}).toArray(function(err, result ){
+    if(err) console.log(err);
+    
+    let usersListObj = [];
+    let usersList = [];
+
+    console.log('Users list data: ', result)
+
+    for(var index in result)
+      for(var indexb in result[index].activeUsers)
+        usersListObj.push( result[index].activeUsers[indexb]);
+      
+    console.log('userListObj: ', usersListObj)
+
+    let temp =[];
+    let obj = null;
+    for(var i=0; usersListObj.length > i; i++){
+      obj = usersListObj[i]
+      console.log('obj', obj)
+
+      if(!temp[obj.email])
+        temp[obj.email] = obj;
+
+      else
+        temp[obj.email].inventory += obj.inventory;
+      
+        console.log('temp[obj.email]', temp)
+
+    }
+    
+    for(var prop in temp)
+      usersList.push(temp[prop]);
+    
+    usersList.sort(function(a,b){return b.inventory - a.inventory });
+    usersList.slice(0,10);
+    console.log('userList: ', usersList)
+
+    title = 'The top 10 active users:';
+    status = '';
+
+    
+    res.render('movies', { movieslist: [], userslist: usersList, title: status, status:  title });
+  })
+}
+
+
+function mostActiveUser(title, status, res){
+  collection.aggregate([{$unwind: '$activeUsers' }]).toArray(function(err, result){
+    if(err) console.log(err)
+
+    let temp =[];
+    let obj =null;
+
+    for(let i = 0; result.length>i; i++){
+      
+    }
+
+    console.log(result);
+  })
+  
+  //res.render('movies', { movieslist: [], userslist: usersList, title: status, status:  title });
+ 
+}
+
+router.get('/topTenMovies', function(req, res){
+  topTenMovies('','',res);
+});
+
+router.get('/topTenUsers', function(req, res){
+  topTenUsers('','',res);
+});
+
+router.get('/mostActiveUser', function(req, res){
+  mostActiveUser('','',res);
+});
+
 router.get('/login', function(req, res){
   loginAttempt(email, password, userLogIn(err, email, res));
 });
+
+
 
 router.get('/movies', function(req, res){
   inventoryStatus('This is the movies list','We got in stock: ', res);
@@ -404,14 +519,14 @@ router.post('/loginattempt', function(req,res){
     if(response){
       collectionu.updateOne( loginUser, { $inc: { loginSuccessfully: + 1 },function(err, res){
         if(err)throw err;
-        console.log('The password is corect');
+        console.log('The password is correct');
       }});
       res.render('userprofile', loginUser);
     
     }else{
     collectionu.updateOne( loginUser,{ $inc: { loginUnsuccessfully: + 1 },function(err, res){
       if(err) console.log(err.stack);
-      console.log('The password is not corect');
+      console.log('The password is not correct');
       }});
     } 
   });

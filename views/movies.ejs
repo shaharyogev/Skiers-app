@@ -12,16 +12,23 @@
             <input id='t1' type='checkbox' >
             <label for='t1'>BI Querys </label>
             <ul>
-              <li><a href='#'>Top Ten Movies </a></li>
-              <li><a href='#'>Top Ten Movies </a></li>
-              <li><a href='#'>Top Ten Movies </a></li>
+              <li><a method='get' action='/topTenMovies' href='/topTenMovies'>Top Ten Movies </a></li>
+              <li><a method='get' action='/topTenUsers' href='/topTenUsers'>Top Ten Users </a></li>
+              <li><a method='get' action='/mostActiveUser'href='/mostActiveUser' >Most Active User </a></li>
               <li><a href='#'>Top Ten Movies </a></li>
             </ul>
+
           </div>
         </nav>
         <div class='querysResults'>
+
+        <h2><%= title %></h2>
+        <h3><%= status %></h3>
+        <br>
+        </div>
+        <div class='querysResults'>
             <div class='topten'>
-          <h1>Movies list:</h1>
+          <h1><%= title %></h1>
           <ul>
           <% for( var index in movieslist ){  %>
           <li> Movie title:  <%= movieslist[index].title %>  Corent inventory: <%=movieslist[index].inventory %> </li>
@@ -29,20 +36,17 @@
         </ul>
       </div>
         <div class='topten'>
-        <h1>Users list:</h1>
+        <h1><%= status %></h1>
           <ul>
           <% for( var index in userslist ){  %>
-            <% for( var index2 in userslist[index].activeUsers ){  %>
-          <li> Movie Title rent:  <%= userslist[index].title %> User:  <%= userslist[index].activeUsers[index2].email %>  Corent inventory: <%=userslist[index].activeUsers[index2].inventory %>  </li>
-        <% }} %>
+            
+          <li> Users:  <%= userslist[index].email %>  Corent inventory: <%=userslist[index].inventory %>  </li>
+        <% } %>
         </ul>
         </div>
       </div> 
       <section>
-    <h1>Info:</h1>
-    <h2><%= title %></h2>
-    <h3><%= status %></h3>
-    <br>
+    
     <div class='form'>
     <h1>Rent a movie</h1>
     <form id='rentMovie' name='rentmovie' method='post' action='/submitrent'>

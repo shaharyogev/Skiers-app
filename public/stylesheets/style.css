@@ -1,5 +1,5 @@
 body {
-  padding: 50px;
+  padding: 30px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
   background-color:black;
   color:white;
@@ -16,10 +16,14 @@ a {
 
 }
 
+button{
+  border-radius: 2px;
+  box-shadow: 0 6px 5px -5px rgba(0,0,0,0.3);
+}
 .querysResults{
   margin-top: 30px;
-  background: rgb(94, 94, 94);
-  padding: 0 6px;
+  background: rgba(94, 94, 94, 0.548);
+  padding: 0 12px;
   box-shadow: 0 3px 5px rgba(0,0,0,0.15);
 }
 h2 {
@@ -38,23 +42,24 @@ p {
   font-size: 13px;
 }
 main {
-  margin: 50px auto;
+  margin: 20px auto;
 
 }
 section {
   margin-top: 30px;
-  background: rgb(70, 70, 70);
-  padding: 0 6px;
+  background: rgba(70, 70, 70, 0.609);
+  padding: 0 12px;
   box-shadow: 0 3px 5px rgba(0,0,0,0.15);
 }
 
 .dropdown {
-  width: 230px;
+
+  width: 190px;
   display: inline-block;
   margin-right: 10px;
   position: relative;
   z-index:1;
-  margin-top: 10px;
+  margin-top: 20px;
 }
 .dropdown.toggle > input {
   display: none;
