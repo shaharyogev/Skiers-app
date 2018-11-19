@@ -409,12 +409,26 @@ function mostActiveUser(title, status, res){
 
     let temp =[];
     let obj =null;
+    let userTemp = [];
+
 
     for(let i = 0; result.length>i; i++){
+      obj = result[i];
       
+      if(!temp[obj.activeUsers.email])
+        temp[obj.activeUsers.email] = {title: obj.title, inventory:obj.activeUsers.inventory }
+      
+      else
+        temp[obj.activeUsers.email] += {title: obj.title, inventory:obj.activeUsers.inventory }
+        //console.log('temp[obj.activeUsers.email: ',temp[obj.activeUsers.email]);
+
     }
 
-    console.log(result);
+    for(let index in temp){
+      userTemp.push(temp[index])
+      //console.log('userTemp ', index, ' : ', userTemp);
+    }
+    //console.log(result);
   })
   
   //res.render('movies', { movieslist: [], userslist: usersList, title: status, status:  title });
