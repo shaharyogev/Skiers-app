@@ -407,17 +407,20 @@ function mostActiveUser(title, status, res){
   collection.aggregate([{
     $unwind: '$activeUsers' },
     {$project:{_id:0, title:1, activeUsers:1}},
-    {$group:{_id: '$activeUsers.email',moviesCount:{'$sum':1}, inventoryCount:{'$sum': '$activeUsers.inventory'}, rentedMovies: { $push:{ titel:'$title', inventory:'$activeUsers.inventory'} }}}]).toArray(function(err, result){
+    {$group:{_id: '$activeUsers.email',moviesCount:{'$sum':1}, inventoryCount:{'$sum': '$activeUsers.inventory'}, rentedMovies: { $push:{ titel:'$title', inventory:'$activeUsers.inventory'}}}},
+    {$sort:{'inventoryCount':-1}},{$limit:1}]).toArray(function(err, result){
     if(err) console.log(err)
     
     console.log(result);
+    
     
     if(!result)
       res.render('movies',{title:'error',status:'errore',userslist:[],movieslist:[]});
     
     else
-      document.getElementById('title').innerHTML ='The most active user Is:'
-      //res.render('movies',{title:'The most active user Is: ',status:'', userslist: result.id })
+      usresList = {email:'email', inventory:'inventory'},
+      res.render('movies',{title:'The most active user Is: ',status:'',
+       userslist: result, movieslist: [] })
 
   })
   
