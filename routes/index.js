@@ -329,35 +329,28 @@ function userLogIn(err, email, res ){
 
 function topTenMovies(res){
 
-  /*collection.aggregate([
+  collection.aggregate([
     {$match:{'activeUsers.inventory': {$gte: 1 }}},
-    {$project: { _id: 0, title: 1, 'activeUsers.inventory'}}
-  ])*/
-  collection.find( {'activeUsers.inventory':{$gte:1}} ,{ projection: { _id: 0, title: 1, 'activeUsers.inventory':1 }}).sort({ 'activeUsers.$.inventory': -1 }).toArray(function(err, result ){
-    if(err) console.log(err);
+    {$project: { _id: 0, title: 1, 'activeUsers': 1 }},
+    {$unwind: '$activeUsers' },
+    {$group: { _id: '$title', rentedMovieInventory: { $sum: '$activeUsers.inventory'}}},
+    {$sort: {rentedMovieInventory: -1}},
+    {$limit: 10},
+  ]).toArray(function(err, result){
+    if(err)
+      res.render('movies', { moviesList:[], title: 'Top 10 rented movies: ', status: err });
+    
+    console.log('topTenMovies result: ', result)
     let moviesList = [];
-
-    for(var index in result){
-      moviesList[result[index].title]
-      let currentMovieRented =0;
-
-      for(var indexb in result[index].activeUsers){
-        currentMovieRented += result[index].activeUsers[indexb].inventory 
-      }
-      moviesList[index] = {title: result[index].title , inventory:currentMovieRented }
+    for(let index in result){
+      let temp = 'Movie title: ' + result[index]._id + ' Current rented inventory: ' + result[index].rentedMovieInventory;
+      moviesList.push(temp);
     }
-    moviesList.sort(function(a,b){return b.inventory - a.inventory })
     
-    title = 'The top 10 most rented movies are:';
-    status = '';
-    
-    if(res)
-      res.render('movies', { moviesList: moviesList, userslist: [], title: title, status: status });
-    
-    else
-      return  moviesList
+    res.render('movies', { moviesList: moviesList, title: 'Top 10 rented movies: ', status:'' });
   })
 }
+
 
 
 
