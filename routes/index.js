@@ -87,7 +87,7 @@ function inventoryStatus(title, status, res){
     let usersList = result
     //console.log('userList: ', usersList)
   
-    res.render('movies', { movieslist: moviesList, userslist: usersList, title: title, status: status });
+    res.render('movies', { moviesList: moviesList, userslist: usersList, title: title, status: status });
     })
   })
 }
@@ -327,7 +327,12 @@ function userLogIn(err, email, res ){
 //Querys: 
 
 
-function topTenMovies(title, status, res){
+function topTenMovies(res){
+
+  /*collection.aggregate([
+    {$match:{'activeUsers.inventory': {$gte: 1 }}},
+    {$project: { _id: 0, title: 1, 'activeUsers.inventory'}}
+  ])*/
   collection.find( {'activeUsers.inventory':{$gte:1}} ,{ projection: { _id: 0, title: 1, 'activeUsers.inventory':1 }}).sort({ 'activeUsers.$.inventory': -1 }).toArray(function(err, result ){
     if(err) console.log(err);
     let moviesList = [];
@@ -347,7 +352,7 @@ function topTenMovies(title, status, res){
     status = '';
     
     if(res)
-      res.render('movies', { movieslist: moviesList, userslist: [], title: title, status: status });
+      res.render('movies', { moviesList: moviesList, userslist: [], title: title, status: status });
     
     else
       return  moviesList
@@ -356,94 +361,68 @@ function topTenMovies(title, status, res){
 
 
 
-function topTenUsers(title, status, res){
-  collection.find( {'activeUsers.inventory':{$gte:1}} ,{ projection: { _id: 0, 'activeUsers.email':1, 'activeUsers.inventory':1 }}).toArray(function(err, result ){
-    if(err) console.log(err);
+function topTenUsers(res){
+  collection.aggregate([
+    {$match: { 'activeUsers.inventory': { $gte: 1 }}},
+    {$project: { _id: 0, 'activeUsers.email': 1, 'activeUsers.inventory': 1 }},
+    {$unwind: '$activeUsers' },
+    {$group: { _id: '$activeUsers.email', userInventorySum: { $sum: '$activeUsers.inventory' }}},
+    {$sort: { userInventorySum: -1 }},
+    {$limit: 10 }
+  ]).toArray(function(err, result){
     
-    let usersListObj = [];
-    let usersList = [];
-
-    console.log('Users list data: ', result)
-
-    for(var index in result)
-      for(var indexb in result[index].activeUsers)
-        usersListObj.push( result[index].activeUsers[indexb]);
-      
-    console.log('userListObj: ', usersListObj)
-
-    let temp =[];
-    let obj = null;
-    for(var i=0; usersListObj.length > i; i++){
-      obj = usersListObj[i]
-      console.log('obj', obj)
-
-      if(!temp[obj.email])
-        temp[obj.email] = obj;
-
-      else
-        temp[obj.email].inventory += obj.inventory;
-      
-        console.log('temp[obj.email]', temp)
-
+    if(err)
+      res.render('movies', { moviesList: [], userslist: [], title:'The top 10 active users:', status: err });
+    
+    console.log('topTenUsers result: ', result)
+    let usersList =[];
+    
+    for(let index in result){
+      let temp = 'Email: ' + result[index]._id + ' Currnt inventory: ' + result[index].userInventorySum
+      usersList.push(temp);
     }
     
-    for(var prop in temp)
-      usersList.push(temp[prop]);
-    
-    usersList.sort(function(a,b){return b.inventory - a.inventory });
-    usersList.slice(0,10);
-    console.log('userList: ', usersList)
-
-    title = 'The top 10 active users:';
-    status = '';
-
-    
-    res.render('movies', { movieslist: [], userslist: usersList, title: status, status:  title });
+    res.render('movies', { moviesList: usersList, title:'The top 10 active users:', status: '' });
   })
 }
 
 
-function mostActiveUser(title, status, res){
-  collection.aggregate([{
-    $unwind: '$activeUsers' },
-    {$project:{_id:0, title:1, activeUsers:1}},
-    {$group:{_id: '$activeUsers.email',moviesCount:{'$sum':1}, 
-    inventoryCount:{'$sum': '$activeUsers.inventory'}, 
-    rentedMovies: { $push:{email:'$activeUsers.email', title:'$title', inventory:'$activeUsers.inventory'}}}},
-    {$sort:{'inventoryCount':-1}},{$limit:1},
-    {$unwind:'$rentedMovies' }]).toArray(function(err, result){
-    if(err) console.log(err)
-    let usersList = [];
-    console.log(result);
+function mostActiveUser( res){
+  collection.aggregate([
+    {$unwind: '$activeUsers' },
+    {$project: { _id:0, title:1, activeUsers:1}},
+    {$group: { _id: '$activeUsers.email', moviesCount: { $sum: 1 }, 
+      inventoryCount: { '$sum': '$activeUsers.inventory' }, 
+      rentedMovies: { $push:{email:'$activeUsers.email', title:'$title', inventory:'$activeUsers.inventory' }}}},
+    {$sort: { 'inventoryCount': -1 }},
+    {$limit: 1 },
+    {$unwind: '$rentedMovies' }
+  ]).toArray(function(err, result){
+    
+    if(err) 
+      res.render('movies',{title:'The most active user Is: error',status: err ,moviesList:[]});
 
-    
-    
-    if(!result)
-      res.render('movies',{title:'The most active user Is: error',status:'errore',userslist:[],movieslist:[]});
-    
-    else{
-      for(let index in result){
-        let temp = 'Email: ' + result[index].rentedMovies.email + ' Title: ' + result[index].rentedMovies.title + ' Inventory: ' + result[index].rentedMovies.inventory;
-        usersList.push(temp)
-      }
-      
-      console.log('usersList:', usersList)
-      res.render('movies',{title:'The most active user Is: ',status:'',
-       userslist: usersList, movieslist: [] });
+    let usersList = []
+    for(let index in result){
+      let temp = 'Email: ' + result[index].rentedMovies.email + ' Title: ' + result[index].rentedMovies.title + ' Inventory: ' + result[index].rentedMovies.inventory;
+      usersList.push(temp)
     }
+    console.log(usersList)
+      
+    res.render('movies',{title:'The most active user Is: ',status: result[0].rentedMovies.email , moviesList: usersList });
   }) 
 }
 
 router.get('/topTenMovies', function(req, res){
-  topTenMovies('','',res);
+  topTenMovies(res);
 });
 
 router.get('/topTenUsers', function(req, res){
-  topTenUsers('','',res);
+  topTenUsers(res);
 });
 
 router.get('/mostActiveUser', function(req, res){
-  mostActiveUser('','',res);
+  mostActiveUser(res);
 });
 
 router.get('/login', function(req, res){

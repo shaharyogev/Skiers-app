@@ -21,29 +21,16 @@
           </div>
         </nav>
         <div class='querysResults'>
-
-        <h2 id='title'><%= title %></h2>
-        <h3><%= status %></h3>
-        <br>
-        </div>
-        <div class='querysResults'>
             <div class='topten'>
           <h1><%= title %></h1>
+          <h3><%= status %></h3>
           <ul>
-          <% for( var index in movieslist ){  %>
-          <li> Movie title:  <%= movieslist[index].title %>  Corent inventory: <%=movieslist[index].inventory %> </li>
+          <% for( var index in moviesList ){  %>
+          <li>  <%= moviesList[index]%> </li>
         <% } %>
         </ul>
       </div>
-        <div class='topten'>
-        <h1><%= status %></h1>
-          <ul>
-          <% for( var index in userslist ){  %>
-            
-          <li><%= userslist[index]%></li>
-        <% } %>
-        </ul>
-        </div>
+        
       </div> 
       <section>
     
