@@ -3,30 +3,31 @@
   <head>
     <title>Movies list</title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel='shortcut icon' href='/images/favicon.ico'/>
   </head>
   <body>
     <main>
-      <button><a href='movies'> Movies inventory</a></button>
       <nav>
-          <div class='dropdown toggle'>
-            <input id='t1' type='checkbox' >
-            <label for='t1'>BI Querys </label>
-            <ul>
-              <li><a method='get' action='/topTenMovies' href='/topTenMovies'>Top Ten Movies </a></li>
-              <li><a method='get' action='/topTenUsers' href='/topTenUsers'>Top Ten Users </a></li>
-              <li><a method='get' action='/mostActiveUser'href='/mostActiveUser' >Most Active User </a></li>
-              <li><a href='#'>Top Ten Movies </a></li>
-            </ul>
-
-          </div>
-        </nav>
-        <div class='querysResults'>
-            <div class='topten'>
-          <h1><%= title %></h1>
-          <h3><%= status %></h3>
+        <div class='dropdown toggle'>
+          <input id='t1' type='checkbox' >
+          <label for='t1'>BI Querys </label>
           <ul>
-          <% for( var index in moviesList ){  %>
-          <li>  <%= moviesList[index]%> </li>
+            <li><a method='get' action='/movies' href='/movies'>Movies In Stock </a></li>
+            <li><a method='get' action='/topTenMovies' href='/topTenMovies'>Top Ten Movies </a></li>
+            <li><a method='get' action='/topTenUsers' href='/topTenUsers'>Top Ten Users </a></li>
+            <li><a method='get' action='/mostActiveUser'href='/mostActiveUser' >Most Active User </a></li>
+            <li><a method='get' action='/topRentedMovie'href='/topRentedMovie' >Top Rented Movie </a></li>
+          </ul>
+
+        </div>
+      </nav>
+      <div class='querysResults'>
+          <div class='topten'>
+        <h1><%= title %></h1>
+        <h3><%= status %></h3>
+        <ul>
+        <% for( var index in moviesList ){  %>
+        <li>  <%= moviesList[index]%> </li>
         <% } %>
         </ul>
       </div>

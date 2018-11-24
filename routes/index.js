@@ -8,6 +8,7 @@ const someOtherPlaintextPassword = 'not_bacon';
 const MongoClient = mongodb.MongoClient;
 const usersdbUrl = 'mongodb://127.0.0.1:27017/usersdb';
 
+/*Start the Database connection: */
 
 MongoClient.connect( usersdbUrl, function(err, db){
   if(err) 
@@ -19,10 +20,6 @@ MongoClient.connect( usersdbUrl, function(err, db){
 
   
 /* Database creation functions: */
-
-
-
-
 
 
 function updateNewInventory(title, inventory, res ){
@@ -137,7 +134,7 @@ function updateReturnedInventory(title, inventory, email, res){
     email = email.toLowerCase(),
     query.activeUsers ={ $elemMatch:{email: email, inventory:{ $gte: inventory }}};
 
-  console.log('query return: ', query );
+  //console.log('query return: ', query );
 
   collection.findOneAndUpdate(query ,{
     $inc:{'activeUsers.$.inventory': -inventory, inventory: inventory }},{
@@ -177,7 +174,7 @@ function currentMovieInventory(title, cb ){
       value = 0;
     
     else
-      console.log('current movie inventory is: ',r.inventory ),
+      //console.log('current movie inventory is: ',r.inventory ),
       value = r.inventory;
 
     cb(null, value);
@@ -186,7 +183,7 @@ function currentMovieInventory(title, cb ){
 
 function currentUserInventory(title, email, cb ){
   collection.findOne({ title: title, activeUsers: { $elemMatch: { email: email }}},
-  { projection: { _id:0, title:1, 'activeUsers.$.email': 1 }},
+  { projection: { _id:0, title:1, 'activeUsers.$.email': 1, 'activeUsers.inventory':1 }},
   function(err, result ){
     if(err) 
       console.log(err);
@@ -197,7 +194,7 @@ function currentUserInventory(title, email, cb ){
       value = 0,
       cb(null, value);
     
-    else
+    else{
       value = result.activeUsers[0].inventory 
       console.log('current user inventory is: ', result.activeUsers[0].inventory )
       if( result.activeUsers[0].inventory === 0 )
@@ -210,9 +207,9 @@ function currentUserInventory(title, email, cb ){
           //console.log('pull r: ', r.result.nModified)
           cb(null, value);
         })
+      }
     })
 }
-
 
 
 
@@ -322,7 +319,7 @@ function userLogIn(err, email, res ){
 }
 
 
-/* Querys: */
+/* BI Querys: */
 
 
 function topTenMovies(res){
@@ -338,7 +335,7 @@ function topTenMovies(res){
     if(err)
       res.render('movies', { moviesList:[], title: 'Top 10 rented movies: ', status: err });
     
-    console.log('topTenMovies result: ', result)
+    //console.log('topTenMovies result: ', result)
     let moviesList = [];
     for(let index in result){
       let temp = 'Movie title: ' + result[index]._id + ' Current rented inventory: ' + result[index].rentedMovieInventory;
@@ -365,7 +362,7 @@ function topTenUsers(res){
     if(err)
       res.render('movies', { moviesList: [], userslist: [], title:'The top 10 active users:', status: err });
     
-    console.log('topTenUsers result: ', result)
+    //console.log('topTenUsers result: ', result)
     let usersList =[];
     
     for(let index in result){
@@ -398,11 +395,42 @@ function mostActiveUser( res){
       let temp = 'Email: ' + result[index].rentedMovies.email + ' Title: ' + result[index].rentedMovies.title + ' Inventory: ' + result[index].rentedMovies.inventory;
       usersList.push(temp)
     }
-    console.log(usersList)
+    //console.log(usersList)
       
     res.render('movies',{title:'The most active user Is: ',status: result[0].rentedMovies.email , moviesList: usersList });
   }) 
 }
+
+
+function topRentedMovie( res){
+  collection.aggregate([
+    {$unwind: '$activeUsers' },
+    {$project: { _id:0, title:1, activeUsers:1}},
+    {$group: { _id: '$title', usersCount: { $sum: 1 }, 
+      inventoryCount: { '$sum': '$activeUsers.inventory' }, 
+      users: { $push:{email:'$activeUsers.email', inventory:'$activeUsers.inventory' }}}},
+    {$sort: { 'inventoryCount': -1 }},
+    {$limit: 1 },
+    {$unwind: '$users' },
+    {$sort: {'users.inventory': -1}}
+  ]).toArray(function(err, result){
+    //console.log('topRentedMovie: ', result)
+    if(err) 
+      res.render('movies',{title:'The top rented movie Is: error',status: err ,moviesList:[]});
+
+    let usersList = []
+    for(let index in result){
+      let temp = 'Email: ' + result[index].users.email +  ' Inventory: ' + result[index].users.inventory;
+      usersList.push(temp)
+    }
+    //console.log(usersList)
+      
+    res.render('movies',{title:'The top rented movie Is: ',status: result[0]._id , moviesList: usersList });
+  }) 
+}
+
+
+
 
 
 
@@ -427,6 +455,11 @@ router.get('/mostActiveUser', function(req, res){
   mostActiveUser(res);
 });
 
+router.get('/topRentedMovie', function(req, res){
+  topRentedMovie(res);
+});
+
+
 router.get('/login', function(req, res){
   loginAttempt(email, password, userLogIn(err, email, res));
 });
@@ -434,7 +467,7 @@ router.get('/login', function(req, res){
 
 
 router.get('/movies', function(req, res){
-  inventoryStatus('This is the movies list','We got in stock: ', res);
+  inventoryStatus('Movies In Stock','Largest inventory: ', res);
 });
 
 router.post('/submitreturn', function(req, res){
