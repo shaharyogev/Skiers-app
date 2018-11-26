@@ -59,7 +59,7 @@ section {
   margin-right: 10px;
   position: relative;
   z-index:1;
-  margin-top: -23px;
+  margin-top: 2px;
 }
 .dropdown.toggle > input {
   display: none;
