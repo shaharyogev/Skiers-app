@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const http = require('http').Server(express);
 const mongodb = require('mongodb');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
@@ -7,6 +8,10 @@ const myPlaintextPassword = 's0/\/\P4$$w0rD';
 const someOtherPlaintextPassword = 'not_bacon';
 const MongoClient = mongodb.MongoClient;
 const usersdbUrl = 'mongodb://127.0.0.1:27017/usersdb';
+
+/*Start socket listenrs: */
+
+
 
 /*Start the Database connection: */
 
@@ -100,7 +105,6 @@ function updateRentedInventory(title, inventory, email, res ){
         title = title + ' inventory was updated to'+  inventory,
         status = email + ' have ' + inventory + ' new copies',
         inventoryStatus(title, status, res);  
-
         
       else
         currentMovieInventory(title, function(err, value){
