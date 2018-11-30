@@ -55,11 +55,8 @@ collections:
 userslist
     user name ~
     email ~
-    has ~
     movies
-    log
-    login sucsses ~
-    login faliur ~
+
 
 movieslist
     movie name
@@ -75,6 +72,8 @@ movieslist
         Top 10 movies for rent
         
         
+Socket.IO 
 
+npm install --save socket.io 
 
 

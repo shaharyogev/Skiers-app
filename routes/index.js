@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const http = require('http').Server(express);
 const mongodb = require('mongodb');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
@@ -8,9 +7,6 @@ const myPlaintextPassword = 's0/\/\P4$$w0rD';
 const someOtherPlaintextPassword = 'not_bacon';
 const MongoClient = mongodb.MongoClient;
 const usersdbUrl = 'mongodb://127.0.0.1:27017/usersdb';
-
-/*Start socket listenrs: */
-
 
 
 /*Start the Database connection: */
@@ -200,7 +196,7 @@ function currentUserInventory(title, email, cb ){
     
     else{
       value = result.activeUsers[0].inventory 
-      console.log('current user inventory is: ', result.activeUsers[0].inventory )
+      //console.log('current user inventory is: ', result.activeUsers[0].inventory )
       if( result.activeUsers[0].inventory === 0 )
         collection.updateOne({ title: title },
         { $pull: { activeUsers:{ email: email, inventory: 0 }}},
@@ -227,7 +223,7 @@ function inventoryStatus(title, status, res){
     if(err)
       res.render('movies', {moviesList:[], title:'No inventory in stock', status: err});
     
-    console.log('inventoryStatus result:', result)
+    //console.log('inventoryStatus result:', result)
     let moviesList = [];
     for(let index in result){
       let temp = 'Movie titel: ' + result[index].title + ' Avialebel inventory: ' + result[index].inventory;
