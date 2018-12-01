@@ -37,62 +37,65 @@
     
     <div class='form'>
     <h1>Rent a movie</h1>
-    <form id='rentMovie' name='rentmovie' method='post' action='/submitrent'>
+    <form id='rentMovie' name='rentmovie' method='post' action='/submitrent' onsubmit='return checkForm(id)'>
       <span>Movie title</span>
       <span>&nbsp;</span>
-      <input id='movieTitle' type='text' placeholder='Movie title' name='title'> 
+      <input id='movieTitle' type='text' placeholder='Movie title' name='title' required> 
       <br>
       <br>
       <span>Inventory</span>
       <span>&nbsp;</span>
-      <input id='titleInventory' type='number' placeholder='0-100'  name='inventory'> 
+      <input id='titleInventory' type='number' placeholder='0-100'  name='inventory' required> 
       <br>
       <br>
       <span>User Email</span>
       <span>&nbsp;</span>
-      <input id='userEmail' type='text' placeholder='Valid email' name='email'> 
+      <input id='userEmail' type='text' placeholder='Valid email' name='email' required> 
       <br>
       <br>
-      <button id='submitInventory' type='submit' > Sbumit</button>
+      <button id='submitInventory' type='submit' > Submit</button>
+      <span class='error'></span>
     </form>
     </div>
 
     <div class='form'>
     <h1>Return a movie</h1>
-    <form id='rentMovie' name='rentmovie' method='post' action='/submitreturn'>
+    <form id='rentMovie' name='rentmovie' method='post' action='/submitreturn' onsubmit='return checkForm(id)'>
       <span>Movie title</span>
       <span>&nbsp;</span>
-      <input id='movieTitle' type='text' placeholder='Movie title' name='title'> 
+      <input id='movieTitle' type='text' placeholder='Movie title' name='title' required> 
       <br>
       <br>
       <span>Inventory</span>
       <span>&nbsp;</span>
-      <input id='titleInventory' type='number' placeholder='0-100'  name='inventory'> 
+      <input id='titleInventory' type='number' placeholder='0-100'  name='inventory' required> 
       <br>
       <br>
       <span>User Email</span>
       <span>&nbsp;</span>
-      <input id='userEmail' type='text' placeholder='Valid email' name='email'> 
+      <input id='userEmail' type='text' placeholder='Valid email' name='email' required> 
       <br>
       <br>
-      <button id='submitInventory' type='submit' > Sbumit</button>
+      <button id='submitInventory' type='submit' > Submit</button>
+      <span class='error'></span>
     </form>
   </div>
 
     <div class='form'>
     <h1>Add / Remove a movie to the list</h1>
-    <form id='addMovie' name='addmovie' method='post' action='/addmovietodb'>
+    <form id='addMovie' name='addmovie' method='post' action='/addmovietodb' onsubmit='return checkForm(id)'>
       <span>Movie title</span>
       <span>&nbsp;</span>
-      <input id='movieTitle' type='text' placeholder='Movie title' name='title'> 
+      <input id='movieTitle' type='text' placeholder='Movie title' name='title' required> 
       <br>
       <br>
       <span>Inventory</span>
       <span>&nbsp;</span>
-      <input id='titleInventory' type='number' placeholder='0-100' name='inventory'> 
+      <input id='titleInventory' type='number' placeholder='0-100' name='inventory' required> 
       <br>
       <br>
-      <button id='submitInventory' type='submit' > Sbumit</button>
+      <button id='submitInventory' type='submit' > Submit</button>
+      <span class='error'></span>
     </form>
   </div>
   <br>
@@ -102,7 +105,28 @@
 </main>
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  var socket = io();
+  let socket = io();
+
+  function checkForm(id){
+    let formId = document.getElementById(id);
+    let titleTest = formId.querySelector('input[name="title"]').value;
+    let emailTest = formId.querySelector('input[name="email"]');
+    if(emailTest != undefined){
+      let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      let res =  re.test(String(emailTest.value).toLowerCase());
+      console.log('email is: '+ res);
+      formId.querySelector('.error').innerHTML = 'cant use this email: ' + res;
+    }
+    socket.emit('form data', titleTest);
+    if(titleTest === ' ' || titleTest === ''){
+      formId.querySelector('.error').innerHTML = 'cant use this movie title';
+      return false;
+    };
+  };
+
+
+
+
 </script>
   </body>
 </html>
