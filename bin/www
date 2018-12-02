@@ -43,6 +43,7 @@ io.on('connection', function(socket){
   
   socket.on('form data', function(d){
     console.log('form data: ' + d);
+    io.emit('form data' + d)
   });
   
   socket.on('disconnect', function(){
