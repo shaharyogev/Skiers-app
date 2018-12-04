@@ -21,6 +21,7 @@
 
         </div>
       </nav>
+      <button id='clicki'>  click</button>
       <div class='querysResults'>
           <div class='topten'>
         <h1><%= title %></h1>
@@ -105,6 +106,8 @@
 </main>
 <script src="/socket.io/socket.io.js"></script>
 <script>
+(function(){
+  
   let socket = io();
 
 function checkForm(id){
@@ -126,6 +129,14 @@ function checkForm(id){
   };
 };
 
+let submitClick = document.getElementById('clicki');
+submitClick.addEventListener('click', function(){
+  console.log('button was clicked')
+  socket.emit('submit', submitClick.id);
+  
+})
+
+
 socket.on('form data', function(d){
   let ul = document.getElementById('queryUl');
   let li = document.createElement('li');
@@ -134,7 +145,7 @@ socket.on('form data', function(d){
 });
 
 
-
+})();
 
 
 </script>

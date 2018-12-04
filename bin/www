@@ -45,6 +45,9 @@ io.on('connection', function(socket){
     console.log('form data: ' + d);
     io.emit('form data' + d)
   });
+  socket.on('submit', function(d){
+    console.log('button submit:' + d )
+  })
   
   socket.on('disconnect', function(){
     console.log('user disconnected');
