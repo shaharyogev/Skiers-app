@@ -102,13 +102,52 @@
   <br>
   <br>
 </section>
+
+<section>
+  <div id='chatLiveBox'>
+    <div id='chatMessages'>
+      <ul id='chatUl'>
+        <li>You got a message</li>
+      </ul>
+    </div>
+    <div id='chatInputDiv'>
+      <input id='chatInput' type='text' placeholde='Message:' required>
+      <button id='chatSend' type='button' >Send</button>
+    </div>
+  </div>
+</section>
   
 </main>
 <script src="/socket.io/socket.io.js"></script>
 <script>
+let socket = io();
+
+let chatSend = document.getElementById('chatSend');
+let message = document.getElementById('chatInput');
+let feedback = document.getElementById('chatUl');
+
+
+//Emit message
+function sendMessage(){
+  socket.emit('new message', {message: message.value })
+  console.log('message:', {message: message.value})
+}
+chatSend.addEventListener("click", sendMessage)
+
+socket.on('new message', function(d){
+
+let new_feedback = '<li class="chatMessage">' + d.message + '</li>';
+feedback.appendChild(new_feedback);
+  
+});
+
+
+
+
+
+
 (function(){
   
-  let socket = io();
 
 function checkForm(id){
   let formId = document.getElementById(id);
@@ -144,8 +183,10 @@ socket.on('form data', function(d){
   ul.appendChild(li)
 });
 
-
 })();
+
+
+  
 
 
 </script>
