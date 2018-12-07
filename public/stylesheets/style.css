@@ -140,3 +140,78 @@ section {
 .dropdown.hover:hover li:first-child, .dropdown.toggle > input:checked ~ ul li:first-child {
   padding-top: 15px;
 }
+
+
+
+#chatLiveBox{
+  position:fixed;
+  height: 30vh;
+  width: 30vw;
+  right:10%;
+  bottom:0;
+  background-color:rgba(92, 105, 105, 0.809);
+  transition:10ms ease;
+
+}
+#chatMinimize{
+  z-index:1;
+  position:absolute;
+  right: 0;
+  transition:10ms;
+
+}
+#chatMinimize:hover{
+
+  transition:10ms ease;
+
+}
+
+#chatMinimize:active > #chatMessages{
+  background-color:rgba(40, 228, 228, 0.959);
+  display:none;
+
+
+}
+
+
+
+#chatMessages{
+  position:absolute;
+  height:90%;
+  width:100%;
+  padding-top:1%;
+  padding-left:3%;
+  overflow-y:auto;
+  list-style:none;
+
+}
+#chatUl{
+  list-style:none;
+  display:inline;
+}
+
+.newMessageLi{
+}
+
+#chatInputDiv{
+  position: absolute;
+  height:9%;
+  width:100%;
+  bottom:2%;
+}
+
+#chatInput{
+  position:absolute;
+  height:100%;
+  width:80%;
+  padding:0;
+  border-width:0;
+}
+
+#chatSend{
+  position:absolute;
+  height:100%;
+  width:20%;
+  left:80%;
+  padding: 1px, 1px;
+}

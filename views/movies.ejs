@@ -21,7 +21,6 @@
 
         </div>
       </nav>
-      <button id='clicki'>  click</button>
       <div class='querysResults'>
           <div class='topten'>
         <h1><%= title %></h1>
@@ -105,6 +104,7 @@
 
 <section>
   <div id='chatLiveBox'>
+    <button id='chatMinimize'>_</button>
     <div id='chatMessages'>
       <ul id='chatUl'>
         <li>You got a message</li>
@@ -124,22 +124,37 @@ let socket = io();
 
 let chatSend = document.getElementById('chatSend');
 let message = document.getElementById('chatInput');
-let feedback = document.getElementById('chatUl');
+let chatUl = document.getElementById('chatUl');
+
 
 
 //Emit message
 function sendMessage(){
-  socket.emit('new message', {message: message.value })
-  console.log('message:', {message: message.value})
-}
-chatSend.addEventListener("click", sendMessage)
+  socket.emit('new message', {message: message.value });
+  console.log('message:', {message: message.value});
+  message.value = '';
+  
+};
+
+chatSend.addEventListener("click", sendMessage);
+message.addEventListener("keydown", function(e){
+  if(e.keyCode === 13){
+    sendMessage();
+  }
+});
+
 
 socket.on('new message', function(d){
-
-let new_feedback = '<li class="chatMessage">' + d.message + '</li>';
-feedback.appendChild(new_feedback);
-  
+  let newChatUl = document.createElement('li');
+  newChatUl.appendChild(document.createTextNode(d));
+  newChatUl.setAttribute('class', 'newMessageLi');
+  chatUl.appendChild(newChatUl);
+  let messages = chatUl.querySelectorAll('li');
+  let lastMessage = messages[messages.length-1];
+  lastMessage.scrollIntoView();
 });
+
+
 
 
 
@@ -168,12 +183,12 @@ function checkForm(id){
   };
 };
 
-let submitClick = document.getElementById('clicki');
-submitClick.addEventListener('click', function(){
+let submitClick = document.getElementById('submitInventory');
+submitClick.addEventListener("click", function(){
   console.log('button was clicked')
   socket.emit('submit', submitClick.id);
   
-})
+});
 
 
 socket.on('form data', function(d){

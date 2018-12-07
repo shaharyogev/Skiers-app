@@ -24,7 +24,7 @@ MongoClient.connect( usersdbUrl, function(err, db){
 
 
 function updateNewInventory(title, inventory, res ){
-  let query = {};
+let query = {};
   let status = '';
   let currentMovieI = 0;
   
