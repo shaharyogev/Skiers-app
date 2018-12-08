@@ -1,23 +1,99 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
-    <h1><%= title %></h1>
-    <form id='addUser' name='adduser' method='post' action='/loginattempt'>
+    <h1>Please Login</h1>
+    <form id='singIn' name='adduser' method='post' action='/loginattempt' onsubmit='return checkForm(id)'>
       <span>Email</span>
       <span>&nbsp;</span>
-      <input id='userEmail' type='text' placeholder='Valid email' name='email'> 
+      <input id='userEmail' type='text' placeholder='Valid email' name='email' required> 
       <br>
       <br>
       <span>Password</span>
       <span>&nbsp;</span>
-      <input id='userPassword' type='text' placeholder='Strong Password' name='password'> 
+      <input id='userPassword' type='text' placeholder='Strong Password' name='password' required> 
       <br>
       <br>
       <button id='submitUser' type='submit' > Sbumit</button>
+      <span class='error'></span>
     </form>
-  </body>
+    <h2>New User</h2>
+    <form id='addUser' name='adduser' method='post' action='/adduser'  onsubmit='return checkForm(id)'>
+      <span>Name</span>
+      <span>&nbsp;</span>
+      <input id='userName' type='text' placeholder='User name' name='name' required> 
+      <span class='errorName'></span>
+      <br>
+      <br>
+      <span>Email</span>
+      <span>&nbsp;</span>
+      <input id='userEmail' type='text' placeholder='Valid email' name='email' required> 
+      <span class='errorEmail'></span>
+      <br>
+      <br>
+      <span>Password</span>
+      <span>&nbsp;</span>
+      <input id='userPassword' type='text' placeholder='Strong Password' name='password' required> 
+      <span class='errorPassword'></span>
+      <br>
+      <br>
+      <button id='submitNewUser' type='submit' > Sbumit</button>
+    </form>
+ 
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+  
+  
+    let socket = io();
+    function checkForm(id){
+      let formId = document.getElementById(id);
+      let nameTest = formId.querySelector('input[name="name"]').value;
+      let emailTest = formId.querySelector('input[name="email"]');
+      let passwordTest = formId.querySelector('input[name="password"]').value;
+      let test = 0
+
+
+
+      
+      //validation - deactivated on testing
+      if(nameTest === ' ' || nameTest === ''){
+        formId.querySelector('.errorName').innerHTML = 'cant use this user name';
+        test++;
+      };
+       if(emailTest != undefined){
+        let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        let res =  re.test(String(emailTest.value).toLowerCase());
+        console.log('email is: '+ res);
+        if(!res){
+        formId.querySelector('.errorEmail').innerHTML = 'cant use this email, try a real one';
+        test++;
+        }
+      };
+      if(passwordTest === ' ' || passwordTest === ''){
+        formId.querySelector('.errorPassword').innerHTML = 'cant use this password';
+        test++;
+      };
+      if(test > 0 ){
+        test = 0;
+        return false;
+        }
+
+
+      socket.emit('form data', {nameTest, emailTest, passwordTest});
+
+      
+    };
+    
+    let submitClick = document.getElementById('submitNewUser');
+    submitClick.addEventListener("click", function(){
+      console.log('button was clicked')
+      socket.emit('submit', submitClick.id);
+    });
+    
+    
+    
+    </script>
+     </body>
 </html>

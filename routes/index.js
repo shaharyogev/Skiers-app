@@ -16,8 +16,8 @@ MongoClient.connect( usersdbUrl, function(err, db){
     console.log(err.stack);
 
   const mydb = db.db('usersdb');
-  const collection = mydb.collection('movieslist');
-  const usersCollection = mydb.collection('userslist');
+  const collection = mydb.collection('moviesList');
+  const usersCollection = mydb.collection('usersList');
 
   
 /* Database creation functions: */
@@ -237,87 +237,6 @@ function inventoryStatus(title, status, res){
 
 
 
-/* User login and creation: */
-
-
-function creatNewUser(name, email, password, cb){
- if(name)
-  name = name.toLowerCase;
-  
-  if(email)
-    email = email.toLowerCase;
-
-  if(password)
-    bcrypt.hash(password, saltRounds, function(err, hash) {
-    let nweUser ={name: name, email: email, key: hash};
-  
-    usersCollection.updateOne(newUser,newUser, function(err, result){
-      if(err) console.log(err.stack)
-      cb(err, result, email, name);
-    })
-  })
-}
-
-//function newUserLogIn(err, result, email, name){}
-
-
-function loginAttempt(email, password, cb){
-  if (email)
-    email = email.toLowerCase;
-    
-  if(password)
-    usersCollection.findOne({ email: email },{ projection: { _id:0, key:1 }}, function(err, r ){
-    if(err) console.log(err.stack);
-    
-    if(r !== null)
-      console.log(r.key),
-      bcrypt.compare(password, r.key, function(err, cb) {
-        if(err) console.log(err);
-      //console.log('bcrypt response: ', response)
-
-        usersCollection.updateOne({ email: email }, { $inc: { loginSuccessfully: + 1 }}, function(err, r){
-          if(err) console.log(err);
-          
-          console.log('The password is correct');
-          cb(err, email, password)
-        })
-      });
-      
-    
-    else //login fail for regesterd user
-      usersCollection.updateOne( {email:email},{ $inc: { loginUnsuccessfully: + 1 }}, function(err, r){
-        if(err) console.log(err.stack);
-
-        if(r === null)
-          console.log('The user is not regestered'),
-          cb(err, email, password);// the user is not regestered !
-          
-        else
-          console.log('The password is not correct'),
-          cb(err, email, password)// the password is not correct!
-      //console.log('The password is not correct');
-  })
- })
-}
-
-
-function userLogIn(err, email, res ){
-  console.log('The user: ' + email + ' is logdin successfuly')
-
-  collection.find({email:email}, {projection:{_id:0, 'activeUsers.$.email': 1, 'activeUsers.$.inventory':1, title:1 },function(err, r){
-    if(err) console.log(err)
-
-    if(r === null)
-      status = 'the user dont have any inventory in the movies lists',
-      res.render('users',{response: r, status:status});
-
-    else
-      status = 'Movis list for: ' + email,
-      res.render('users',{response: r, status:status});
-  }
- })  
-}
-
 
 /* BI Querys: */
 
@@ -432,6 +351,102 @@ function topRentedMovie( res){
 
 
 
+/* User login and creation: */
+
+
+function creatNewUser(name, email, password, res) {
+  if (name)
+    name = name.toLowerCase();
+
+  if (email)
+    email = email.toLowerCase();
+
+  if (password)
+    bcrypt.hash(password, saltRounds, function (err, hash) {
+
+      usersCollection.findOne({
+        email: email
+      }, function (err, r) {
+        if(err)console.log(err);
+        if(r == null){
+
+          usersCollection.insertOne({
+            userName: name,
+            email: email,
+            key: hash
+          }, function (err, r) {
+            if (err) console.log(err)
+
+            if (r !== null) {
+              if (r.result.n == 1) {
+                inventoryStatus('hellow new user', '', res)
+              }
+            } else {
+              console.log('newUser creation failed!');
+              res.render('login')
+            }
+          })
+        } else {
+          res.render('login')
+          //loginAttempt(email, password,res)
+        }
+      })
+    })
+}
+ 
+ //function newUserLogIn(err, result, email, name){}
+ 
+ 
+ function loginAttempt(email, password, res){
+   if (email)
+     email = email.toLowerCase();
+     
+   if(password)
+     usersCollection.findOne({ email: email },{ projection: { _id:0, key:1, userName:1 }}, function(err, findRes ){
+     if(err) console.log(err);
+     
+     if( findRes !== null){
+       bcrypt.compare(password, findRes.key, function(err, bcRes) {
+        if(err) console.log(err);
+        if(bcRes){
+         usersCollection.updateOne({ email: email }, { $inc: { loginSuccessfully: + 1 }},{upsert:true}, function(err, r){
+           if(err) console.log(err);
+           if(r.result.n == 1)
+            console.log('The password is correct'),
+            inventoryStatus('hellow ' + findRes.userName, '', res);
+         });
+        }else{
+          usersCollection.updateOne( {email:email},{ $inc: { loginUnsuccessfully: + 1 }},{upsert:true}, function(err, r){
+            if(err) console.log(err);
+            if(r.result.n == 1)
+            console.log('The password is incorrect'),
+            res.render('login');
+          });
+        }
+       });
+      }else 
+        res.render('login');
+  })
+ }
+ 
+ /*
+ function userLogIn(err, email, res ){
+   console.log('The user: ' + email + ' is logdin successfuly')
+ 
+   collection.find({email:email}, {projection:{_id:0, 'activeUsers.$.email': 1, 'activeUsers.$.inventory':1, title:1 },function(err, r){
+     if(err) console.log(err)
+ 
+     if(r === null)
+       status = 'the user dont have any inventory in the movies lists',
+       res.render('users',{response: r, status:status});
+ 
+     else
+       status = 'Movis list for: ' + email,
+       res.render('users',{response: r, status:status});
+   }
+  })  
+ }*/
+ 
 
 
 
@@ -459,11 +474,19 @@ router.get('/topRentedMovie', function(req, res){
   topRentedMovie(res);
 });
 
-
 router.get('/login', function(req, res){
-  loginAttempt(email, password, userLogIn(err, email, res));
+res.render('login');
 });
 
+router.post('/loginAttempt', function(req, res){
+  loginAttempt(req.body.email, req.body.password, res)
+})
+router.post('/addUser', function(req, res){
+  creatNewUser(req.body.name, req.body.email, req.body.password, res)
+})
+/*router.get('/login', function(req, res){
+  loginAttempt(email, password, userLogIn(err, email, res));
+});*/
 
 
 router.get('/movies', function(req, res){

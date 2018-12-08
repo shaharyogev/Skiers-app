@@ -8,6 +8,7 @@
   <body>
     <main>
       <nav>
+        <h2 id='userId'>user1</h2>
         <div class='dropdown toggle'>
           <input id='t1' type='checkbox' >
           <label for='t1'>BI Querys </label>
@@ -128,22 +129,23 @@
 </main>
 <script src="/socket.io/socket.io.js"></script>
 <script>
+//Chat
 let socket = io();
-
 let chatSend = document.getElementById('chatSend');
 let message = document.getElementById('chatInput');
 let chatUl = document.getElementById('chatUl');
+let userId = document.getElementById('userId');
 
 
-
-//Emit message
+//Emit message + acknowledgement
 function sendMessage(){
-  socket.emit('new message', {message: message.value });
-  console.log('message:', {message: message.value});
+  socket.emit('new message', {user: userId.innerText, message: message.value }, function(d){
+    console.log(d);
+  });
   message.value = '';
-  
 };
 
+//send message trigers
 chatSend.addEventListener("click", sendMessage);
 message.addEventListener("keydown", function(e){
   if(e.keyCode === 13){
@@ -151,10 +153,10 @@ message.addEventListener("keydown", function(e){
   }
 });
 
-
+//recive message and print to screen
 socket.on('new message', function(d){
   let newChatUl = document.createElement('li');
-  newChatUl.appendChild(document.createTextNode(d));
+  newChatUl.appendChild(document.createTextNode(d.user + ': ' + d.message ));
   newChatUl.setAttribute('class', 'newMessageLi');
   chatUl.appendChild(newChatUl);
   let messages = chatUl.querySelectorAll('li');
@@ -162,6 +164,7 @@ socket.on('new message', function(d){
   lastMessage.scrollIntoView();
 });
 
+//Forms
 (function(){
 function checkForm(id){
   let formId = document.getElementById(id);
