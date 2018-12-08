@@ -145,41 +145,56 @@ section {
 
 #chatLiveBox{
   position:fixed;
-  height: 30vh;
-  width: 30vw;
+  max-height: 25vh;
+  min-height:25vh;
+  width: 35vw;
   right:10%;
   bottom:0;
   background-color:rgba(92, 105, 105, 0.809);
-  transition:10ms ease;
+  transition:1000ms ease;
 
+}
+#chatLiveBox:target{
+  position:fixed;
+  max-height:30vh;
+  min-height:60px;
+  width: 35vw;
+  right:10%;
+  bottom:0;
+  background-color:rgba(92, 105, 105, 0.809);
+  transition:1000ms ease;
+
+}
+
+#chatButtons{
+  z-index:1;
+  position:fixed;
+  right:13%;
 }
 #chatMinimize{
-  z-index:1;
-  position:absolute;
-  right: 0;
   transition:10ms;
-
-}
-#chatMinimize:hover{
-
-  transition:10ms ease;
-
 }
 
-#chatMinimize:active > #chatMessages{
-  background-color:rgba(40, 228, 228, 0.959);
-  display:none;
-
-
+#chatEnlarge{ 
+  transition:10ms;
 }
-
-
 
 #chatMessages{
   position:absolute;
-  height:90%;
+  height:63%;
   width:100%;
-  padding-top:1%;
+  padding-top:0%;
+  padding-left:3%;
+  overflow-y:auto;
+  list-style:none;
+
+
+}
+#chatMessages:target{
+  position:absolute;
+  height:25vh;
+  width:100%;
+  padding-top:0%;
   padding-left:3%;
   overflow-y:auto;
   list-style:none;
@@ -188,6 +203,7 @@ section {
 #chatUl{
   list-style:none;
   display:inline;
+  padding:0;
 }
 
 .newMessageLi{
@@ -195,14 +211,15 @@ section {
 
 #chatInputDiv{
   position: absolute;
-  height:9%;
+  height:20px;
   width:100%;
-  bottom:2%;
+  bottom:0%;
 }
 
 #chatInput{
   position:absolute;
   height:100%;
+  
   width:80%;
   padding:0;
   border-width:0;

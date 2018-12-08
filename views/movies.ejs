@@ -103,18 +103,26 @@
 </section>
 
 <section>
+  
   <div id='chatLiveBox'>
-    <button id='chatMinimize'>_</button>
-    <div id='chatMessages'>
-      <ul id='chatUl'>
-        <li>You got a message</li>
-      </ul>
-    </div>
+    <div id='minimize'>
+      <div id='chatButtons'>
+        <a href='#chatMessages'><button id='chatEnlarge'>L</button></a>
+        <a href='#chatLiveBox'><button id='chatMinimize'>_</button></a>
+
+      </div>
+      <div id='chatMessages'>
+        <ul id='chatUl'>
+          <li>You got a message</li>
+        </ul>
+      </div>
+   </div>
+
     <div id='chatInputDiv'>
       <input id='chatInput' type='text' placeholde='Message:' required>
       <button id='chatSend' type='button' >Send</button>
     </div>
-  </div>
+</div>
 </section>
   
 </main>
@@ -154,16 +162,7 @@ socket.on('new message', function(d){
   lastMessage.scrollIntoView();
 });
 
-
-
-
-
-
-
-
 (function(){
-  
-
 function checkForm(id){
   let formId = document.getElementById(id);
   let titleTest = formId.querySelector('input[name="title"]').value;
@@ -187,9 +186,7 @@ let submitClick = document.getElementById('submitInventory');
 submitClick.addEventListener("click", function(){
   console.log('button was clicked')
   socket.emit('submit', submitClick.id);
-  
 });
-
 
 socket.on('form data', function(d){
   let ul = document.getElementById('queryUl');
@@ -197,12 +194,7 @@ socket.on('form data', function(d){
   li.appendChild(document.createTextNode(d));
   ul.appendChild(li)
 });
-
 })();
-
-
-  
-
 
 </script>
   </body>
