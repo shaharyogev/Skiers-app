@@ -214,7 +214,7 @@ function currentUserInventory(title, email, cb ){
 
 
 
-function inventoryStatus(title, status, res){
+function inventoryStatus(title, status, userId, res){
   collection.aggregate([
     {$project: { _id:0, title:1, inventory:1}},
     {$sort: { inventory: -1}},
@@ -229,7 +229,7 @@ function inventoryStatus(title, status, res){
       let temp = 'Movie titel: ' + result[index].title + ' Avialebel inventory: ' + result[index].inventory;
       moviesList.push(temp);
     }
-    res.render('movies', {moviesList:moviesList, title:title, status: status});
+    res.render('movies', {moviesList:moviesList, title:title, status: status, userId: userId});
 
   })
 }
@@ -413,7 +413,8 @@ function creatNewUser(name, email, password, res) {
            if(err) console.log(err);
            if(r.result.n == 1)
             console.log('The password is correct'),
-            inventoryStatus('hellow ' + findRes.userName, '', res);
+            getUserId(email, inventoryStatus('hellow ' + findRes.userName, '', '', res));
+            
          });
         }else{
           usersCollection.updateOne( {email:email},{ $inc: { loginUnsuccessfully: + 1 }},{upsert:true}, function(err, r){
@@ -429,26 +430,16 @@ function creatNewUser(name, email, password, res) {
   })
  }
  
- /*
- function userLogIn(err, email, res ){
-   console.log('The user: ' + email + ' is logdin successfuly')
- 
-   collection.find({email:email}, {projection:{_id:0, 'activeUsers.$.email': 1, 'activeUsers.$.inventory':1, title:1 },function(err, r){
-     if(err) console.log(err)
- 
-     if(r === null)
-       status = 'the user dont have any inventory in the movies lists',
-       res.render('users',{response: r, status:status});
- 
-     else
-       status = 'Movis list for: ' + email,
-       res.render('users',{response: r, status:status});
-   }
-  })  
- }*/
- 
 
-
+ function getUserId(email, cb){
+   usersCollection.findOne({email:email},{projection:{_id:0, userName:1}},function(err, r){
+    if(err) console.log(err)
+    if(r !== null){
+      console.log(r);
+      cb('', '', r.userName,'');
+    }
+   })
+ }
 
 /* Router requests: */
 
