@@ -379,7 +379,7 @@ function creatNewUser(name, email, password, res) {
 
             if (r !== null) {
               if (r.result.n == 1) {
-                inventoryStatus('hellow new user', '', res)
+                inventoryStatus('hello new user', '', res)
               }
             } else {
               console.log('newUser creation failed!');
@@ -413,7 +413,7 @@ function creatNewUser(name, email, password, res) {
            if(err) console.log(err);
            if(r.result.n == 1)
             console.log('The password is correct'),
-            getUserId(email, inventoryStatus('hellow ' + findRes.userName, '', '', res));
+            getUserId(email, 'hello ' + findRes.userName, '', '', res  );
             
          });
         }else{
@@ -431,12 +431,12 @@ function creatNewUser(name, email, password, res) {
  }
  
 
- function getUserId(email, cb){
+ function getUserId(email,title, status, userId, res ){
    usersCollection.findOne({email:email},{projection:{_id:0, userName:1}},function(err, r){
     if(err) console.log(err)
     if(r !== null){
       console.log(r);
-      cb('', '', r.userName,'');
+      inventoryStatus(title,status, r.userName, res);
     }
    })
  }
