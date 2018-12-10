@@ -54,9 +54,6 @@
       let passwordTest = formId.querySelector('input[name="password"]').value;
       let test = 0
 
-
-
-      
       //validation - deactivated on testing
       if(nameTest === ' ' || nameTest === ''){
         formId.querySelector('.errorName').innerHTML = 'cant use this user name';
@@ -78,12 +75,8 @@
       if(test > 0 ){
         test = 0;
         return false;
-        }
-
-
+      }
       socket.emit('form data', {nameTest, emailTest, passwordTest});
-
-      
     };
     
     let submitClick = document.getElementById('submitNewUser');
@@ -91,9 +84,7 @@
       console.log('button was clicked')
       socket.emit('submit', submitClick.id);
     });
-    
-    
-    
+
     </script>
      </body>
 </html>

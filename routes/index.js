@@ -7,6 +7,7 @@ const myPlaintextPassword = 's0/\/\P4$$w0rD';
 const someOtherPlaintextPassword = 'not_bacon';
 const MongoClient = mongodb.MongoClient;
 const usersdbUrl = 'mongodb://127.0.0.1:27017/usersdb';
+const session = require('express-session');
 
 
 /*Start the Database connection: */
@@ -379,7 +380,7 @@ function creatNewUser(name, email, password, res) {
 
             if (r !== null) {
               if (r.result.n == 1) {
-                inventoryStatus('hello new user', '', res)
+                inventoryStatus('hello new user', '',name, res)
               }
             } else {
               console.log('newUser creation failed!');
