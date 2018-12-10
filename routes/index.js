@@ -10,6 +10,11 @@ const usersdbUrl = 'mongodb://127.0.0.1:27017/usersdb';
 const session = require('express-session');
 
 
+router.use(session({
+  secret: 'ewerwerfisfjwklf4wf8294j28u349je8jghq8djhg1233',
+  cookie: {maxAge: 1000*60*60 }
+}))
+
 /*Start the Database connection: */
 
 MongoClient.connect( usersdbUrl, function(err, db){
@@ -446,7 +451,10 @@ function creatNewUser(name, email, password, res) {
 
 
 router.get('/', function(req, res, next ) {
-  res.render('index', { title: 'Express' });
+   let sessData = req.session;
+   sessData.test ='test';
+   res.send('test send')
+  //res.render('index', { title: 'Express' });
 });
 
 
