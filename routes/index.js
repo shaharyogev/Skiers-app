@@ -8,11 +8,15 @@ const someOtherPlaintextPassword = 'not_bacon';
 const MongoClient = mongodb.MongoClient;
 const usersdbUrl = 'mongodb://127.0.0.1:27017/usersdb';
 const session = require('express-session');
+const fileStore = require('session-file-store')(session);
 
 
 router.use(session({
-  secret: 'ewerwerfisfjwklf4wf8294j28u349je8jghq8djhg1233',
-  cookie: {maxAge: 1000*60*60 }
+  name: 'cookieTest',
+  secret: '1234',
+  resave: false,
+  saveUninitialized: false,
+  maxAge: 1000*60*60 
 }))
 
 /*Start the Database connection: */
@@ -452,10 +456,15 @@ function creatNewUser(name, email, password, res) {
 
 router.get('/', function(req, res, next ) {
    let sessData = req.session;
-   sessData.test ='test';
+   sessData.someAttribute ='test';
    res.send('test send')
   //res.render('index', { title: 'Express' });
 });
+
+router.get('/bar', function(req, res, next){
+  let someAttribute = req.session.someAttribute;
+  res.send('This will print the attribute I set erlier:' + someAttribute);
+})
 
 
 router.get('/topTenMovies', function(req, res){
@@ -479,6 +488,8 @@ res.render('login');
 });
 
 router.post('/loginAttempt', function(req, res){
+  res.session.userId = getUserId(req.body.email);
+  res.cookie.userId = res.session.userId;
   loginAttempt(req.body.email, req.body.password, res)
 })
 router.post('/addUser', function(req, res){
