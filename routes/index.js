@@ -461,6 +461,19 @@ router.get('/', function(req, res, next ) {
   //res.render('index', { title: 'Express' });
 });
 
+router.use(function(req, res, next){
+  console.log('Time:' + Date.now())
+  next()
+})
+
+router.use('/user/:id', function(req, res, next){
+  console.log('Requset URL:', req.params.id)
+  next()
+}, function(req, res, next){
+  console.log('Request type: ', req.method)
+  next()
+})
+
 router.get('/bar', function(req, res, next){
   let someAttribute = req.session.someAttribute;
   res.send('This will print the attribute I set erlier:' + someAttribute);
