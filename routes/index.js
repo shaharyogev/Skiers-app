@@ -8,16 +8,107 @@ const someOtherPlaintextPassword = 'not_bacon';
 const MongoClient = mongodb.MongoClient;
 const usersdbUrl = 'mongodb://127.0.0.1:27017/usersdb';
 const session = require('express-session');
-const fileStore = require('session-file-store')(session);
+const FileStore = require('session-file-store')(session);
 
+
+/* Session & ookies */
 
 router.use(session({
+
+  store:new FileStore({
+    path:'./session-store'
+  }),
+
   name: 'cookieTest',
   secret: '1234',
   resave: false,
   saveUninitialized: false,
-  maxAge: 1000*60*60 
-}))
+  cookie:{
+    maxAge:1000*60*60*24*365
+  }
+}));
+
+
+/* Router requests: */
+
+
+router.get('/', function(req, res, next ) {
+  if(!req.session.count){
+    req.session.count = 0;
+  }
+  req.session.count += 1;
+  res.json(req.session);
+ //res.render('index', { title: 'Express' });
+});
+
+router.use(function(req, res, next){
+ console.log('Time:' + Date.now())
+ next()
+})
+
+router.use('/user/:id', function(req, res, next){
+ console.log('Requset URL:', req.params.id)
+ next()
+}, function(req, res, next){
+ console.log('Request type: ', req.method)
+ next()
+})
+
+router.get('/bar', function(req, res, next){
+ let someAttribute = req.session.someAttribute;
+ res.send('This will print the attribute I set erlier:' + someAttribute);
+})
+
+
+router.get('/topTenMovies', function(req, res){
+ topTenMovies(res);
+});
+
+router.get('/topTenUsers', function(req, res){
+ topTenUsers(res);
+});
+
+router.get('/mostActiveUser', function(req, res){
+ mostActiveUser(res);
+});
+
+router.get('/topRentedMovie', function(req, res){
+ topRentedMovie(res);
+});
+
+router.get('/login', function(req, res){
+res.render('login');
+});
+
+router.post('/loginAttempt', function(req, res){
+ res.session.userId = getUserId(req.body.email);
+ res.cookie.userId = res.session.userId;
+ loginAttempt(req.body.email, req.body.password, res)
+})
+router.post('/addUser', function(req, res){
+ creatNewUser(req.body.name, req.body.email, req.body.password, res)
+})
+/*router.get('/login', function(req, res){
+ loginAttempt(email, password, userLogIn(err, email, res));
+});*/
+
+
+router.get('/movies', function(req, res){
+ inventoryStatus('Movies In Stock','Largest inventory: ', res);
+});
+
+router.post('/submitreturn', function(req, res){
+ updateReturnedInventory(req.body.title, req.body.inventory, req.body.email,res);
+});
+
+router.post('/submitrent', function(req, res){
+ updateRentedInventory(req.body.title, req.body.inventory, req.body.email,res);
+});-
+
+router.post('/addmovietodb', function(req, res){
+ updateNewInventory(req.body.title, req.body.inventory, res);
+});
+
 
 /*Start the Database connection: */
 
@@ -224,7 +315,7 @@ function currentUserInventory(title, email, cb ){
 
 
 
-function inventoryStatus(title, status, userId, res){
+function inventoryStatus(title, status,userId, res){
   collection.aggregate([
     {$project: { _id:0, title:1, inventory:1}},
     {$sort: { inventory: -1}},
@@ -451,83 +542,6 @@ function creatNewUser(name, email, password, res) {
    })
  }
 
-/* Router requests: */
-
-
-router.get('/', function(req, res, next ) {
-   let sessData = req.session;
-   sessData.someAttribute ='test';
-   res.send('test send')
-  //res.render('index', { title: 'Express' });
 });
 
-router.use(function(req, res, next){
-  console.log('Time:' + Date.now())
-  next()
-})
-
-router.use('/user/:id', function(req, res, next){
-  console.log('Requset URL:', req.params.id)
-  next()
-}, function(req, res, next){
-  console.log('Request type: ', req.method)
-  next()
-})
-
-router.get('/bar', function(req, res, next){
-  let someAttribute = req.session.someAttribute;
-  res.send('This will print the attribute I set erlier:' + someAttribute);
-})
-
-
-router.get('/topTenMovies', function(req, res){
-  topTenMovies(res);
-});
-
-router.get('/topTenUsers', function(req, res){
-  topTenUsers(res);
-});
-
-router.get('/mostActiveUser', function(req, res){
-  mostActiveUser(res);
-});
-
-router.get('/topRentedMovie', function(req, res){
-  topRentedMovie(res);
-});
-
-router.get('/login', function(req, res){
-res.render('login');
-});
-
-router.post('/loginAttempt', function(req, res){
-  res.session.userId = getUserId(req.body.email);
-  res.cookie.userId = res.session.userId;
-  loginAttempt(req.body.email, req.body.password, res)
-})
-router.post('/addUser', function(req, res){
-  creatNewUser(req.body.name, req.body.email, req.body.password, res)
-})
-/*router.get('/login', function(req, res){
-  loginAttempt(email, password, userLogIn(err, email, res));
-});*/
-
-
-router.get('/movies', function(req, res){
-  inventoryStatus('Movies In Stock','Largest inventory: ', res);
-});
-
-router.post('/submitreturn', function(req, res){
-  updateReturnedInventory(req.body.title, req.body.inventory, req.body.email,res);
-});
-
-router.post('/submitrent', function(req, res){
-  updateRentedInventory(req.body.title, req.body.inventory, req.body.email,res);
-});-
-
-router.post('/addmovietodb', function(req, res){
-  updateNewInventory(req.body.title, req.body.inventory, res);
-});
-
-});
 module.exports = router;
