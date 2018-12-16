@@ -75,5 +75,8 @@ movieslist
 Socket.IO 
 
 npm install --save socket.io 
+npm install --save express-validator
+https://express-validator.github.io/docs/index.html
+express-session
 
 

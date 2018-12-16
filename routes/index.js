@@ -9,16 +9,17 @@ const MongoClient = mongodb.MongoClient;
 const usersdbUrl = 'mongodb://127.0.0.1:27017/usersdb';
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
+const expressValidator = require('express-validator');
 
 
 /* Session & ookies */
 
 router.use(session({
-
+/*
   store:new FileStore({
     path:'./session-store'
   }),
-
+*/
   name: 'cookieTest',
   secret: '1234',
   resave: false,
@@ -27,6 +28,7 @@ router.use(session({
     maxAge:1000*60*60*24*365
   }
 }));
+
 
 
 /* Router requests: */
@@ -80,13 +82,33 @@ router.get('/login', function(req, res){
 res.render('login');
 });
 
+router.use(expressValidator());
+
 router.post('/loginAttempt', function(req, res){
- res.session.userId = getUserId(req.body.email);
- res.cookie.userId = res.session.userId;
- loginAttempt(req.body.email, req.body.password, res)
+ let name = req.body.name;
+ let email = req.body.email;
+ let password = req.body.password;
+
+ req.checkBody('name', 'Name is required').notEmpty();
+ req.checkBody('email', 'Name is required').notEmpty();
+ req.checkBody('email', 'Name is required').isEmail();
+ req.checkBody('password', 'Name is required').notEmpty();
+ 
+const errors = req.validationErrors();
+if(errors){
+  req.session.errors = errors;
+  res.redirect('/login');
+}else{
+  req.session.succes = true;
+  loginAttempt(req.body.email, req.body.password, res);
+
+}
+
 })
+
+
 router.post('/addUser', function(req, res){
- creatNewUser(req.body.name, req.body.email, req.body.password, res)
+  creatNewUser(req.body.name, req.body.email, req.body.password, res);
 })
 /*router.get('/login', function(req, res){
  loginAttempt(email, password, userLogIn(err, email, res));
