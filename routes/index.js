@@ -12,6 +12,18 @@ const FileStore = require('session-file-store')(session);
 const expressValidator = require('express-validator');
 
 
+/*Start the Database connection: */
+
+MongoClient.connect( usersdbUrl, function(err, db){
+  if(err) 
+    console.log(err.stack);
+
+  const mydb = db.db('usersdb');
+  const collection = mydb.collection('moviesList');
+  const usersCollection = mydb.collection('usersList');
+
+
+
 /* Session & ookies */
 
 router.use(session({
@@ -46,7 +58,8 @@ router.get('/', function(req, res, next ) {
 router.use(function(req, res, next){
  console.log('Time:' + Date.now())
  next()
-})
+});
+/*
 
 router.use('/user/:id', function(req, res, next){
  console.log('Requset URL:', req.params.id)
@@ -54,13 +67,13 @@ router.use('/user/:id', function(req, res, next){
 }, function(req, res, next){
  console.log('Request type: ', req.method)
  next()
-})
+});
 
 router.get('/bar', function(req, res, next){
  let someAttribute = req.session.someAttribute;
  res.send('This will print the attribute I set erlier:' + someAttribute);
 })
-
+*/
 
 router.get('/topTenMovies', function(req, res){
  topTenMovies(res);
@@ -85,31 +98,46 @@ res.render('login');
 router.use(expressValidator());
 
 router.post('/loginAttempt', function(req, res){
- let name = req.body.name;
  let email = req.body.email;
  let password = req.body.password;
 
- req.checkBody('name', 'Name is required').notEmpty();
- req.checkBody('email', 'Name is required').notEmpty();
- req.checkBody('email', 'Name is required').isEmail();
- req.checkBody('password', 'Name is required').notEmpty();
+ req.checkBody( 'email', 'Name is required').notEmpty();
+ req.checkBody( 'email', 'Name is required').isEmail();
+ req.checkBody( 'password', 'Name is required').notEmpty();
  
 const errors = req.validationErrors();
 if(errors){
   req.session.errors = errors;
   res.redirect('/login');
+  console.log('loginAttempt fail')
 }else{
   req.session.succes = true;
   loginAttempt(req.body.email, req.body.password, res);
-
 }
-
-})
+});
 
 
 router.post('/addUser', function(req, res){
+ let name = req.body.name;
+ let email = req.body.email;
+ let password = req.body.password;
+
+ req.checkBody( 'name', 'Name is required').notEmpty();
+ req.checkBody( 'email', 'Name is required').notEmpty();
+ req.checkBody( 'email', 'Name is required').isEmail();
+ req.checkBody( 'password', 'Name is required').notEmpty();
+ 
+const errors = req.validationErrors();
+if(errors){
+  req.session.errors = errors;
+  res.redirect('/login');
+  console.log('addUser fail')
+}else{
+  req.session.succes = true;
   creatNewUser(req.body.name, req.body.email, req.body.password, res);
-})
+}
+});
+
 /*router.get('/login', function(req, res){
  loginAttempt(email, password, userLogIn(err, email, res));
 });*/
@@ -131,16 +159,6 @@ router.post('/addmovietodb', function(req, res){
  updateNewInventory(req.body.title, req.body.inventory, res);
 });
 
-
-/*Start the Database connection: */
-
-MongoClient.connect( usersdbUrl, function(err, db){
-  if(err) 
-    console.log(err.stack);
-
-  const mydb = db.db('usersdb');
-  const collection = mydb.collection('moviesList');
-  const usersCollection = mydb.collection('usersList');
 
   
 /* Database creation functions: */
