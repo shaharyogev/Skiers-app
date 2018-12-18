@@ -10,6 +10,7 @@ const usersdbUrl = 'mongodb://127.0.0.1:27017/usersdb';
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 const expressValidator = require('express-validator');
+const cookieParser = require('cookie-parser');
 
 
 /*Start the Database connection: */
@@ -24,14 +25,16 @@ MongoClient.connect( usersdbUrl, function(err, db){
 
 
 
-/* Session & ookies */
-
-router.use(session({
+/* Session & cookies */
 /*
   store:new FileStore({
     path:'./session-store'
   }),
 */
+
+
+router.use(session({
+  key: 'user_id',
   name: 'cookieTest',
   secret: '1234',
   resave: false,
@@ -40,40 +43,55 @@ router.use(session({
     maxAge:1000*60*60*24*365
   }
 }));
+/*
+//clear cookie if session is over
+router.use((req, res, next) =>{
+  if (req.cookie.user_id && !req.session.user){
+    res.colarCookie('user_id');
+  }
+    next();
+});*/
 
+//chack if user is in session
+function sessionChecker(req, res, next){
+  if(req.session.user && req.cookie.user_id){
+    res.redirect('/movies');
+  }else{
+    next();
+  }
+}
+//router.use('/')
 
 
 /* Router requests: */
 
 
-router.get('/', function(req, res, next ) {
+router.get('/', sessionChecker,(req, res, next )=> {
   if(!req.session.count){
     req.session.count = 0;
   }
   req.session.count += 1;
-  res.json(req.session);
- //res.render('index', { title: 'Express' });
+  console.log(req.session.cookie);
+  res.render('login');
 });
 
 router.use(function(req, res, next){
  console.log('Time:' + Date.now())
  next()
 });
-/*
 
-router.use('/user/:id', function(req, res, next){
+
+router.use('/loginAttempt/:id', function(req, res, next){
  console.log('Requset URL:', req.params.id)
+ res.cookie('name',req.params.id)
  next()
 }, function(req, res, next){
  console.log('Request type: ', req.method)
  next()
 });
 
-router.get('/bar', function(req, res, next){
- let someAttribute = req.session.someAttribute;
- res.send('This will print the attribute I set erlier:' + someAttribute);
-})
-*/
+
+
 
 router.get('/topTenMovies', function(req, res){
  topTenMovies(res);
@@ -143,9 +161,11 @@ if(errors){
 });*/
 
 
-router.get('/movies', function(req, res){
- inventoryStatus('Movies In Stock','Largest inventory: ', res);
+router.get('/movies/', function(req, res){
+ inventoryStatus('Movies In Stock','Largest inventory: ','', res);
 });
+
+
 
 router.post('/submitreturn', function(req, res){
  updateReturnedInventory(req.body.title, req.body.inventory, req.body.email,res);
@@ -241,21 +261,21 @@ function updateRentedInventory(title, inventory, email, res ){
       if(r.value !== null)
         title = title + ' inventory was updated to'+  inventory,
         status = email + ' have ' + inventory + ' new copies',
-        inventoryStatus(title, status, res);  
+        inventoryStatus(title, status,'', res);  
         
       else
         currentMovieInventory(title, function(err, value){
         currentMovieI = value;
         title = title + ' inventory wasent updated, the current inventory is: ' + currentMovieI,
         status = email + ' can rent only: ' + currentMovieI + ' new copies',
-        inventoryStatus(title, status, res);  
+        inventoryStatus(title, status,'', res);  
       })  
     })
 
     else 
       title = title + ' inventory was updated to'+ ( r.value.inventory - inventory ),
       status = email + ' have ' +( r.value.activeUsers[0].inventory + inventory ) + ' copies include the ' + inventory + ' new copies',
-      inventoryStatus(title, status, res);
+      inventoryStatus(title, status,'', res);
   })
 }
 
@@ -287,7 +307,7 @@ function updateReturnedInventory(title, inventory, email, res){
         currentUserInventory( title, email ,function(err, value){
           title = 'The movie: ' + title + ' wasnt returnd to stock!',
           status = 'The user: ' + email + ' cant return the amount of: ' + inventory + ' the current inventory for this user: ' + value;
-          inventoryStatus(title, status, res);
+          inventoryStatus(title, status,'', res);
       });
         
       if(r.value !== null )
@@ -295,7 +315,7 @@ function updateReturnedInventory(title, inventory, email, res){
         title = 'The movie: ' + title + ' was returnd to stock, the current stock is: ' + (r.value.inventory + inventory),
         status = 'The user: ' + email + ' returnd ' + inventory + 'his total inventory for now is: ' + value;
 
-        inventoryStatus(title, status, res);
+        inventoryStatus(title, status,'', res);
         });
     }
   )
