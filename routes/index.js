@@ -66,7 +66,22 @@ function sessionChecker(req, res, next){
 /* Router requests: */
 
 
-router.get('/', sessionChecker,(req, res, next )=> {
+//test send params
+router.get('/', function(req, res, next){
+  res.render('index');
+})
+
+
+
+
+router.post('/indexTest/:id', function(req, res, next){
+  //res.send(req.params.id)
+  let id = res.body.email;
+  res.render('login', res.params.id)
+})
+
+
+router.get('/log', sessionChecker,(req, res, next )=> {
   if(!req.session.count){
     req.session.count = 0;
   }
@@ -390,6 +405,7 @@ function inventoryStatus(title, status,userId, res){
       let temp = 'Movie titel: ' + result[index].title + ' Avialebel inventory: ' + result[index].inventory;
       moviesList.push(temp);
     }
+    
     res.render('movies', {moviesList:moviesList, title:title, status: status, userId: userId});
 
   })

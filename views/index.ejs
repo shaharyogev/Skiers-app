@@ -1,14 +1,43 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= title %></title>
+    <title></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
+    <h1></h1>
+    <p>Welcome to</p>
     <button><a href='movies'> Movies inventory</a></button>
     <button><a href='login'> User Login</a></button>
+    <form id='singIn' name='adduser' method='post' action='/indexTest/' onsubmit='return test(id)'>
+      <span>Email</span>
+      <span>&nbsp;</span>
+      <input id='userEmail' type='text' placeholder='Valid email' name='email' required> 
+      <br>
+      <br>
+      <button id='submitUser' type='submit' > Sbumit</button>
+      <span class='error'></span>
+    </form> 
 
   </body>
+  <script>
+  function test (id){
+    let formName = document.getElementById('singIn');
+
+    let email = document.getElementById('userEmail');
+    let emailInput = formName.querySelector('input[name="email"]').value;
+    let stringTest = '/indexTest/' + emailInput ;
+    console.log(stringTest)
+    let replaceString = formName.querySelector('action');
+
+
+    let submitClick = document.getElementById('submitUser');
+
+    submitClick.addEventListener("click", function(){
+      console.log('button was clicked')
+      replaceString.value = stringTest
+    });
+    };
+ 
+  </script>
 </html>
