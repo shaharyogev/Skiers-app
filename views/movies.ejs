@@ -114,7 +114,7 @@
       </div>
       <div id='chatMessages'>
         <ul id='chatUl'>
-          <li>You got a message</li>
+          <li>Chet</li>
         </ul>
       </div>
    </div>
@@ -135,12 +135,12 @@ let socket = io();
 let chatSend = document.getElementById('chatSend');
 let message = document.getElementById('chatInput');
 let chatUl = document.getElementById('chatUl');
-let userId = document.getElementById('userId');
+const cookie = document.cookie;
 
 
 //Emit message + acknowledgement
 function sendMessage(){
-  socket.emit('new message', {user: userId.innerText, message: message.value }, function(d){
+  socket.emit('new message', {user: cookie, message: message.value }, function(d){
     console.log(d);
   });
   message.value = '';

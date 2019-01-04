@@ -1,5 +1,5 @@
 const express = require('express');
-const app = express.Router();
+const router = express.Router();
 const mongodb = require('mongodb');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
@@ -8,9 +8,36 @@ const someOtherPlaintextPassword = 'not_bacon';
 const MongoClient = mongodb.MongoClient;
 const usersdbUrl = 'mongodb://127.0.0.1:27017/usersdb';
 const session = require('express-session');
-const FileStore = require('session-file-store')(session);
+//const FileStore = require('session-file-store')(session);
 const expressValidator = require('express-validator');
-const cookieParser = require('cookie-parser');
+//const cookieParser = require('cookie-parser');
+
+var theServer = require('../bin/www');
+var io = theServer.getff(); 
+
+
+io.on('connection', function(socket){
+  console.log('a user connected');
+ 
+  
+  socket.on('form data', function(d){
+    console.log('form data: ' + d);
+    io.emit('form data' + d)
+  });
+  socket.on('new message', function(d, fn){
+    d.user
+    fn( + ' sent ' + d.message);
+    io.emit('new message', d)
+  console.log('user: ' + d.user + ' message: ' + d.message)
+  })
+  socket.on('submit', function(d){
+    console.log('button submit:' + d )
+  })
+  
+  socket.on('disconnect', function(){
+    console.log('user disconnected');
+  });
+});
 
 
 /*Start the Database connection: */
@@ -31,124 +58,76 @@ const usersCollection = mydb.collection('usersList');
 // Log user session to the cookie
 
 
-app.use(session({
+router.use(session({
   key: 'user_id',
-  name: 'cookieTest',
+  name: 'activeSession',
   secret: '1234',
   resave: false,
   saveUninitialized: false,
-  cookie: {
-    name: 'moviesInventory',
-    login: 'notInSession',
-    maxAge: 1000 * 60 * 60 * 24 * 365
-  }
 }));
-
-app.use((req, res, next)=>{
+/*
+router.use((req, res, next)=>{
   console.log(req.session)
   next();
 })
 
-
-/*
-
-//clear cookie if session is over
-app.use((req, res, next) =>{
-  if (req.cookie.user_id && !req.session.user){
-    res.colarCookie('user_id');
-  }
-    next();
-});*/
-
-//chack if user is in session
-function sessionChecker(req, res, next) {
-  if (req.session.user && req.cookie.user_id) {
-    res.redirect('/movies');
-  } else {
-    next();
-  }
-}
+*/
 
 
 /* Router requests: */
 
 
-app.get('/', function (req, res, next) {
+router.get('/', function (req, res, next) {
   res.render('login');
 })
-app.get('/:id',function(req, res, next){
-  if(req.session.succes){
+
+router.get('/:id',function(req, res, next){
+  if(req.session.succes)
     next();
-  }else{
-    res.render('login')
-  }
+  else
+    res.render('login');
 })
 
-
 /*
+//clear cookie if session is over
 
-
-app.post('/indexTest/:id', function (req, res, next) {
-  //res.send(req.params.id)
-  let id = res.body.email;
-  res.render('login', res.params.id)
-})
-
-
-app.get('/log', sessionChecker, (req, res, next) => {
-  if (!req.session.count) {
-    req.session.count = 0;
+router.use((req, res, next) =>{
+  if ( req.session.cookie && !req.session.succes){
+    res.clearCookie('moviesInventory');
+    console.log('moviesInventory cookie cleard')
   }
-  req.session.count += 1;
-  console.log(req.session.cookie);
-  res.render('login');
+    next();
 });
-*/
-/*
-app.use(function (req, res, next) {
-  console.log('Time:' + Date.now())
-  next()
-});
-*/
 /*
 
-app.use('/loginAttempt/:id', function (req, res, next) {
-  console.log('Requset URL:', req.params.id)
-  res.cookie('name', req.params.id)
-  next()
-}, function (req, res, next) {
-  console.log('Request type: ', req.method)
-  next()
-});
-*/
 
 
 /* Qureys */
 
 
-app.get('/topTenMovies', function (req, res) {
+router.get('/topTenMovies', function (req, res) {
   topTenMovies(res);
 });
 
-app.get('/topTenUsers', function (req, res) {
+router.get('/topTenUsers', function (req, res) {
   topTenUsers(res);
 });
 
-app.get('/mostActiveUser', function (req, res) {
+router.get('/mostActiveUser', function (req, res) {
   mostActiveUser(res);
 });
 
-app.get('/topRentedMovie', function (req, res) {
+router.get('/topRentedMovie', function (req, res) {
   topRentedMovie(res);
 });
 
-app.get('/login', function (req, res) {
+router.get('/login', function (req, res) {
   res.render('login');
 });
 
-app.use(expressValidator());
+router.use(expressValidator());
 
-app.post('/loginAttempt', function (req, res, next) {
+router.post('/loginAttempt', function (req, res,) {
   let email = req.body.email;
   let password = req.body.password;
 
@@ -162,13 +141,12 @@ app.post('/loginAttempt', function (req, res, next) {
     res.redirect('/login');
     console.log('loginAttempt fail')
   } else {
-    req.session.succes = true;
-    loginAttempt(req.body.email, req.body.password, res);
+    loginAttempt(req.body.email, req.body.password, req, res);
   }
 });
 
 
-app.post('/addUser', function (req, res) {
+router.post('/addUser', function (req, res) {
   let name = req.body.name;
   let email = req.body.email;
   let password = req.body.password;
@@ -184,31 +162,28 @@ app.post('/addUser', function (req, res) {
     res.redirect('/login');
     console.log('addUser fail')
   } else {
-    req.session.succes = true;
-    creatNewUser(req.body.name, req.body.email, req.body.password, res);
+    
+    creatNewUser(req.body.name, req.body.email, req.body.password, req, res);
   }
 });
 
-/*app.get('/login', function(req, res){
-  loginAttempt(email, password, userLogIn(err, email, res));
-});*/
 
 
-app.get('/movies/', function (req, res, next) {
+router.get('/movies/', function (req, res, next) {
   inventoryStatus('Movies In Stock', 'Largest inventory: ', '', res);
 });
 
 
 
-app.post('/submitreturn', function (req, res) {
+router.post('/submitreturn', function (req, res) {
   updateReturnedInventory(req.body.title, req.body.inventory, req.body.email, res);
 });
 
-app.post('/submitrent', function (req, res) {
+router.post('/submitrent', function (req, res) {
   updateRentedInventory(req.body.title, req.body.inventory, req.body.email, res);
 }); -
 
-app.post('/addmovietodb', function (req, res) {
+router.post('/addmovietodb', function (req, res) {
   updateNewInventory(req.body.title, req.body.inventory, res);
 });
 
@@ -700,7 +675,6 @@ function mostActiveUser(res) {
       let temp = 'Email: ' + result[index].rentedMovies.email + ' Title: ' + result[index].rentedMovies.title + ' Inventory: ' + result[index].rentedMovies.inventory;
       usersList.push(temp)
     }
-    //console.log(usersList)
 
     res.render('movies', {
       title: 'The most active user Is: ',
@@ -756,7 +730,6 @@ function topRentedMovie(res) {
       }
     }
   ]).toArray(function (err, result) {
-    //console.log('topRentedMovie: ', result)
     if (err)
       res.render('movies', {
         title: 'The top rented movie Is: error',
@@ -769,8 +742,6 @@ function topRentedMovie(res) {
       let temp = 'Email: ' + result[index].users.email + ' Inventory: ' + result[index].users.inventory;
       usersList.push(temp)
     }
-    //console.log(usersList)
-
     res.render('movies', {
       title: 'The top rented movie Is: ',
       status: result[0]._id,
@@ -785,7 +756,7 @@ function topRentedMovie(res) {
 /* User login and creation: */
 
 
-function creatNewUser(name, email, password, res) {
+function creatNewUser(name, email, password,req, res) {
   if (name)
     name = name.toLowerCase();
 
@@ -810,6 +781,7 @@ function creatNewUser(name, email, password, res) {
 
             if (r !== null) {
               if (r.result.n == 1) {
+                req.session.succes = true;
                 inventoryStatus('hello new user', '', name, res)
               }
             } else {
@@ -819,7 +791,6 @@ function creatNewUser(name, email, password, res) {
           })
         } else {
           res.render('login')
-          //loginAttempt(email, password,res)
         }
       })
     })
@@ -828,7 +799,7 @@ function creatNewUser(name, email, password, res) {
 //function newUserLogIn(err, result, email, name){}
 
 
-function loginAttempt(email, password, res) {
+function loginAttempt(email, password, req, res) {
   if (email)
     email = email.toLowerCase();
 
@@ -860,7 +831,8 @@ function loginAttempt(email, password, res) {
               if (err) console.log(err);
               if (r.result.n == 1)
                 console.log('The password is correct'),
-                getUserId(email, 'hello ' + findRes.userName, '', '', res);
+                req.session.succes = true,
+                getUserId(email, 'hello ' + findRes.userName, '', '', req, res);
 
             });
           } else {
@@ -886,7 +858,7 @@ function loginAttempt(email, password, res) {
 }
 
 
-function getUserId(email, title, status, userId, res) {
+function getUserId(email, title, status, userId, req, res) {
   usersCollection.findOne({
     email: email
   }, {
@@ -898,6 +870,11 @@ function getUserId(email, title, status, userId, res) {
     if (err) console.log(err)
     if (r !== null) {
       console.log(r);
+      req.session.cookie = {
+        name: 'moviesInventory',
+        userId: r.userName,
+        originalMaxAge: 1000 * 60 * 60 * 24 * 365
+      };
       inventoryStatus(title, status, r.userName, res);
     }
   })
@@ -905,4 +882,4 @@ function getUserId(email, title, status, userId, res) {
 
 });
 
-module.exports = app;
+module.exports = router;

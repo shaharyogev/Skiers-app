@@ -37,16 +37,21 @@ server.on('listening', onListening);
 
 
 var io = require('socket.io')(server);
-
+module.exports.getff = function() {
+  return io;
+}();
+/*
 io.on('connection', function(socket){
   console.log('a user connected');
+ 
   
   socket.on('form data', function(d){
     console.log('form data: ' + d);
     io.emit('form data' + d)
   });
   socket.on('new message', function(d, fn){
-    fn(d.user + ' sent ' + d.message);
+    d.user
+    fn( + ' sent ' + d.message);
     io.emit('new message', d)
   console.log('user: ' + d.user + ' message: ' + d.message)
   })
