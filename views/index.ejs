@@ -21,23 +21,27 @@
 
   </body>
   <script>
+  let formName = document.getElementById('singIn');
+  let replaceString = formName.querySelector('[action]');
+  
+  console.log('reaplaceString' + replaceString.value);
+  let email = document.getElementById('userEmail');
+  let stringT ='';
+  
   function test (id){
-    let formName = document.getElementById('singIn');
-
-    let email = document.getElementById('userEmail');
     let emailInput = formName.querySelector('input[name="email"]').value;
     let stringTest = '/indexTest/' + emailInput ;
-    console.log(stringTest)
-    let replaceString = formName.querySelector('action');
-
+    stringT = stringTest;
+    console.log(stringTest);    
+  };
 
     let submitClick = document.getElementById('submitUser');
 
     submitClick.addEventListener("click", function(){
-      console.log('button was clicked')
-      replaceString.value = stringTest
+      console.log('button was clicked');
+      replaceString = stringTest2;
+      console.log('replaceString' + replaceString)
     });
-    };
  
   </script>
 </html>
