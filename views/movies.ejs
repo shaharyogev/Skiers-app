@@ -37,7 +37,7 @@
     
     <div class='form'>
     <h1>Rent a movie</h1>
-    <form id='rentMovie' name='rentmovie'   onsubmit='return checkForm(id)'>
+    <form id='rentMovie' name='rentmovie' onsubmit='return checkForm(id)'>
       <span>Movie title</span>
       <span>&nbsp;</span>
       <input id='movieTitle' type='text' placeholder='Movie title' name='title' required> 
@@ -125,7 +125,8 @@
     </div>
 </div>
 </section>
-  
+<button type="button" onclick="sendData({test:'ok'})">Click Me!</button>
+
 </main>
 <script src="/socket.io/socket.io.js"></script>
 <script>
@@ -165,66 +166,36 @@ socket.on('new message', function(d){
   lastMessage.scrollIntoView();
 });
 
+
 function checkForm(id){
-  //event.preventDefault();
+  event.preventDefault();
   let formId = document.getElementById(id);
+  let formDataNode = formId.querySelectorAll('input');
+
+  //console.log( formDataNode)
   let formAction = formId.action;
-  console.log('the action = ' + formAction )
+  //console.log('the action = ' + formAction )
   let titleTest = formId.querySelector('input[name="title"]').value;
   let inventoryTest = formId.querySelector('input[name="inventory"]').value;
   let emailTest;
+
   if(formId.querySelector('input[name="email"]')){
     emailTest = formId.querySelector('input[name="email"]').value;
   }
+
   if(titleTest === ' ' || titleTest === ''){
     formId.querySelector('.error').innerHTML = ' cant use this movie title';
     return false;
+
   }else if (inventoryTest == 0 ){
     formId.querySelector('.error').innerHTML = ' the inventory cant be "0"';
     return false;
+
   }else{
-    let formData = "title="+titleTest+"&inventory="+inventoryTest+"&email="+emailTest;
-    postForm('/submitrent', formData);
+    postForm('/submitrent', formDataNode);
   }
 };
-  
-//Forms
-/*
-(function(){
-function checkForm(id){
-  let formId = document.getElementById(id);
-  let titleTest = formId.querySelector('input[name="title"]').value;
-  /* email validation - deactivated on testing.
-  let emailTest = formId.querySelector('input[name="email"]');
-  if(emailTest != undefined){
-    let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    let res =  re.test(String(emailTest.value).toLowerCase());
-    console.log('email is: '+ res);
-    formId.querySelector('.error').innerHTML = 'cant use this email: ' + res;
-  }
-  */
- /*
-  socket.emit('form data', titleTest);
-  if(titleTest === ' ' || titleTest === ''){
-    formId.querySelector('.error').innerHTML = 'cant use this movie title';
-    return false;
-  };
-};
 
-let submitClick = document.getElementById('submitInventory');
-submitClick.addEventListener("click", function(){
-  console.log('button was clicked')
-  socket.emit('submit', submitClick.id);
-});
-
-socket.on('form data', function(d){
-  let ul = document.getElementById('queryUl');
-  let li = document.createElement('li');
-  li.appendChild(document.createTextNode(d));
-  ul.appendChild(li)
-});
-})();
-*/
 function contentToView (json){
   obj = JSON.parse(json);
   let titleT = document.getElementById('title') 
@@ -282,28 +253,74 @@ function includeThisHTML(page) {
   }
 };
 
-function postForm(file, postData) {
-  let pagePath, elmnt, xhttp;
+function postForm(file,formDataNode) {
+  
+  let i, pagePath, elmnt, xhttp, formData;
+  formData = new FormData();
+  pagePath = file;
+  for( i in formDataNode){
+    formData.append( formDataNode[i].name , formDataNode[i].value );
+  };
   elmnt = document.getElementById("topten");
-  if (file) {
-    xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function () {
-      console.log('xhttps request state is:' + this.readyState)
-      if (this.readyState == 4) {
-        if (this.status == 200) {
-          console.log(this.responseText)
-          contentToView(this.responseText);
-        }
-        if (this.status == 404) {
-          elmnt.innerHTML = "Page not found."; //DEV
-        }
+
+  xhttp = new XMLHttpRequest();
+
+  xhttp.onreadystatechange = function () {
+    //console.log('xhttps request state is:' + this.readyState)
+    if (this.readyState == 4) {
+      if (this.status == 200) {
+        console.log(this.response);
+        contentToView(this.responseText);
+      }
+      if (this.status == 404) {
+        elmnt.innerHTML = "Page not found."; //DEV
       }
     }
-    xhttp.open("POST", file+postData, true);
-    xhttp.send();
-    return;
   }
+  xhttp.open('POST', pagePath, true);
+  xhttp.send(formData);
+  console.log(formData.get('title'));
+
 };
+
+  
+//Forms
+/*
+(function(){
+function checkForm(id){
+  let formId = document.getElementById(id);
+  let titleTest = formId.querySelector('input[name="title"]').value;
+  /* email validation - deactivated on testing.
+  let emailTest = formId.querySelector('input[name="email"]');
+  if(emailTest != undefined){
+    let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    let res =  re.test(String(emailTest.value).toLowerCase());
+    console.log('email is: '+ res);
+    formId.querySelector('.error').innerHTML = 'cant use this email: ' + res;
+  }
+  */
+ /*
+  socket.emit('form data', titleTest);
+  if(titleTest === ' ' || titleTest === ''){
+    formId.querySelector('.error').innerHTML = 'cant use this movie title';
+    return false;
+  };
+};
+
+let submitClick = document.getElementById('submitInventory');
+submitClick.addEventListener("click", function(){
+  console.log('button was clicked')
+  socket.emit('submit', submitClick.id);
+});
+
+socket.on('form data', function(d){
+  let ul = document.getElementById('queryUl');
+  let li = document.createElement('li');
+  li.appendChild(document.createTextNode(d));
+  ul.appendChild(li)
+});
+})();
+*/
 </script>
   </body>
 </html>

@@ -9,6 +9,10 @@ const MongoClient = mongodb.MongoClient;
 const usersdbUrl = 'mongodb://127.0.0.1:27017/usersdb';
 const session = require('express-session');
 const expressValidator = require('express-validator');
+const bodyParser = require('body-parser');
+
+
+
 
 
 
@@ -44,6 +48,9 @@ MongoClient.connect(usersdbUrl, function (err, db) {
     resave: false,
     saveUninitialized: false,
   }));
+
+
+ 
   /*
   router.use((req, res, next)=>{
     console.log(req.session)
@@ -162,8 +169,17 @@ MongoClient.connect(usersdbUrl, function (err, db) {
     updateReturnedInventory(req.body.title, req.body.inventory, req.body.email, res);
   });
 
-  router.post('/submitrent', function (req, res) {
-    updateRentedInventory(req.body.title, req.body.inventory, req.body.email, res);
+
+  let jsonParser = bodyParser.json();
+  let urlencodedParser = bodyParser.urlencoded({ extended: false });
+  router.post('/submitrent',urlencodedParser, function (req, res) {
+    let f  = req.body;
+    res.send({email: f.email})
+    //console.log(req.bodyParser);
+    
+    //topTenUsers(res);
+
+    //updateRentedInventory(req.body.title, req.body.inventory, req.body.email, res);
   });
 
   router.post('/addmovietodb', function (req, res) {
