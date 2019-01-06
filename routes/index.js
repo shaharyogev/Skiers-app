@@ -149,7 +149,6 @@ MongoClient.connect(usersdbUrl, function (err, db) {
     if (errors) {
       req.session.errors = errors;
       res.redirect('/login');
-      console.log('addUser fail')
     } else {
 
       creatNewUser(req.body.name, req.body.email, req.body.password, req, res);
@@ -346,7 +345,6 @@ MongoClient.connect(usersdbUrl, function (err, db) {
 
         if (r.value === null) {
           currentUserInventory(title, email, function (err, value) {
-            console.log(value);
             title = 'The movie: ' + title + ' wasnt returnd to stock!',
               status = 'The user: ' + email + ' cant return the amount of: ' + inventory + ' the current inventory for this user: ' + value;
             inventoryStatus(title, status, '', res);
@@ -354,7 +352,6 @@ MongoClient.connect(usersdbUrl, function (err, db) {
         }
         if (r.value !== null) {
           currentUserInventory(title, email, function (err, value) {
-            console.log(value);
             title = 'The movie: ' + title + ' was returnd to stock, the current stock is: ' + (r.value.inventory + inventory),
               status = 'The user: ' + email + ' returnd ' + inventory + 'his total inventory for now is: ' + value;
 
@@ -387,7 +384,6 @@ MongoClient.connect(usersdbUrl, function (err, db) {
         value = 0;
 
       else
-        //console.log('current movie inventory is: ',r.inventory ),
         value = r.inventory;
 
       cb(null, value);
@@ -876,10 +872,8 @@ MongoClient.connect(usersdbUrl, function (err, db) {
                 if (r.result.n == 1) {
                   req.session.succes = true;
                   inventoryStatusInLogin('hello new user', '', name, res);
-                  //inventoryStatus('hello new user', '', name, res);
                 }
               } else {
-                console.log('newUser creation failed!');
                 res.render('login')
               }
             })
@@ -924,7 +918,6 @@ MongoClient.connect(usersdbUrl, function (err, db) {
               }, function (err, r) {
                 if (err) console.log(err);
                 if (r.result.n == 1)
-                  console.log('The password is correct'),
                   req.session.succes = true,
                   getUserName(email, 'hello ' + findRes.userName, '', '', req, res);
 
@@ -962,7 +955,6 @@ MongoClient.connect(usersdbUrl, function (err, db) {
     }, function (err, r) {
       if (err) console.log(err)
       if (r !== null) {
-        console.log(r);
         req.session.cookie = {
           name: 'moviesInventory',
           userName: r.userName,

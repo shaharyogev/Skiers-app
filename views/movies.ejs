@@ -125,7 +125,6 @@
     </div>
 </div>
 </section>
-<button type="button" onclick="sendData({test:'ok'})">Click Me!</button>
 
 </main>
 <script src="/socket.io/socket.io.js"></script>
@@ -228,30 +227,19 @@ function includeThisHTML(page) {
   }
 
   if (file) {
-    /*make an HTTP request using the attribute value as the file name:*/
     xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
-      console.log('xhttps request state is:' + this.readyState)
-
       if (this.readyState == 4) {
         if (this.status == 200) {
-          //console.log(this.responseText)
           contentToView(this.responseText);
-          //elmnt.innerHTML = this.responseText;
         }
         if (this.status == 404) {
           elmnt.innerHTML = "Page not found."; //DEV
-          //includeThisHTML(homePageDynamicContent)//PRODUCTION
         }
       }
     }
     xhttp.open("GET", file, true);
     xhttp.send();
-    /*z = {
-      shahary: page
-    };
-    history.pushState(z, z, pagePath );
-    /*exit the function:*/
     return;
   }
 };
@@ -269,7 +257,6 @@ function postForm(file,formDataNode) {
   xhttp = new XMLHttpRequest();
 
   xhttp.onreadystatechange = function () {
-    //console.log('xhttps request state is:' + this.readyState)
     if (this.readyState == 4) {
       if (this.status == 200) {
         console.log(this.response);
