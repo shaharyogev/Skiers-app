@@ -5,7 +5,7 @@
   </head>
   <body>
     <h1>Please Login</h1>
-    <form id='singIn' name='adduser' method='post' action='/loginattempt' onsubmit='return checkForm(id)'>
+    <form id='singIn'  method='post' action='/user' onsubmit='return checkForm(id)'>
       <span>Email</span>
       <span>&nbsp;</span>
       <input id='userEmail' type='text' placeholder='Valid email' name='email' required> 
@@ -20,7 +20,7 @@
       <span class='error'></span>
     </form>
     <h2>New User</h2>
-    <form id='addUser' name='adduser' method='post' action='/adduser'  onsubmit='return checkForm(id)'>
+    <form id='addUser'  method='post' action='/adduser'  onsubmit='return checkForm(id)'>
       <span>Name</span>
       <span>&nbsp;</span>
       <input id='userName' type='text' placeholder='User name' name='name' required> 
@@ -50,7 +50,9 @@
     let socket = io();
     function checkForm(id){
       let formId = document.getElementById(id);
-      let nameTest = formId.querySelector('input[name="name"]').value;
+      if(formId.querySelector('input[name="name"]').value)
+        let nameTest = formId.querySelector('input[name="name"]').value;
+      
       let emailTest = formId.querySelector('input[name="email"]');
       let passwordTest = formId.querySelector('input[name="password"]').value;
       let test = 0

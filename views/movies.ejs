@@ -8,24 +8,23 @@
   <body>
     <main>
       <nav>
-        <h2 id='userId'></h2>
         <div class='dropdown toggle'>
           <input id='t1' type='checkbox' >
           <label for='t1'>BI Querys </label>
           <ul>
-            <li><a method='get' action='/movies' href='/movies'>Movies In Stock </a></li>
-            <li><a method='get' action='/topTenMovies' href='/topTenMovies'>Top Ten Movies </a></li>
-            <li><a method='get' action='/topTenUsers' href='/topTenUsers'>Top Ten Users </a></li>
-            <li><a method='get' action='/mostActiveUser'href='/mostActiveUser' >Most Active User </a></li>
-            <li><a method='get' action='/topRentedMovie'href='/topRentedMovie' >Top Rented Movie </a></li>
+            <li><a type='button' method='get' action='/movies' onclick="includeThisHTML('/movies')">Movies In Stock </a></li>
+            <li><a type='button' method='get' action='/topTenMovies' onclick="includeThisHTML('/topTenMovies')">Top Ten Movies </a></li>
+            <li><a type='button' method='get' action='/topTenUsers' onclick="includeThisHTML('/topTenUsers')">Top Ten Users </a></li>
+            <li><a type='button' method='get' action='/mostActiveUser'onclick="includeThisHTML('/mostActiveUser')" >Most Active User </a></li>
+            <li><a type='button' method='get' action='topRentedMovie' onclick="includeThisHTML('/topRentedMovie')">Top Rented Movie </a></li>
           </ul>
 
         </div>
       </nav>
       <div class='querysResults'>
-          <div class='topten'>
-        <h1><%= title %></h1>
-        <h3><%= status %></h3>
+          <div id='topten' class='topten'>
+        <h1 id='title'><%= title %></h1>
+        <h3 id='status'><%= status %></h3>
         <ul id='queryUl'>
         <% for( var index in moviesList ){  %>
         <li>  <%= moviesList[index]%> </li>
@@ -38,7 +37,7 @@
     
     <div class='form'>
     <h1>Rent a movie</h1>
-    <form id='rentMovie' name='rentmovie' method='post' action='/submitrent' onsubmit='return checkForm(id)'>
+    <form id='rentMovie' name='rentmovie'   onsubmit='return checkForm(id)'>
       <span>Movie title</span>
       <span>&nbsp;</span>
       <input id='movieTitle' type='text' placeholder='Movie title' name='title' required> 
@@ -113,6 +112,7 @@
 
       </div>
       <div id='chatMessages'>
+          <h2 id='userName'></h2>
         <ul id='chatUl'>
           <li>Chet</li>
         </ul>
@@ -135,12 +135,12 @@ let socket = io();
 let chatSend = document.getElementById('chatSend');
 let message = document.getElementById('chatInput');
 let chatUl = document.getElementById('chatUl');
-const cookie = document.cookie;
+const userName = document.getElementById('userName');
 
 
 //Emit message + acknowledgement
 function sendMessage(){
-  socket.emit('new message', {user: cookie, message: message.value }, function(d){
+  socket.emit('new message', {user: userName, message: message.value }, function(d){
     console.log(d);
   });
   message.value = '';
@@ -165,7 +165,31 @@ socket.on('new message', function(d){
   lastMessage.scrollIntoView();
 });
 
+function checkForm(id){
+  //event.preventDefault();
+  let formId = document.getElementById(id);
+  let formAction = formId.action;
+  console.log('the action = ' + formAction )
+  let titleTest = formId.querySelector('input[name="title"]').value;
+  let inventoryTest = formId.querySelector('input[name="inventory"]').value;
+  let emailTest;
+  if(formId.querySelector('input[name="email"]')){
+    emailTest = formId.querySelector('input[name="email"]').value;
+  }
+  if(titleTest === ' ' || titleTest === ''){
+    formId.querySelector('.error').innerHTML = ' cant use this movie title';
+    return false;
+  }else if (inventoryTest == 0 ){
+    formId.querySelector('.error').innerHTML = ' the inventory cant be "0"';
+    return false;
+  }else{
+    let formData = "title="+titleTest+"&inventory="+inventoryTest+"&email="+emailTest;
+    postForm('/submitrent', formData);
+  }
+};
+  
 //Forms
+/*
 (function(){
 function checkForm(id){
   let formId = document.getElementById(id);
@@ -179,6 +203,7 @@ function checkForm(id){
     formId.querySelector('.error').innerHTML = 'cant use this email: ' + res;
   }
   */
+ /*
   socket.emit('form data', titleTest);
   if(titleTest === ' ' || titleTest === ''){
     formId.querySelector('.error').innerHTML = 'cant use this movie title';
@@ -199,7 +224,86 @@ socket.on('form data', function(d){
   ul.appendChild(li)
 });
 })();
+*/
+function contentToView (json){
+  obj = JSON.parse(json);
+  let titleT = document.getElementById('title') 
+  titleT.innerText = obj.title;
+  let statusT = document.getElementById('status') 
+  statusT.innerText = obj.status
+  let ul = document.getElementById('queryUl');
+  ul.innerHTML = '';
+  for(i in obj.moviesList){
+    let li = document.createElement('li');
+    li.appendChild(document.createTextNode(obj.moviesList[i]));
+    ul.appendChild(li);
+  }
+}
 
+
+function includeThisHTML(page) {
+  var z, pagePath, elmnt, file, xhttp;
+  elmnt = document.getElementById("topten");
+  if(page === 'home'){
+    file = 'movies';
+    pagePath = '/';
+  }
+  else{
+    file = page;
+    pagePath = '?' + file;
+  }
+
+  if (file) {
+    /*make an HTTP request using the attribute value as the file name:*/
+    xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+      console.log('xhttps request state is:' + this.readyState)
+
+      if (this.readyState == 4) {
+        if (this.status == 200) {
+          //console.log(this.responseText)
+          contentToView(this.responseText);
+          //elmnt.innerHTML = this.responseText;
+        }
+        if (this.status == 404) {
+          elmnt.innerHTML = "Page not found."; //DEV
+          //includeThisHTML(homePageDynamicContent)//PRODUCTION
+        }
+      }
+    }
+    xhttp.open("GET", file, true);
+    xhttp.send();
+    /*z = {
+      shahary: page
+    };
+    history.pushState(z, z, pagePath );
+    /*exit the function:*/
+    return;
+  }
+};
+
+function postForm(file, postData) {
+  let pagePath, elmnt, xhttp;
+  elmnt = document.getElementById("topten");
+  if (file) {
+    xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+      console.log('xhttps request state is:' + this.readyState)
+      if (this.readyState == 4) {
+        if (this.status == 200) {
+          console.log(this.responseText)
+          contentToView(this.responseText);
+        }
+        if (this.status == 404) {
+          elmnt.innerHTML = "Page not found."; //DEV
+        }
+      }
+    }
+    xhttp.open("POST", file+postData, true);
+    xhttp.send();
+    return;
+  }
+};
 </script>
   </body>
 </html>
