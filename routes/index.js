@@ -9,11 +9,9 @@ const MongoClient = mongodb.MongoClient;
 const usersdbUrl = 'mongodb://127.0.0.1:27017/usersdb';
 const session = require('express-session');
 const expressValidator = require('express-validator');
-const bodyParser = require('body-parser');
+const formidableMiddleware = require('express-formidable');
 
-
-
-
+router.use(formidableMiddleware());
 
 
 
@@ -166,24 +164,16 @@ MongoClient.connect(usersdbUrl, function (err, db) {
 
 
   router.post('/submitreturn', function (req, res) {
-    updateReturnedInventory(req.body.title, req.body.inventory, req.body.email, res);
+    updateReturnedInventory(req.fields.title, req.fields.inventory, req.fields.email, res);
   });
+  
 
-
-  let jsonParser = bodyParser.json();
-  let urlencodedParser = bodyParser.urlencoded({ extended: false });
-  router.post('/submitrent',urlencodedParser, function (req, res) {
-    let f  = req.body;
-    res.send({email: f.email})
-    //console.log(req.bodyParser);
-    
-    //topTenUsers(res);
-
-    //updateRentedInventory(req.body.title, req.body.inventory, req.body.email, res);
+  router.post('/submitrent', function (req, res) {
+    updateRentedInventory(req.fields.title, req.fields.inventory, req.fields.email, res);
   });
 
   router.post('/addmovietodb', function (req, res) {
-    updateNewInventory(req.body.title, req.body.inventory, res);
+    updateNewInventory(req.fields.title, req.fields.inventory, res);
   });
 
 
