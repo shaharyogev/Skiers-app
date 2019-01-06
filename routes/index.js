@@ -177,7 +177,6 @@ MongoClient.connect(usersdbUrl, function (err, db) {
   });
 
   router.post('/addmovietodb', formidableMiddleware(), function (req, res) {
-    console.log('ok');
     updateNewInventory(req.fields.title, req.fields.inventory, res);
   });
 
@@ -354,7 +353,6 @@ MongoClient.connect(usersdbUrl, function (err, db) {
           });
         }
         if (r.value !== null) {
-          //console.log('ok');
           currentUserInventory(title, email, function (err, value) {
             console.log(value);
             title = 'The movie: ' + title + ' was returnd to stock, the current stock is: ' + (r.value.inventory + inventory),
@@ -485,7 +483,6 @@ MongoClient.connect(usersdbUrl, function (err, db) {
         let temp = 'Movie titel: ' + result[index].title + ' Avialebel inventory: ' + result[index].inventory;
         moviesList.push(temp);
       };
-      console.log('ok')
       res.send({
         moviesList: moviesList,
         title: title,
