@@ -37,7 +37,7 @@
     
     <div class='form'>
     <h1>Rent a movie</h1>
-    <form id='rentMovie' name='rentmovie' onsubmit='return checkForm(id)'>
+    <form id='rentMovie' name='rentmovie' action='/submitrent' onsubmit='return checkForm(id)'>
       <span>Movie title</span>
       <span>&nbsp;</span>
       <input id='movieTitle' type='text' placeholder='Movie title' name='title' required> 
@@ -60,7 +60,7 @@
 
     <div class='form'>
     <h1>Return a movie</h1>
-    <form id='rentMovie' name='rentmovie' method='post' action='/submitreturn' onsubmit='return checkForm(id)'>
+    <form id='returnMovie' name='rentmovie'  action='/submitreturn' onsubmit='return checkForm(id)'>
       <span>Movie title</span>
       <span>&nbsp;</span>
       <input id='movieTitle' type='text' placeholder='Movie title' name='title' required> 
@@ -83,7 +83,7 @@
 
     <div class='form'>
     <h1>Add / Remove a movie to the list</h1>
-    <form id='addMovie' name='addmovie' method='post' action='/addmovietodb' onsubmit='return checkForm(id)'>
+    <form id='addMovie' name='addmovie'  action='/addmovietodb' onsubmit='return checkForm(id)'>
       <span>Movie title</span>
       <span>&nbsp;</span>
       <input id='movieTitle' type='text' placeholder='Movie title' name='title' required> 
@@ -174,7 +174,7 @@ function checkForm(id){
 
   //console.log( formDataNode)
   let formAction = formId.action;
-  //console.log('the action = ' + formAction )
+  console.log('the action = ' + formAction )
   let titleTest = formId.querySelector('input[name="title"]').value;
   let inventoryTest = formId.querySelector('input[name="inventory"]').value;
   let emailTest;
@@ -192,12 +192,15 @@ function checkForm(id){
     return false;
 
   }else{
-    postForm('/submitrent', formDataNode);
+    postForm(formAction, formDataNode);
   }
 };
 
 function contentToView (json){
   obj = JSON.parse(json);
+  
+  console.log(obj);
+
   let titleT = document.getElementById('title') 
   titleT.innerText = obj.title;
   let statusT = document.getElementById('status') 
@@ -279,7 +282,6 @@ function postForm(file,formDataNode) {
   }
   xhttp.open('POST', pagePath, true);
   xhttp.send(formData);
-  console.log(formData.get('title'));
 
 };
 

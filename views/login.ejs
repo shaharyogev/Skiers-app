@@ -43,25 +43,24 @@
     </form>
 
  
-  <script src="/socket.io/socket.io.js"></script>
   <script>
   
   
-    let socket = io();
     function checkForm(id){
       let formId = document.getElementById(id);
-      if(formId.querySelector('input[name="name"]').value)
+      if(formId.querySelector('input[name="name"]')){
         let nameTest = formId.querySelector('input[name="name"]').value;
-      
+        if(nameTest === ' ' || nameTest === ''){
+        formId.querySelector('.errorName').innerHTML = 'cant use this user name';
+        test++;
+      };
+      }
       let emailTest = formId.querySelector('input[name="email"]');
       let passwordTest = formId.querySelector('input[name="password"]').value;
       let test = 0
 
       //validation - deactivated on testing
-      if(nameTest === ' ' || nameTest === ''){
-        formId.querySelector('.errorName').innerHTML = 'cant use this user name';
-        test++;
-      };
+      
        if(emailTest != undefined){
         let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         let res =  re.test(String(emailTest.value).toLowerCase());
@@ -79,14 +78,7 @@
         test = 0;
         return false;
       }
-      socket.emit('form data', {nameTest, emailTest, passwordTest});
     };
-    
-    let submitClick = document.getElementById('submitNewUser');
-    submitClick.addEventListener("click", function(){
-      console.log('button was clicked')
-      socket.emit('submit', submitClick.id);
-    });
 
     </script>
      </body>

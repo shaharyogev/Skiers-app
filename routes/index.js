@@ -11,7 +11,7 @@ const session = require('express-session');
 const expressValidator = require('express-validator');
 const formidableMiddleware = require('express-formidable');
 
-router.use(formidableMiddleware());
+
 
 
 
@@ -48,7 +48,7 @@ MongoClient.connect(usersdbUrl, function (err, db) {
   }));
 
 
- 
+
   /*
   router.use((req, res, next)=>{
     console.log(req.session)
@@ -116,6 +116,7 @@ MongoClient.connect(usersdbUrl, function (err, db) {
   router.use(expressValidator());
 
   router.post('/user', function (req, res, ) {
+
     let email = req.body.email;
     let password = req.body.password;
 
@@ -127,7 +128,7 @@ MongoClient.connect(usersdbUrl, function (err, db) {
     if (errors) {
       req.session.errors = errors;
       res.redirect('/login');
-      console.log('loginAttempt fail')
+      console.log('loginAttempt fail');
     } else {
       loginAttempt(req.body.email, req.body.password, req, res);
     }
@@ -162,17 +163,21 @@ MongoClient.connect(usersdbUrl, function (err, db) {
   });
 
 
+  //router.use(formidableMiddleware());
 
-  router.post('/submitreturn', function (req, res) {
-    updateReturnedInventory(req.fields.title, req.fields.inventory, req.fields.email, res);
-  });
-  
 
-  router.post('/submitrent', function (req, res) {
+
+  router.post('/submitrent', formidableMiddleware(), function (req, res) {
     updateRentedInventory(req.fields.title, req.fields.inventory, req.fields.email, res);
   });
 
-  router.post('/addmovietodb', function (req, res) {
+
+  router.post('/submitreturn', formidableMiddleware(), function (req, res) {
+    updateReturnedInventory(req.fields.title, req.fields.inventory, req.fields.email, res);
+  });
+
+  router.post('/addmovietodb', formidableMiddleware(), function (req, res) {
+    console.log('ok');
     updateNewInventory(req.fields.title, req.fields.inventory, res);
   });
 
@@ -195,13 +200,13 @@ MongoClient.connect(usersdbUrl, function (err, db) {
     currentMovieInventory(title, function (err, value) {
       currentMovieI = value;
 
-      if ((currentMovieI + inventory) <= 0)
+      if ((currentMovieI + inventory) <= 0){
         title = title + ' inventory was not update - inventory is too low',
         status = 'The maximum inventory to raduse is: ' + currentMovieI,
-        inventoryStatus(title, status, res);
+        inventoryStatus(title, status, '', res);
+      }
 
-
-      else
+      else{
         collection.findOneAndUpdate(query, {
           $inc: {
             inventory: inventory
@@ -223,8 +228,9 @@ MongoClient.connect(usersdbUrl, function (err, db) {
             title = title + ' is new, inventory updated successfuly',
             status = 'The inventory is: ' + (currentMovieI + inventory);
 
-          inventoryStatus(title, status, res);
+          inventoryStatus(title, status,'', res);
         });
+      }
     });
   }
 
@@ -324,9 +330,6 @@ MongoClient.connect(usersdbUrl, function (err, db) {
           }
         }
       };
-
-    //console.log('query return: ', query );
-
     collection.findOneAndUpdate(query, {
         $inc: {
           'activeUsers.$.inventory': -inventory,
@@ -339,20 +342,28 @@ MongoClient.connect(usersdbUrl, function (err, db) {
       function (err, r) {
         if (err) console.log(err);
 
-        if (r.value == null)
+
+
+
+        if (r.value === null) {
           currentUserInventory(title, email, function (err, value) {
+            console.log(value);
             title = 'The movie: ' + title + ' wasnt returnd to stock!',
               status = 'The user: ' + email + ' cant return the amount of: ' + inventory + ' the current inventory for this user: ' + value;
             inventoryStatus(title, status, '', res);
           });
-
-        if (r.value !== null)
+        }
+        if (r.value !== null) {
+          //console.log('ok');
           currentUserInventory(title, email, function (err, value) {
+            console.log(value);
             title = 'The movie: ' + title + ' was returnd to stock, the current stock is: ' + (r.value.inventory + inventory),
               status = 'The user: ' + email + ' returnd ' + inventory + 'his total inventory for now is: ' + value;
 
             inventoryStatus(title, status, '', res);
           });
+        }
+
       }
     )
   }
@@ -407,14 +418,13 @@ MongoClient.connect(usersdbUrl, function (err, db) {
 
         let value = 0;
 
-        if (result === null)
+        if (result === null) {
           value = 0,
-          cb(null, value);
+            cb(null, value);
 
-        else {
-          value = result.activeUsers[0].inventory
-          //console.log('current user inventory is: ', result.activeUsers[0].inventory )
-          if (result.activeUsers[0].inventory === 0)
+        } else {
+          value = result.activeUsers[0].inventory;
+          if (result.activeUsers[0].inventory === 0) {
             collection.updateOne({
                 title: title
               }, {
@@ -429,12 +439,13 @@ MongoClient.connect(usersdbUrl, function (err, db) {
                 if (err)
                   console.log(err);
 
-                //console.log('pull r: ', r.result.nModified)
                 cb(null, value);
-              })
+              });
+          }
+          cb(null, value);
         }
       })
-  }
+  };
 
 
 
@@ -462,17 +473,19 @@ MongoClient.connect(usersdbUrl, function (err, db) {
           title: 'No inventory in stock',
           status: err
         });
-        /*
-        res.render('movies', {
-          moviesList: [],
-          title: 'No inventory in stock',
-          status: err
-        });*/
+      /*
+      res.render('movies', {
+        moviesList: [],
+        title: 'No inventory in stock',
+        status: err
+      });*/
+
       let moviesList = [];
       for (let index in result) {
         let temp = 'Movie titel: ' + result[index].title + ' Avialebel inventory: ' + result[index].inventory;
         moviesList.push(temp);
-      }
+      };
+      console.log('ok')
       res.send({
         moviesList: moviesList,
         title: title,
@@ -514,7 +527,6 @@ MongoClient.connect(usersdbUrl, function (err, db) {
           status: err
         });
 
-      //console.log('inventoryStatus result:', result)
       let moviesList = [];
       for (let index in result) {
         let temp = 'Movie titel: ' + result[index].title + ' Avialebel inventory: ' + result[index].inventory;
@@ -578,13 +590,13 @@ MongoClient.connect(usersdbUrl, function (err, db) {
           title: 'Top 10 rented movies: ',
           status: err
         });
-        /*
-        res.render('movies', {
-          moviesList: [],
-          title: 'Top 10 rented movies: ',
-          status: err
-        });
-        */
+      /*
+      res.render('movies', {
+        moviesList: [],
+        title: 'Top 10 rented movies: ',
+        status: err
+      });
+      */
 
       let moviesList = [];
       for (let index in result) {
@@ -652,15 +664,14 @@ MongoClient.connect(usersdbUrl, function (err, db) {
           title: 'The top 10 active users:',
           status: err
         });
-        /*
-        res.render('movies', {
-          moviesList: [],
-          userslist: [],
-          title: 'The top 10 active users:',
-          status: err
-        });*/
+      /*
+      res.render('movies', {
+        moviesList: [],
+        userslist: [],
+        title: 'The top 10 active users:',
+        status: err
+      });*/
 
-      //console.log('topTenUsers result: ', result)
       let usersList = [];
 
       for (let index in result) {
@@ -731,12 +742,12 @@ MongoClient.connect(usersdbUrl, function (err, db) {
           status: err,
           moviesList: []
         });
-        /*
-        res.render('movies', {
-          title: 'The most active user Is: error',
-          status: err,
-          moviesList: []
-        });*/
+      /*
+      res.render('movies', {
+        title: 'The most active user Is: error',
+        status: err,
+        moviesList: []
+      });*/
 
       let usersList = []
       for (let index in result) {
@@ -933,7 +944,6 @@ MongoClient.connect(usersdbUrl, function (err, db) {
               }, function (err, r) {
                 if (err) console.log(err);
                 if (r.result.n == 1)
-                  console.log('The password is incorrect'),
                   res.render('login');
               });
             }
