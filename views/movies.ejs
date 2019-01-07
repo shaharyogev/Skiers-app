@@ -2,9 +2,12 @@
 <html>
 
 <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Movies list</title>
   <link rel='stylesheet' href='/stylesheets/style.css' />
   <link rel='shortcut icon' href='/images/favicon.ico' />
+
 </head>
 
 <body>
@@ -151,6 +154,15 @@
   </main>
   <script src="/socket.io/socket.io.js"></script>
   <script>
+    import {MDCRipple} from '@material/ripple';
+    import {MDCTextField} from '@material/textfield';
+
+    const username = new MDCTextField(document.querySelector('.username'));
+    const password = new MDCTextField(document.querySelector('.password'));
+
+    new MDCRipple(document.querySelector('.cancel'));
+    new MDCRipple(document.querySelector('.next'));
+
     //Chat
     let socket = io();
     let chatSend = document.getElementById('chatSend');
