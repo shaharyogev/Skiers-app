@@ -43,8 +43,14 @@ var io = require('socket.io')(server);
 
 
 io.on('connection', function(socket){
-  console.log('a user connected');
- 
+  //console.log('a user connected');
+  
+  socket.on('namedUserConnected',function(d){
+    console.log(d.userName + ' connected');
+
+    io.emit('newUserConnected', d.userName)
+  });
+
   
   socket.on('form data', function(d){
     console.log('form data: ' + d);

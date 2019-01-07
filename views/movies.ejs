@@ -1,291 +1,341 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Movies list</title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-    <link rel='shortcut icon' href='/images/favicon.ico'/>
-  </head>
-  <body>
-    <main>
-      <nav>
-        <div class='dropdown toggle'>
-          <input id='t1' type='checkbox' >
-          <label for='t1'>BI Querys </label>
-          <ul>
-            <li><a type='button' method='get' action='/movies' onclick="includeThisHTML('/movies')">Movies In Stock </a></li>
-            <li><a type='button' method='get' action='/topTenMovies' onclick="includeThisHTML('/topTenMovies')">Top Ten Movies </a></li>
-            <li><a type='button' method='get' action='/topTenUsers' onclick="includeThisHTML('/topTenUsers')">Top Ten Users </a></li>
-            <li><a type='button' method='get' action='/mostActiveUser'onclick="includeThisHTML('/mostActiveUser')" >Most Active User </a></li>
-            <li><a type='button' method='get' action='topRentedMovie' onclick="includeThisHTML('/topRentedMovie')">Top Rented Movie </a></li>
-          </ul>
+
+<head>
+  <title>Movies list</title>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+  <link rel='shortcut icon' href='/images/favicon.ico' />
+</head>
+
+<body>
+  <main>
+    <nav>
+      <div class='dropdown toggle'>
+        <input id='t1' type='checkbox'>
+        <label for='t1'>BI Querys </label>
+        <ul>
+          <li><a type='button' method='get' action='/movies' onclick="includeThisHTML('/movies')">Movies In Stock </a></li>
+          <li><a type='button' method='get' action='/topTenMovies' onclick="includeThisHTML('/topTenMovies')">Top Ten
+              Movies </a></li>
+          <li><a type='button' method='get' action='/topTenUsers' onclick="includeThisHTML('/topTenUsers')">Top Ten
+              Users </a></li>
+          <li><a type='button' method='get' action='/mostActiveUser' onclick="includeThisHTML('/mostActiveUser')">Most
+              Active User </a></li>
+          <li><a type='button' method='get' action='topRentedMovie' onclick="includeThisHTML('/topRentedMovie')">Top
+              Rented Movie </a></li>
+        </ul>
+
+      </div>
+    </nav>
+    <div class='querysResults'>
+      <div id='topten' class='topten'>
+        <h1 id='title'>
+          <%= title %>
+        </h1>
+        <h3 id='status'>
+          <%= status %>
+        </h3>
+        <ul id='queryUl'>
+          <% for( var index in moviesList ){  %>
+          <li>
+            <%= moviesList[index]%>
+          </li>
+          <% } %>
+        </ul>
+      </div>
+
+    </div>
+    <section>
+
+      <div class='form'>
+        <h1>Rent a movie</h1>
+        <form id='rentMovie' name='rentmovie' action='/submitrent' onsubmit='return checkForm(id)'>
+          <span>Movie title</span>
+          <span>&nbsp;</span>
+          <input id='movieTitle' type='text' placeholder='Movie title' name='title' required>
+          <br>
+          <br>
+          <span>Inventory</span>
+          <span>&nbsp;</span>
+          <input id='titleInventory' type='number' placeholder='0-100' name='inventory' required>
+          <br>
+          <br>
+          <span>User Email</span>
+          <span>&nbsp;</span>
+          <input id='userEmail' type='text' placeholder='Valid email' name='email' required>
+          <br>
+          <br>
+          <button id='submitInventory' type='submit'> Submit</button>
+          <span class='error'></span>
+        </form>
+      </div>
+
+      <div class='form'>
+        <h1>Return a movie</h1>
+        <form id='returnMovie' name='rentmovie' action='/submitreturn' onsubmit='return checkForm(id)'>
+          <span>Movie title</span>
+          <span>&nbsp;</span>
+          <input id='movieTitle' type='text' placeholder='Movie title' name='title' required>
+          <br>
+          <br>
+          <span>Inventory</span>
+          <span>&nbsp;</span>
+          <input id='titleInventory' type='number' placeholder='0-100' name='inventory' required>
+          <br>
+          <br>
+          <span>User Email</span>
+          <span>&nbsp;</span>
+          <input id='userEmail' type='text' placeholder='Valid email' name='email' required>
+          <br>
+          <br>
+          <button id='submitInventory' type='submit'> Submit</button>
+          <span class='error'></span>
+        </form>
+      </div>
+
+      <div class='form'>
+        <h1>Add / Remove a movie to the list</h1>
+        <form id='addMovie' name='addmovie' action='/addmovietodb' onsubmit='return checkForm(id)'>
+          <span>Movie title</span>
+          <span>&nbsp;</span>
+          <input id='movieTitle' type='text' placeholder='Movie title' name='title' required>
+          <br>
+          <br>
+          <span>Inventory</span>
+          <span>&nbsp;</span>
+          <input id='titleInventory' type='number' placeholder='0-100' name='inventory' required>
+          <br>
+          <br>
+          <button id='submitInventory' type='submit'> Submit</button>
+          <span class='error'></span>
+        </form>
+      </div>
+      <br>
+      <br>
+    </section>
+
+    <section>
+
+      <div id='chatLiveBox'>
+        <div id='minimize'>
+          <div id='chatButtons'>
+            <a href='#chatMessages'><button id='chatEnlarge'>L</button></a>
+            <a href='#chatLiveBox'><button id='chatMinimize'>_</button></a>
+          </div>
+          <div id='chatMessages'>
+            <div id='chatUsersOnline'>
+              <h5>Online Users:</h5>
+              <ul id='chatUsersUl'>
+                <li></li>
+              </ul>
+            </div>
+            <div id='chatMessagesBox'>
+              <h2 id='userName'>
+                <%= userName %>
+              </h2>
+              <ul id='chatUl'>
+                <li></li>
+              </ul>
+            </div>
+          </div>
 
         </div>
-      </nav>
-      <div class='querysResults'>
-          <div id='topten' class='topten'>
-        <h1 id='title'><%= title %></h1>
-        <h3 id='status'><%= status %></h3>
-        <ul id='queryUl'>
-        <% for( var index in moviesList ){  %>
-        <li>  <%= moviesList[index]%> </li>
-        <% } %>
-        </ul>
+
+        <div id='chatInputDiv'>
+          <input id='chatInput' type='text' placeholde='Message:' required>
+          <button id='chatSend' type='button'>Send</button>
+        </div>
       </div>
-        
-      </div> 
-      <section>
-    
-    <div class='form'>
-    <h1>Rent a movie</h1>
-    <form id='rentMovie' name='rentmovie' action='/submitrent' onsubmit='return checkForm(id)'>
-      <span>Movie title</span>
-      <span>&nbsp;</span>
-      <input id='movieTitle' type='text' placeholder='Movie title' name='title' required> 
-      <br>
-      <br>
-      <span>Inventory</span>
-      <span>&nbsp;</span>
-      <input id='titleInventory' type='number' placeholder='0-100'  name='inventory' required> 
-      <br>
-      <br>
-      <span>User Email</span>
-      <span>&nbsp;</span>
-      <input id='userEmail' type='text' placeholder='Valid email' name='email' required> 
-      <br>
-      <br>
-      <button id='submitInventory' type='submit' > Submit</button>
-      <span class='error'></span>
-    </form>
-    </div>
+    </section>
 
-    <div class='form'>
-    <h1>Return a movie</h1>
-    <form id='returnMovie' name='rentmovie'  action='/submitreturn' onsubmit='return checkForm(id)'>
-      <span>Movie title</span>
-      <span>&nbsp;</span>
-      <input id='movieTitle' type='text' placeholder='Movie title' name='title' required> 
-      <br>
-      <br>
-      <span>Inventory</span>
-      <span>&nbsp;</span>
-      <input id='titleInventory' type='number' placeholder='0-100'  name='inventory' required> 
-      <br>
-      <br>
-      <span>User Email</span>
-      <span>&nbsp;</span>
-      <input id='userEmail' type='text' placeholder='Valid email' name='email' required> 
-      <br>
-      <br>
-      <button id='submitInventory' type='submit' > Submit</button>
-      <span class='error'></span>
-    </form>
-  </div>
+  </main>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    //Chat
+    let socket = io();
+    let chatSend = document.getElementById('chatSend');
+    let message = document.getElementById('chatInput');
+    let chatUl = document.getElementById('chatUl');
+    let chatUsersUl = document.getElementById('chatUsersUl');
+    let userName = document.getElementById('userName');
 
-    <div class='form'>
-    <h1>Add / Remove a movie to the list</h1>
-    <form id='addMovie' name='addmovie'  action='/addmovietodb' onsubmit='return checkForm(id)'>
-      <span>Movie title</span>
-      <span>&nbsp;</span>
-      <input id='movieTitle' type='text' placeholder='Movie title' name='title' required> 
-      <br>
-      <br>
-      <span>Inventory</span>
-      <span>&nbsp;</span>
-      <input id='titleInventory' type='number' placeholder='0-100' name='inventory' required> 
-      <br>
-      <br>
-      <button id='submitInventory' type='submit' > Submit</button>
-      <span class='error'></span>
-    </form>
-  </div>
-  <br>
-  <br>
-</section>
+    //Send user name to the server
 
-<section>
-  
-  <div id='chatLiveBox'>
-    <div id='minimize'>
-      <div id='chatButtons'>
-        <a href='#chatMessages'><button id='chatEnlarge'>L</button></a>
-        <a href='#chatLiveBox'><button id='chatMinimize'>_</button></a>
+    if (userName) {
+      userName = userName.innerText;
+      socket.emit('namedUserConnected', {
+        userName: userName
+      });
+    };
 
-      </div>
-      <div id='chatMessages'>
-          <h2 id='userName'><%= userName %></h2>
-        <ul id='chatUl'>
-          <li></li>
-        </ul>
-      </div>
-   </div>
-
-    <div id='chatInputDiv'>
-      <input id='chatInput' type='text' placeholde='Message:' required>
-      <button id='chatSend' type='button' >Send</button>
-    </div>
-</div>
-</section>
-
-</main>
-<script src="/socket.io/socket.io.js"></script>
-<script>
-  
-//Chat
-let socket = io();
-let chatSend = document.getElementById('chatSend');
-let message = document.getElementById('chatInput');
-let chatUl = document.getElementById('chatUl');
-const userName = document.getElementById('userName');
+    socket.on('newUserConnected', function (d) {
+      console.log(d);
+      let newUserChatLi = document.createElement('li');
+      newUserChatLi.appendChild(document.createTextNode(d));
+      //newUserChatLi.setAttribute('class', 'newMessageLi');
+      console.log(chatUsersUl.firstElementChild)
+      chatUsersUl.insertBefore(newUserChatLi, chatUsersUl.firstElementChild);
+    });
 
 
-//Emit message + acknowledgement
-function sendMessage(){
-  socket.emit('new message', {user: userName.innerText, message: message.value }, function(d){
-    console.log(d);
-  });
-  message.value = '';
-};
+    //Emit message + acknowledgement
+    function sendMessage() {
+      socket.emit('new message', {
+        user: userName,
+        message: message.value
+      }, function (d) {
+        console.log(d);
+      });
+      message.value = '';
+    };
 
-//send message trigers
-chatSend.addEventListener("click", sendMessage);
-message.addEventListener("keydown", function(e){
-  if(e.keyCode === 13){
-    sendMessage();
-  }
-});
+    //send message trigers
+    chatSend.addEventListener("click", sendMessage);
+    message.addEventListener("keydown", function (e) {
+      if (e.keyCode === 13) {
+        sendMessage();
+      }
+    });
 
-//recive message and print to screen
-socket.on('new message', function(d){
-  let newChatUl = document.createElement('li');
-  newChatUl.appendChild(document.createTextNode(d.user + ': ' + d.message ));
-  newChatUl.setAttribute('class', 'newMessageLi');
-  chatUl.appendChild(newChatUl);
-  let messages = chatUl.querySelectorAll('li');
-  let lastMessage = messages[messages.length-1];
-  lastMessage.scrollIntoView();
-});
-
-
-function checkForm(id){
-  event.preventDefault();
-  let formId = document.getElementById(id);
-  let formDataNode = formId.querySelectorAll('input');
-
-  //console.log( formDataNode)
-  let formAction = formId.action;
-  console.log('the action = ' + formAction )
-  let titleTest = formId.querySelector('input[name="title"]').value;
-  let inventoryTest = formId.querySelector('input[name="inventory"]').value;
-  let emailTest;
-
-  if(formId.querySelector('input[name="email"]')){
-    emailTest = formId.querySelector('input[name="email"]').value;
-  }
-
-  if(titleTest === ' ' || titleTest === ''){
-    formId.querySelector('.error').innerHTML = ' cant use this movie title';
-    return false;
-
-  }else if (inventoryTest == 0 ){
-    formId.querySelector('.error').innerHTML = ' the inventory cant be "0"';
-    return false;
-
-  }else{
-    postForm(formAction, formDataNode);
-  }
-};
-
-function contentToView (json){
-  obj = JSON.parse(json);
-  let titleT = document.getElementById('title') 
-  titleT.innerText = obj.title;
-  let statusT = document.getElementById('status') 
-  statusT.innerText = obj.status
-  let ul = document.getElementById('queryUl');
-  ul.innerHTML = '';
-  for(i in obj.moviesList){
-    let li = document.createElement('li');
-    li.appendChild(document.createTextNode(obj.moviesList[i]));
-    ul.appendChild(li);
-  }
-};
+    //recive message and print to screen
+    socket.on('new message', function (d) {
+      let newChatLi = document.createElement('li');
+      newChatLi.appendChild(document.createTextNode(d.user + ': ' + d.message));
+      newChatLi.setAttribute('class', 'newMessageLi');
+      chatUl.appendChild(newChatLi);
+      let messages = chatUl.querySelectorAll('li');
+      let lastMessage = messages[messages.length - 1];
+      lastMessage.scrollIntoView();
+    });
 
 
-function includeThisHTML(page) {
-  var z, pagePath, elmnt, file, xhttp;
-  elmnt = document.getElementById("topten");
-  if(page === 'home'){
-    file = 'movies';
-    pagePath = '/';
-  }
-  else{
-    file = page;
-    pagePath = '?' + file;
-  }
+    function checkForm(id) {
+      event.preventDefault();
+      let formId = document.getElementById(id);
+      let formDataNode = formId.querySelectorAll('input');
 
-  if (file) {
-    xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function () {
-      if (this.readyState == 4) {
-        if (this.status == 200) {
-          contentToView(this.responseText);
+      //console.log( formDataNode)
+      let formAction = formId.action;
+      console.log('the action = ' + formAction)
+      let titleTest = formId.querySelector('input[name="title"]').value;
+      let inventoryTest = formId.querySelector('input[name="inventory"]').value;
+      let emailTest;
+
+      if (formId.querySelector('input[name="email"]')) {
+        emailTest = formId.querySelector('input[name="email"]').value;
+      }
+
+      if (titleTest === ' ' || titleTest === '') {
+        formId.querySelector('.error').innerHTML = ' cant use this movie title';
+        return false;
+
+      } else if (inventoryTest == 0) {
+        formId.querySelector('.error').innerHTML = ' the inventory cant be "0"';
+        return false;
+
+      } else {
+        postForm(formAction, formDataNode);
+      }
+    };
+
+    function contentToView(json) {
+      obj = JSON.parse(json);
+      let titleT = document.getElementById('title')
+      titleT.innerText = obj.title;
+      let statusT = document.getElementById('status')
+      statusT.innerText = obj.status
+      let ul = document.getElementById('queryUl');
+      ul.innerHTML = '';
+      for (i in obj.moviesList) {
+        let li = document.createElement('li');
+        li.appendChild(document.createTextNode(obj.moviesList[i]));
+        ul.appendChild(li);
+      }
+    };
+
+
+    function includeThisHTML(page) {
+      var z, pagePath, elmnt, file, xhttp;
+      elmnt = document.getElementById("topten");
+      if (page === 'home') {
+        file = 'movies';
+        pagePath = '/';
+      } else {
+        file = page;
+        pagePath = '?' + file;
+      }
+
+      if (file) {
+        xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+          if (this.readyState == 4) {
+            if (this.status == 200) {
+              contentToView(this.responseText);
+            }
+            if (this.status == 404) {
+              contentToView({
+                title: 'We have a little problem',
+                status: '',
+                queryUl: ''
+              }); //DEV
+            }
+          }
         }
-        if (this.status == 404) {
-          contentToView({title:'We have a little problem', status:'', queryUl:''}); //DEV
+        xhttp.open("GET", file, true);
+        xhttp.send();
+        return;
+      }
+    };
+
+    function postForm(file, formDataNode) {
+
+      let i, pagePath, elmnt, xhttp, formData;
+      formData = new FormData();
+      pagePath = file;
+      for (i in formDataNode) {
+        formData.append(formDataNode[i].name, formDataNode[i].value);
+      };
+      elmnt = document.getElementById("topten");
+
+      xhttp = new XMLHttpRequest();
+
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4) {
+          if (this.status == 200) {
+            console.log(this.response);
+            contentToView(this.responseText);
+          }
+          if (this.status == 404) {
+            contentToView({
+              title: 'We have a little problem',
+              status: '',
+              queryUl: ''
+            }); //DEV
+          }
         }
       }
-    }
-    xhttp.open("GET", file, true);
-    xhttp.send();
-    return;
-  }
-};
+      xhttp.open('POST', pagePath, false);
+      xhttp.send(formData);
 
-function postForm(file,formDataNode) {
-  
-  let i, pagePath, elmnt, xhttp, formData;
-  formData = new FormData();
-  pagePath = file;
-  for( i in formDataNode){
-    formData.append( formDataNode[i].name , formDataNode[i].value );
-  };
-  elmnt = document.getElementById("topten");
+    };
 
-  xhttp = new XMLHttpRequest();
 
-  xhttp.onreadystatechange = function () {
-    if (this.readyState == 4) {
-      if (this.status == 200) {
-        console.log(this.response);
-        contentToView(this.responseText);
+    //Forms
+    /*
+    (function(){
+    function checkForm(id){
+      let formId = document.getElementById(id);
+      let titleTest = formId.querySelector('input[name="title"]').value;
+      /* email validation - deactivated on testing.
+      let emailTest = formId.querySelector('input[name="email"]');
+      if(emailTest != undefined){
+        let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        let res =  re.test(String(emailTest.value).toLowerCase());
+        console.log('email is: '+ res);
+        formId.querySelector('.error').innerHTML = 'cant use this email: ' + res;
       }
-      if (this.status == 404) {
-        contentToView({title:'We have a little problem', status:'', queryUl:''}); //DEV
-      }
-    }
-  }
-  xhttp.open('POST', pagePath, false);
-  xhttp.send(formData);
-
-};
-
-  
-//Forms
-/*
-(function(){
-function checkForm(id){
-  let formId = document.getElementById(id);
-  let titleTest = formId.querySelector('input[name="title"]').value;
-  /* email validation - deactivated on testing.
-  let emailTest = formId.querySelector('input[name="email"]');
-  if(emailTest != undefined){
-    let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    let res =  re.test(String(emailTest.value).toLowerCase());
-    console.log('email is: '+ res);
-    formId.querySelector('.error').innerHTML = 'cant use this email: ' + res;
-  }
-  */
- /*
+      */
+    /*
   socket.emit('form data', titleTest);
   if(titleTest === ' ' || titleTest === ''){
     formId.querySelector('.error').innerHTML = 'cant use this movie title';
@@ -307,6 +357,7 @@ socket.on('form data', function(d){
 });
 })();
 */
-</script>
-  </body>
+  </script>
+</body>
+
 </html>

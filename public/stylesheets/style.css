@@ -184,9 +184,12 @@ section {
   height:63%;
   width:100%;
   padding-top:0%;
-  padding-left:3%;
+  padding-left:0%;
+
   overflow-y:auto;
   list-style:none;
+  display:flex;
+  flex-flow:row wrap;
 
 
 }
@@ -195,15 +198,35 @@ section {
   height:25vh;
   width:100%;
   padding-top:0%;
-  padding-left:3%;
+  padding-left:0%;
   overflow-y:auto;
   list-style:none;
 
 }
+#chatMessageBox{
+  width:70%;
+  padding-left:1%;
+  
+}
 #chatUl{
   list-style:none;
-  display:inline;
   padding:0;
+
+}
+
+#chatUsersOnline{
+  width:30%;
+  height:100%;
+  background-color:#00B7FF;
+  padding:1%;
+
+}
+
+#chatUsersUl{
+  list-style:none;
+  padding-left:2;
+  
+  
 }
 
 .newMessageLi{
