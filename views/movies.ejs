@@ -110,21 +110,20 @@
 
     <section>
 
-      <div id='chatLiveBox'>
+      <div id='chatLiveBox' class='chatLiveBox'>
         <div id='chatFlex'>
         <div id='minimize'>
           <div id='chatButtons'>
-            <a href='#chatMessages'><button id='chatEnlarge'>L</button></a>
-            <a href='#chatLiveBox'><button id='chatMinimize'>_</button></a>
+            <a id='chatButtonToggle' type='button' onclick="minimizeToggle()" class='chatEnlarge' >_</a>
           </div>
           <div id='chatMessages'>
             <div id='chatUsersOnline'>
-              <h5>Online Users:</h5>
+              Online Users:
               <ul id='chatUsersUl'>
                 <li></li>
               </ul>
             </div>
-            <div id='chatMessagesBox'>
+            <div id='chatMessagesBox'>Chet:
 
               <ul id='chatUl'>
                 <li></li>
@@ -139,6 +138,7 @@
         </div>
       </div>
       </div>
+
     </section>
     <div class='querysResults'>
       <div id='topten' class='topten'>
@@ -162,7 +162,19 @@
   <script src="/socket.io/socket.io.js"></script>
   <script>
     //Dropdown manu
-
+    function minimizeToggle(){
+      let button = document.getElementById('chatButtonToggle');
+      let chatBox = document.getElementById('chatLiveBox');
+      if(button.innerText == '_'){
+        button.innerText = 'L';
+        chatBox.setAttribute('class','chatLiveBoxMini')
+      }else{
+        button.innerText = '_';
+        chatBox.setAttribute('class','chatLiveBox')
+      }
+      
+      
+    }
 
     //Chat
     let socket = io();
@@ -185,7 +197,7 @@
       console.log(d);
       let newUserChatLi = document.createElement('li');
       newUserChatLi.appendChild(document.createTextNode(d));
-      //newUserChatLi.setAttribute('class', 'newMessageLi');
+      newUserChatLi.setAttribute('class', 'newMessageLi');
       console.log(chatUsersUl.firstElementChild)
       chatUsersUl.insertBefore(newUserChatLi, chatUsersUl.firstElementChild);
     });
