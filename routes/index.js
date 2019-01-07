@@ -420,7 +420,7 @@ MongoClient.connect(usersdbUrl, function (err, db) {
           title = title + ' inventory was updated to' + (r.value.inventory - inventory),
           status = 'The user: ' + email + ' have ' + value + ' copies include the ' + inventory + ' new copies',
           inventoryStatus(title, status, '', res);
-          });
+          })
       })
   };
 

@@ -13,9 +13,15 @@
 <body>
   <main>
     <nav>
-      <div class='dropdown toggle'>
-        <input id='t1' type='checkbox'>
-        <label for='t1'>BI Querys </label>
+      <div id='userNameTitle'>
+        <h2 id='userName'>
+          <%= userName %> 
+        </h2>
+        <h2>Store manager</h2>
+      </div>
+      <div class='dropdownButton'>
+      <div class='dropdown hover'>
+        <a>BI Querys</a>
         <ul>
           <li><a type='button' method='get' action='/movies' onclick="includeThisHTML('/movies')">Movies In Stock </a></li>
           <li><a type='button' method='get' action='/topTenMovies' onclick="includeThisHTML('/topTenMovies')">Top Ten
@@ -27,33 +33,18 @@
           <li><a type='button' method='get' action='topRentedMovie' onclick="includeThisHTML('/topRentedMovie')">Top
               Rented Movie </a></li>
         </ul>
-
       </div>
-    </nav>
-    <div class='querysResults'>
-      <div id='topten' class='topten'>
-        <h1 id='title'>
-          <%= title %>
-        </h1>
-        <h3 id='status'>
-          <%= status %>
-        </h3>
-        <ul id='queryUl'>
-          <% for( var index in moviesList ){  %>
-          <li>
-            <%= moviesList[index]%>
-          </li>
-          <% } %>
-        </ul>
-      </div>
-
     </div>
+
+    </nav>
+
+
     <section>
 
       <div class='form'>
         <h1>Rent a movie</h1>
         <form id='rentMovie' name='rentmovie' action='/submitrent' onsubmit='return checkForm(id)'>
-          <span>Movie title</span>
+          <span class='title'>Movie title</span>
           <span>&nbsp;</span>
           <input id='movieTitle' type='text' placeholder='Movie title' name='title' required>
           <br>
@@ -76,7 +67,7 @@
       <div class='form'>
         <h1>Return a movie</h1>
         <form id='returnMovie' name='rentmovie' action='/submitreturn' onsubmit='return checkForm(id)'>
-          <span>Movie title</span>
+          <span class='title'>Movie title</span>
           <span>&nbsp;</span>
           <input id='movieTitle' type='text' placeholder='Movie title' name='title' required>
           <br>
@@ -99,7 +90,7 @@
       <div class='form'>
         <h1>Add / Remove a movie to the list</h1>
         <form id='addMovie' name='addmovie' action='/addmovietodb' onsubmit='return checkForm(id)'>
-          <span>Movie title</span>
+          <span class='title'>Movie title</span>
           <span>&nbsp;</span>
           <input id='movieTitle' type='text' placeholder='Movie title' name='title' required>
           <br>
@@ -120,6 +111,7 @@
     <section>
 
       <div id='chatLiveBox'>
+        <div id='chatFlex'>
         <div id='minimize'>
           <div id='chatButtons'>
             <a href='#chatMessages'><button id='chatEnlarge'>L</button></a>
@@ -133,15 +125,12 @@
               </ul>
             </div>
             <div id='chatMessagesBox'>
-              <h2 id='userName'>
-                <%= userName %>
-              </h2>
+
               <ul id='chatUl'>
                 <li></li>
               </ul>
             </div>
           </div>
-
         </div>
 
         <div id='chatInputDiv'>
@@ -149,19 +138,31 @@
           <button id='chatSend' type='button'>Send</button>
         </div>
       </div>
+      </div>
     </section>
+    <div class='querysResults'>
+      <div id='topten' class='topten'>
+        <h1 class='title' id='title'>
+          <%= title %>
+        </h1>
+        <h3 class='subTitle' id='status'>
+          <%= status %>
+        </h3>
+        <ul id='queryUl'>
+          <% for( var index in moviesList ){  %>
+          <li>
+            <%= moviesList[index]%>
+          </li>
+          <% } %>
+        </ul>
+      </div>
+    </div>
 
   </main>
   <script src="/socket.io/socket.io.js"></script>
   <script>
-    import {MDCRipple} from '@material/ripple';
-    import {MDCTextField} from '@material/textfield';
+    //Dropdown manu
 
-    const username = new MDCTextField(document.querySelector('.username'));
-    const password = new MDCTextField(document.querySelector('.password'));
-
-    new MDCRipple(document.querySelector('.cancel'));
-    new MDCRipple(document.querySelector('.next'));
 
     //Chat
     let socket = io();
