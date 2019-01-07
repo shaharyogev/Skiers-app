@@ -12,8 +12,19 @@ const expressValidator = require('express-validator');
 const formidableMiddleware = require('express-formidable');
 
 
+/*MAP*/
+/* User login and creation: */
+//Creat New User - callback inventoryStatusInLogin
+// Login chack user email and password - callback getUserName
+// Log user session to the cookie
+
+/* Session & cookies */
+// Log user session to the cookie
+
+/* Router requests: */
 
 
+/* Qureys routes */
 
 
 /*Start the Database connection: */
@@ -30,12 +41,6 @@ MongoClient.connect(usersdbUrl, function (err, db) {
 
   /* Session & cookies */
 
-
-
-
-
-
-
   // Log user session to the cookie
 
 
@@ -49,13 +54,6 @@ MongoClient.connect(usersdbUrl, function (err, db) {
 
 
 
-  /*
-  router.use((req, res, next)=>{
-    console.log(req.session)
-    next();
-  })
-
-  */
 
 
   /* Router requests: */
@@ -72,6 +70,13 @@ MongoClient.connect(usersdbUrl, function (err, db) {
       res.render('login');
   })
 
+   /*
+  router.use((req, res, next)=>{
+    console.log(req.session)
+    next();
+  })
+
+  */
   /*
   //clear cookie if session is over
 
@@ -83,15 +88,69 @@ MongoClient.connect(usersdbUrl, function (err, db) {
       next();
   });
   */
+  
+  router.post('/user', expressValidator(), function (req, res, ) {
+
+    let email = req.body.email;
+    let password = req.body.password;
+
+    req.checkBody('email', 'Name is required').notEmpty();
+    req.checkBody('email', 'Name is required').isEmail();
+    req.checkBody('password', 'Name is required').notEmpty();
+
+    const errors = req.validationErrors();
+    if (errors) {
+      req.session.errors = errors;
+      res.redirect('/login');
+      console.log('loginAttempt fail');
+    } else {
+      loginAttempt(req.body.email, req.body.password, req, res);
+    }
+  });
 
 
+  router.post('/addUser', expressValidator(), function (req, res) {
+    let name = req.body.name;
+    let email = req.body.email;
+    let password = req.body.password;
+
+    req.checkBody('name', 'Name is required').notEmpty();
+    req.checkBody('email', 'Name is required').notEmpty();
+    req.checkBody('email', 'Name is required').isEmail();
+    req.checkBody('password', 'Name is required').notEmpty();
+
+    const errors = req.validationErrors();
+    if (errors) {
+      req.session.errors = errors;
+      res.redirect('/login');
+    } else {
+
+      creatNewUser(req.body.name, req.body.email, req.body.password, req, res);
+    }
+  });
 
 
+  
+ 
+
+  /* Qureys routes */
+
+  router.get('/movies/', function (req, res, next) {
+    inventoryStatus('Movies In Stock', 'Largest inventory: ', '', res);
+  });
+
+  router.post('/submitrent', formidableMiddleware(), function (req, res) {
+    updateRentedInventory(req.fields.title, req.fields.inventory, req.fields.email, res);
+  });
 
 
+  router.post('/submitreturn', formidableMiddleware(), function (req, res) {
+    updateReturnedInventory(req.fields.title, req.fields.inventory, req.fields.email, res);
+  });
 
-  /* Qureys */
-
+  router.post('/addmovietodb', formidableMiddleware(), function (req, res) {
+    updateNewInventory(req.fields.title, req.fields.inventory, res);
+  });
 
   router.get('/topTenMovies', function (req, res) {
     topTenMovies(res);
@@ -113,76 +172,8 @@ MongoClient.connect(usersdbUrl, function (err, db) {
     res.render('login');
   });
 
-  router.use(expressValidator());
 
-  router.post('/user', function (req, res, ) {
-
-    let email = req.body.email;
-    let password = req.body.password;
-
-    req.checkBody('email', 'Name is required').notEmpty();
-    req.checkBody('email', 'Name is required').isEmail();
-    req.checkBody('password', 'Name is required').notEmpty();
-
-    const errors = req.validationErrors();
-    if (errors) {
-      req.session.errors = errors;
-      res.redirect('/login');
-      console.log('loginAttempt fail');
-    } else {
-      loginAttempt(req.body.email, req.body.password, req, res);
-    }
-  });
-
-
-  router.post('/addUser', function (req, res) {
-    let name = req.body.name;
-    let email = req.body.email;
-    let password = req.body.password;
-
-    req.checkBody('name', 'Name is required').notEmpty();
-    req.checkBody('email', 'Name is required').notEmpty();
-    req.checkBody('email', 'Name is required').isEmail();
-    req.checkBody('password', 'Name is required').notEmpty();
-
-    const errors = req.validationErrors();
-    if (errors) {
-      req.session.errors = errors;
-      res.redirect('/login');
-    } else {
-
-      creatNewUser(req.body.name, req.body.email, req.body.password, req, res);
-    }
-  });
-
-
-
-  router.get('/movies/', function (req, res, next) {
-    inventoryStatus('Movies In Stock', 'Largest inventory: ', '', res);
-  });
-
-
-  //router.use(formidableMiddleware());
-
-
-
-  router.post('/submitrent', formidableMiddleware(), function (req, res) {
-    updateRentedInventory(req.fields.title, req.fields.inventory, req.fields.email, res);
-  });
-
-
-  router.post('/submitreturn', formidableMiddleware(), function (req, res) {
-    updateReturnedInventory(req.fields.title, req.fields.inventory, req.fields.email, res);
-  });
-
-  router.post('/addmovietodb', formidableMiddleware(), function (req, res) {
-    updateNewInventory(req.fields.title, req.fields.inventory, res);
-  });
-
-
-
-  /* Database creation functions: */
-
+  /* Database functions: */
 
   function updateNewInventory(title, inventory, res) {
     let query = {};
@@ -230,9 +221,7 @@ MongoClient.connect(usersdbUrl, function (err, db) {
         });
       }
     });
-  }
-
-
+  };
 
 
   function updateRentedInventory(title, inventory, email, res) {
@@ -304,7 +293,7 @@ MongoClient.connect(usersdbUrl, function (err, db) {
             status = email + ' have ' + (r.value.activeUsers[0].inventory + inventory) + ' copies include the ' + inventory + ' new copies',
             inventoryStatus(title, status, '', res);
         })
-  }
+  };
 
 
 
@@ -340,9 +329,6 @@ MongoClient.connect(usersdbUrl, function (err, db) {
       function (err, r) {
         if (err) console.log(err);
 
-
-
-
         if (r.value === null) {
           currentUserInventory(title, email, function (err, value) {
             title = 'The movie: ' + title + ' wasnt returnd to stock!',
@@ -361,10 +347,10 @@ MongoClient.connect(usersdbUrl, function (err, db) {
 
       }
     )
-  }
+  };
 
 
-  /* Databas basic queries: */
+  /* Databas queries: */
 
   function currentMovieInventory(title, cb) {
     collection.findOne({
@@ -442,8 +428,6 @@ MongoClient.connect(usersdbUrl, function (err, db) {
   };
 
 
-
-
   function inventoryStatus(title, status, userName, res) {
     collection.aggregate([{
         $project: {
@@ -494,7 +478,7 @@ MongoClient.connect(usersdbUrl, function (err, db) {
       });
       */
     })
-  }
+  };
 
   function inventoryStatusInLogin(title, status, userName, res) {
     collection.aggregate([{
@@ -532,9 +516,7 @@ MongoClient.connect(usersdbUrl, function (err, db) {
         userName: userName
       });
     })
-  }
-
-
+  };
 
 
 
@@ -609,7 +591,7 @@ MongoClient.connect(usersdbUrl, function (err, db) {
       });
       */
     })
-  }
+  };
 
 
 
@@ -684,7 +666,7 @@ MongoClient.connect(usersdbUrl, function (err, db) {
       });
       */
     })
-  }
+  };
 
 
   function mostActiveUser(res) {
@@ -761,7 +743,7 @@ MongoClient.connect(usersdbUrl, function (err, db) {
         moviesList: usersList
       });
     })
-  }
+  };
 
 
   function topRentedMovie(res) {
@@ -846,6 +828,7 @@ MongoClient.connect(usersdbUrl, function (err, db) {
 
   /* User login and creation: */
 
+  //Creat New User - callback inventoryStatusInLogin
 
   function creatNewUser(name, email, password, req, res) {
     if (name)
@@ -882,10 +865,10 @@ MongoClient.connect(usersdbUrl, function (err, db) {
           }
         })
       })
-  }
+  };
 
 
-
+  // Login chack user email and password - callback getUserName
 
   function loginAttempt(email, password, req, res) {
     if (email)
@@ -941,8 +924,9 @@ MongoClient.connect(usersdbUrl, function (err, db) {
         } else
           res.render('login');
       })
-  }
+  };
 
+  //On login sucsess activat the user session
 
   function getUserName(email, title, status, userName, req, res) {
     usersCollection.findOne({
