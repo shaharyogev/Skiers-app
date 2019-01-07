@@ -367,59 +367,61 @@ MongoClient.connect(usersdbUrl, function (err, db) {
 
     if (email)
       email = email.toLowerCase(),
-      query['activeUsers.email'] = email,
+      query['activeUsers.email'] = email;
 
-      collection.findOneAndUpdate(query, {
-          $inc: {
-            'activeUsers.$.inventory': inventory,
-            inventory: -inventory
-          }
-        }, {
-          upsert: true
-        },
-        function (err, r) {
-          if (err) console.log(err);
+    collection.findOneAndUpdate(query, {
+        $inc: {
+          'activeUsers.$.inventory': inventory,
+          inventory: -inventory
+        }
+      }, {
+        upsert: true
+      },
+      function (err, r) {
+        if (err) console.log(err);
 
-          if (r === null)
-            collection.findOneAndUpdate({
-                title: title,
-                inventory: {
-                  $gte: inventory
-                }
-              }, {
-                $addToSet: {
-                  activeUsers: {
-                    email: email,
-                    inventory: inventory
-                  }
-                },
-                $inc: {
-                  inventory: -inventory
+        if (r === null)
+          collection.findOneAndUpdate({
+              title: title,
+              inventory: {
+                $gte: inventory
+              }
+            }, {
+              $addToSet: {
+                activeUsers: {
+                  email: email,
+                  inventory: inventory
                 }
               },
-              function (err, r) {
+              $inc: {
+                inventory: -inventory
+              }
+            },
+            function (err, r) {
 
-                if (err) console.log(err)
+              if (err) console.log(err)
 
-                if (r.value !== null)
-                  title = title + ' inventory was updated to' + inventory,
-                  status = email + ' have ' + inventory + ' new copies',
-                  inventoryStatus(title, status, '', res);
+              if (r.value !== null)
+                title = title + ' inventory was updated to' + inventory,
+                status = email + ' have ' + inventory + ' new copies',
+                inventoryStatus(title, status, '', res);
 
-                else
-                  currentMovieInventory(title, function (err, value) {
-                    currentMovieI = value;
-                    title = title + ' inventory wasent updated, the current inventory is: ' + currentMovieI,
-                      status = email + ' can rent only: ' + currentMovieI + ' new copies',
-                      inventoryStatus(title, status, '', res);
-                  })
-              })
+              else
+                currentMovieInventory(title, function (err, value) {
+                  currentMovieI = value;
+                  title = title + ' inventory wasent updated, the current inventory is: ' + currentMovieI,
+                    status = email + ' can rent only: ' + currentMovieI + ' new copies',
+                    inventoryStatus(title, status, '', res);
+                })
+            });
 
-          else
-            title = title + ' inventory was updated to' + (r.value.inventory - inventory),
-            status = email + ' have ' + (r.value.activeUsers[0].inventory + inventory) + ' copies include the ' + inventory + ' new copies',
-            inventoryStatus(title, status, '', res);
-        })
+        else
+          currentUserInventory(title, email, function (err, value) {
+          title = title + ' inventory was updated to' + (r.value.inventory - inventory),
+          status = 'The user: ' + email + ' have ' + value + ' copies include the ' + inventory + ' new copies',
+          inventoryStatus(title, status, '', res);
+          });
+      })
   };
 
 
