@@ -13,18 +13,26 @@ const formidableMiddleware = require('express-formidable');
 
 
 /*MAP*/
-/* User login and creation: */
-//Creat New User - callback inventoryStatusInLogin
-// Login chack user email and password - callback getUserName
-// Log user session to the cookie
+
+/*Start the Database connection: */
 
 /* Session & cookies */
 // Log user session to the cookie
 
+/* User login and creation: */
+//Creat New User - callback inventoryStatusInLogin
+// Login chack user email and password - callback getUserName
+
+/* Database functions: */
+
 /* Router requests: */
 
-
 /* Qureys routes */
+
+/* Databas queries: */
+
+/* BI Querys: */
+
 
 
 /*Start the Database connection: */
@@ -43,7 +51,6 @@ MongoClient.connect(usersdbUrl, function (err, db) {
 
   // Log user session to the cookie
 
-
   router.use(session({
     key: 'user_id',
     name: 'activeSession',
@@ -52,25 +59,7 @@ MongoClient.connect(usersdbUrl, function (err, db) {
     saveUninitialized: false,
   }));
 
-
-
-
-
-  /* Router requests: */
-
-
-  router.get('/', function (req, res, next) {
-    res.render('login');
-  })
-
-  router.get('/:id', function (req, res, next) {
-    if (req.session.succes)
-      next();
-    else
-      res.render('login');
-  })
-
-   /*
+  /*
   router.use((req, res, next)=>{
     console.log(req.session)
     next();
@@ -88,7 +77,23 @@ MongoClient.connect(usersdbUrl, function (err, db) {
       next();
   });
   */
-  
+
+
+  /* Router requests: */
+
+
+  router.get('/', function (req, res, next) {
+    res.render('login');
+  })
+
+  router.get('/:id', function (req, res, next) {
+    if (req.session.succes)
+      next();
+    else
+      res.render('login');
+  })
+
+
   router.post('/user', expressValidator(), function (req, res, ) {
 
     let email = req.body.email;
@@ -130,9 +135,6 @@ MongoClient.connect(usersdbUrl, function (err, db) {
   });
 
 
-  
- 
-
   /* Qureys routes */
 
   router.get('/movies/', function (req, res, next) {
@@ -173,6 +175,133 @@ MongoClient.connect(usersdbUrl, function (err, db) {
   });
 
 
+  /* User login and creation: */
+
+  //Creat New User - callback inventoryStatusInLogin
+
+  function creatNewUser(name, email, password, req, res) {
+    if (name)
+      name = name.toLowerCase();
+
+    if (email)
+      email = email.toLowerCase();
+
+    if (password)
+      bcrypt.hash(password, saltRounds, function (err, hash) {
+
+        usersCollection.findOne({
+          email: email
+        }, function (err, r) {
+          if (err) console.log(err);
+          if (r == null) {
+            usersCollection.insertOne({
+              userName: name,
+              email: email,
+              key: hash
+            }, function (err, r) {
+              if (err) console.log(err);
+              if (r !== null) {
+                if (r.result.n == 1) {
+                  req.session.succes = true;
+                  inventoryStatusInLogin('hello new user', '', name, res);
+                }
+              } else {
+                res.render('login')
+              }
+            })
+          } else {
+            res.render('login')
+          }
+        })
+      })
+  };
+
+
+  // Login chack user email and password - callback getUserName
+
+  function loginAttempt(email, password, req, res) {
+    if (email)
+      email = email.toLowerCase();
+
+    if (password)
+      usersCollection.findOne({
+        email: email
+      }, {
+        projection: {
+          _id: 0,
+          key: 1,
+          userName: 1
+        }
+      }, function (err, findRes) {
+        if (err) console.log(err);
+
+        if (findRes !== null) {
+          bcrypt.compare(password, findRes.key, function (err, bcRes) {
+            if (err) console.log(err);
+            if (bcRes) {
+              usersCollection.updateOne({
+                email: email
+              }, {
+                $inc: {
+                  loginSuccessfully: +1
+                }
+              }, {
+                upsert: true
+              }, function (err, r) {
+                if (err) console.log(err);
+                if (r.result.n == 1)
+                  req.session.succes = true,
+                  getUserName(email, 'hello ' + findRes.userName, '', '', req, res);
+
+              });
+            } else {
+              usersCollection.updateOne({
+                email: email
+              }, {
+                $inc: {
+                  loginUnsuccessfully: +1
+                }
+              }, {
+                upsert: true
+              }, function (err, r) {
+                if (err) console.log(err);
+                if (r.result.n == 1)
+                  res.render('login');
+              });
+            }
+          });
+        } else
+          res.render('login');
+      })
+  };
+
+  //On login sucsess activat the user session
+
+  function getUserName(email, title, status, userName, req, res) {
+    usersCollection.findOne({
+      email: email
+    }, {
+      projection: {
+        _id: 0,
+        userName: 1
+      }
+    }, function (err, r) {
+      if (err) console.log(err)
+      if (r !== null) {
+        req.session.cookie = {
+          name: 'moviesInventory',
+          userName: r.userName,
+          originalMaxAge: 1000 * 60 * 60 * 24 * 365
+        };
+        inventoryStatusInLogin(title, status, r.userName, res);
+      }
+    })
+  }
+
+
+
+
+
   /* Database functions: */
 
   function updateNewInventory(title, inventory, res) {
@@ -189,13 +318,11 @@ MongoClient.connect(usersdbUrl, function (err, db) {
     currentMovieInventory(title, function (err, value) {
       currentMovieI = value;
 
-      if ((currentMovieI + inventory) <= 0){
+      if ((currentMovieI + inventory) <= 0) {
         title = title + ' inventory was not update - inventory is too low',
-        status = 'The maximum inventory to raduse is: ' + currentMovieI,
-        inventoryStatus(title, status, '', res);
-      }
-
-      else{
+          status = 'The maximum inventory to raduse is: ' + currentMovieI,
+          inventoryStatus(title, status, '', res);
+      } else {
         collection.findOneAndUpdate(query, {
           $inc: {
             inventory: inventory
@@ -217,7 +344,7 @@ MongoClient.connect(usersdbUrl, function (err, db) {
             title = title + ' is new, inventory updated successfuly',
             status = 'The inventory is: ' + (currentMovieI + inventory);
 
-          inventoryStatus(title, status,'', res);
+          inventoryStatus(title, status, '', res);
         });
       }
     });
@@ -821,133 +948,8 @@ MongoClient.connect(usersdbUrl, function (err, db) {
         moviesList: usersList
       });
     })
-  }
-
-
-
-
-  /* User login and creation: */
-
-  //Creat New User - callback inventoryStatusInLogin
-
-  function creatNewUser(name, email, password, req, res) {
-    if (name)
-      name = name.toLowerCase();
-
-    if (email)
-      email = email.toLowerCase();
-
-    if (password)
-      bcrypt.hash(password, saltRounds, function (err, hash) {
-
-        usersCollection.findOne({
-          email: email
-        }, function (err, r) {
-          if (err) console.log(err);
-          if (r == null) {
-            usersCollection.insertOne({
-              userName: name,
-              email: email,
-              key: hash
-            }, function (err, r) {
-              if (err) console.log(err);
-              if (r !== null) {
-                if (r.result.n == 1) {
-                  req.session.succes = true;
-                  inventoryStatusInLogin('hello new user', '', name, res);
-                }
-              } else {
-                res.render('login')
-              }
-            })
-          } else {
-            res.render('login')
-          }
-        })
-      })
   };
-
-
-  // Login chack user email and password - callback getUserName
-
-  function loginAttempt(email, password, req, res) {
-    if (email)
-      email = email.toLowerCase();
-
-    if (password)
-      usersCollection.findOne({
-        email: email
-      }, {
-        projection: {
-          _id: 0,
-          key: 1,
-          userName: 1
-        }
-      }, function (err, findRes) {
-        if (err) console.log(err);
-
-        if (findRes !== null) {
-          bcrypt.compare(password, findRes.key, function (err, bcRes) {
-            if (err) console.log(err);
-            if (bcRes) {
-              usersCollection.updateOne({
-                email: email
-              }, {
-                $inc: {
-                  loginSuccessfully: +1
-                }
-              }, {
-                upsert: true
-              }, function (err, r) {
-                if (err) console.log(err);
-                if (r.result.n == 1)
-                  req.session.succes = true,
-                  getUserName(email, 'hello ' + findRes.userName, '', '', req, res);
-
-              });
-            } else {
-              usersCollection.updateOne({
-                email: email
-              }, {
-                $inc: {
-                  loginUnsuccessfully: +1
-                }
-              }, {
-                upsert: true
-              }, function (err, r) {
-                if (err) console.log(err);
-                if (r.result.n == 1)
-                  res.render('login');
-              });
-            }
-          });
-        } else
-          res.render('login');
-      })
-  };
-
-  //On login sucsess activat the user session
-
-  function getUserName(email, title, status, userName, req, res) {
-    usersCollection.findOne({
-      email: email
-    }, {
-      projection: {
-        _id: 0,
-        userName: 1
-      }
-    }, function (err, r) {
-      if (err) console.log(err)
-      if (r !== null) {
-        req.session.cookie = {
-          name: 'moviesInventory',
-          userName: r.userName,
-          originalMaxAge: 1000 * 60 * 60 * 24 * 365
-        };
-        inventoryStatusInLogin(title, status, r.userName, res);
-      }
-    })
-  }
 });
+
 
 module.exports = router;
