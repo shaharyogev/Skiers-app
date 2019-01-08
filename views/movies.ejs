@@ -6,11 +6,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Movies list</title>
   <link rel='stylesheet' href='/stylesheets/style.css' />
+  <link rel='stylesheet' href='/stylesheets/admin.css' />
   <link rel='shortcut icon' href='/images/favicon.ico' />
 
 </head>
 
 <body>
+  <div id='mainPage'>
   <main>
     <nav>
       <div id='userNameTitle'>
@@ -35,12 +37,10 @@
         </ul>
       </div>
     </div>
-
     </nav>
 
 
     <section>
-
       <div class='form'>
         <h1>Rent a movie</h1>
         <form id='rentMovie' name='rentmovie' action='/submitrent' onsubmit='return checkForm(id)'>
@@ -109,8 +109,29 @@
     </section>
 
     <section>
+        <div class='querysResults'>
+            <div id='topten' class='topten'>
+              <h1 class='title' id='title'>
+                <%= title %>
+              </h1>
+              <h3 class='subTitle' id='status'>
+                <%= status %>
+              </h3>
+              <ul id='queryUl'>
+                <% for( var index in moviesList ){  %>
+                <li>
+                  <%= moviesList[index]%>
+                </li>
+                <% } %>
+              </ul>
+            </div>
+          </div>
+      
 
-      <div id='chatLiveBox' class='chatLiveBox'>
+    </section>
+    
+
+    <div id='chatLiveBox' class='chatLiveBox'>
         <div id='chatFlex'>
         <div id='minimize'>
           <div id='chatButtons'>
@@ -138,25 +159,6 @@
         </div>
       </div>
       </div>
-
-    </section>
-    <div class='querysResults'>
-      <div id='topten' class='topten'>
-        <h1 class='title' id='title'>
-          <%= title %>
-        </h1>
-        <h3 class='subTitle' id='status'>
-          <%= status %>
-        </h3>
-        <ul id='queryUl'>
-          <% for( var index in moviesList ){  %>
-          <li>
-            <%= moviesList[index]%>
-          </li>
-          <% } %>
-        </ul>
-      </div>
-    </div>
 
   </main>
   <script src="/socket.io/socket.io.js"></script>

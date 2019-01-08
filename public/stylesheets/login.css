@@ -1,0 +1,139 @@
+/*Login page*/
+
+body {
+  margin: 0;
+  font-family: Poppins, sans-serif;
+}
+
+#loginPage {
+  margin: 0;
+  display: flex;
+  box-sizing: content-box;
+  flex-wrap: wrap;
+  flex-direction: column;
+  align-content: center;
+}
+.filer3{
+  flex: 2 1 auto;
+}
+#loginHeadlin {
+  flex: 2 1 0;
+  display: flex;
+  align-self: flex-start;
+  justify-self: center;
+  justify-content: center;
+  flex-direction:row;
+  width: 100%;
+  
+}
+.logoStrip{
+  display:flex;
+  flex-flow: row-reverse;
+  align-items:center;
+  justify-content:center;
+  width:800px;
+  
+
+}
+
+#loginHeadlin h1 {
+
+  margin-left: 0.5rem;
+
+}
+
+
+
+.logoImg {
+  display:flex;
+
+  width: 50px;
+  height: 50px;
+  
+}
+
+#loginCenterBox {
+  flex: 1 1 0;
+  flex-wrap: wrap;
+  justify-self: center;
+  align-self: center;
+  
+  flex-direction: column;
+  padding: 0.5vh 5vw;
+  box-shadow: 0px 2px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 0.3rem;
+  box-sizing: border-box;
+  border: 0px solid #dadce0;
+}
+
+@media(max-width:600px) {
+  .logoStrip {
+    width: 100%;
+    justify-content:center;
+  }
+  #loginCenterBox {
+    width:90%;
+
+  }
+
+}
+
+#loginTabA {
+  display: flex;
+}
+
+#loginTabB {
+  display: none;
+}
+
+.tabBox {
+  display: flex;
+  margin: auto;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#loginCenterBox input,
+#loginCenterBox button,
+#loginCenterBox a {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.85rem;
+  line-height: 1.5rem;
+  box-sizing: border-box;
+  box-shadow: none;
+  max-width: 100%;
+}
+
+#loginCenterBox input {
+  width:16rem;
+  border-radius: 0.3rem;
+  border-style: solid;
+  border-width: 1px;
+  border-color: rgb(218, 220, 224);
+  padding: 0.2rem 1rem;
+}
+
+#loginCenterBox form {
+  max-width: 100%;
+}
+
+.stripBox {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: space-between;
+}
+
+.loginButton {
+  margin: 0;
+  background-color: rgb(26, 115, 232);
+  border-radius: 0.3rem;
+  border: none;
+  color: white;
+  padding: 0.1rem 1.3rem;
+}
+
+#newUserButton {
+  cursor: pointer;
+}
