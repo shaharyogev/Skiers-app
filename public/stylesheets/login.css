@@ -13,43 +13,42 @@ body {
   flex-direction: column;
   align-content: center;
 }
-.filer3{
+
+.filer3 {
   flex: 2 1 auto;
 }
+
 #loginHeadlin {
   flex: 2 1 0;
   display: flex;
   align-self: flex-start;
   justify-self: center;
   justify-content: center;
-  flex-direction:row;
+  flex-direction: row;
+  flex-wrap:wrap;
   width: 100%;
-  
+  box-sizing:border-box;
 }
-.logoStrip{
-  display:flex;
-  flex-flow: row-reverse;
-  align-items:center;
-  justify-content:center;
-  width:800px;
-  
 
+.logoStrip {
+  display: flex;
+  flex-wrap:wrap;
+  flex-flow: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing:border-box;
+
+  width: 400px;
 }
 
 #loginHeadlin h1 {
-
   margin-left: 0.5rem;
-
 }
 
-
-
 .logoImg {
-  display:flex;
-
+  display: flex;
   width: 50px;
   height: 50px;
-  
 }
 
 #loginCenterBox {
@@ -57,7 +56,6 @@ body {
   flex-wrap: wrap;
   justify-self: center;
   align-self: center;
-  
   flex-direction: column;
   padding: 0.5vh 5vw;
   box-shadow: 0px 2px 12px rgba(0, 0, 0, 0.15);
@@ -69,13 +67,11 @@ body {
 @media(max-width:600px) {
   .logoStrip {
     width: 100%;
-    justify-content:center;
+    justify-content: center;
   }
   #loginCenterBox {
-    width:90%;
-
+    width: 90%;
   }
-
 }
 
 #loginTabA {
@@ -107,7 +103,7 @@ body {
 }
 
 #loginCenterBox input {
-  width:16rem;
+  width: 16rem;
   border-radius: 0.3rem;
   border-style: solid;
   border-width: 1px;

@@ -9,6 +9,21 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+.flex-row{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items:center;
+  box-sizing:border-box;
+}
+.flex-column{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items:center;
+  box-sizing:border-box;
+}
+
 #mainPage {
   display: flex;
   flex-direction: row;
@@ -26,9 +41,58 @@ body {
   box-sizing: border-box;
 }
 
-.userNameTitle {}
 
-.navButtons {}
+.logoImg {
+  display: flex;
+  width: 41px;
+  height: 41px;
+}
+
+
+#userNameTitle {
+  justify-content:flex-start;
+  margin:0 2rem;
+}
+
+.navButtons {
+  justify-content:flex-start;
+  margin:2rem;
+}
+.navButtons h2{
+  
+}
+
+.navButtons ul{
+  list-style:none;
+  margin:0;
+  margin-block-start:0;
+  margin-block-end:0;
+  padding-inline-start:0;
+  text-align:start;
+
+  
+}
+.navButtons li{
+  cursor:pointer;
+  list-style:none;
+  margin-top:1rem;
+  border-bottom-color:#e4e4e4;
+  border-bottom-style:solid;
+  transition: 0.3s ease-in-out;
+
+}
+.navButtons li:hover{
+  border-bottom-color:#a525a5;
+
+}
+
+.navButtons li:active{
+  border-bottom-color:#0e7275;
+  transition: 0.1s linear;
+  
+
+}
+
 
 .mainContent {
   display: flex;
@@ -161,9 +225,9 @@ body {
   position: fixed;
   max-height: 25vh;
   min-height: 25vh;
-  width: 35vw;
-  right: 10%;
-  bottom: 0;
+  width: 50vw;
+  right: 5%;
+  bottom: 5%;
   transition: 1000ms ease;
 }
 
@@ -192,7 +256,7 @@ body {
   flex-direction: row;
   justify-content: space-evenly;
   background-color: #efefef;
-  border:
+  
 }
 
 #chatInput {
@@ -250,7 +314,7 @@ body {
 }
 
 #chatMessagesBox {
-  flex: 1 1 80%;
+  flex: 1 1 70%;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -265,7 +329,7 @@ body {
 }
 
 #chatUsersOnline {
-  flex: 1 1 20%;
+  flex: 1 1 30%;
   background-color: rgb(255, 255, 255);
   padding: 0;
   overflow-x: hidden;
