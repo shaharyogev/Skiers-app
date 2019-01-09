@@ -5,7 +5,8 @@ body {
   font-weight: 400;
   line-height: 1.4;
   text-align: left;
-  background-color: #f7f7f7
+  background-color: #f7f7f7;
+  text-rendering: optimizeLegibility;
 }
 
 #mainPage {
@@ -34,8 +35,8 @@ body {
   flex: 1 1 80%;
   flex-direction: row;
   justify-content: space-around;
-  align-items:flex-start;
-  margin-top:2rem;
+  align-items: flex-start;
+  margin-top: 2rem;
 }
 
 #inventoryTab {
@@ -44,8 +45,6 @@ body {
   box-sizing: border-box;
   background-color: white;
   flex-wrap: wrap;
-  
- 
   padding: 2vh 5vw;
   box-shadow: 0px 2px 12px rgba(0, 0, 0, 0.15);
   border-radius: 0.3rem;
@@ -57,8 +56,6 @@ body {
   box-sizing: border-box;
   background-color: white;
   flex-wrap: wrap;
-  
- 
   padding: 0.5vh 5vw;
   box-shadow: 0px 2px 12px rgba(0, 0, 0, 0.15);
   border-radius: 0.3rem;
@@ -72,12 +69,12 @@ body {
 
 .tabNavButton {
   justify-self: center;
-  align-self:center;
+  align-self: center;
   box-sizing: border-box;
   flex-basis: 30%;
   border-bottom-style: solid;
   border-bottom-color: #adb2b5;
-  cursor:pointer;
+  cursor: pointer;
 }
 
 #inventoryTabA {
@@ -142,21 +139,22 @@ body {
   border: none;
   color: white;
   padding: 0.1rem 1.3rem;
-  cursor:pointer;
+  cursor: pointer;
 }
 
-
-#chatLiveBox{
+#chatLiveBox {
   display: flex;
-  align-content:stretch;
-  flex-direction:row;
+  align-content: stretch;
+  flex-direction: row;
+  box-shadow: 0px 2px 12px rgba(0, 0, 0, 0.15);
 }
+
 #chatFlex {
   display: flex;
   flex-direction: column;
-  align-content:stretch;
-  flex-basis:100%
- 
+  align-content: stretch;
+  flex-basis: 100%;
+  background-color: #efefef;
 }
 
 .chatLiveBox {
@@ -166,7 +164,6 @@ body {
   width: 35vw;
   right: 10%;
   bottom: 0;
-  background-color: rgba(92, 105, 105, 0.809);
   transition: 1000ms ease;
 }
 
@@ -177,41 +174,43 @@ body {
   width: 35vw;
   right: 10%;
   bottom: 0;
-  background-color: rgba(92, 105, 105, 0.809);
   transition: 1000ms ease;
-  
 }
 
-
-
 #minimize {
-  display:flex;
-  flex-basis:85%;
-  flex-direction:row;
-  align-content:stretch;
-
+  display: flex;
+  flex-basis: 85%;
+  flex-direction: row;
+  align-content: stretch;
+  color: #404040
 }
 
 #chatInputDiv {
-  
+  margin: 0.85rem 0rem;
   display: flex;
-  flex-basis:15%;
-  flex: row;
-  align-self:flex-end;
+  flex-basis: 15%;
+  flex-direction: row;
+  justify-content: space-evenly;
+  background-color: #efefef;
+  border:
 }
 
 #chatInput {
+  flex-basis: 70%;
   display: flex;
-
-  padding: 0;
-  border-width: 0;
+  border-style: solid;
+  border-radius: 21px;
+  border-color: white;
+  background-color: white;
+  border-width: 1px;
+  box-shadow: none;
+  padding: 9px 12px 11px 12px;
 }
 
 #chatSend {
-
-
-
-  padding: 1px, 1px;
+  flex-basis: 10%;
+  border-style: none;
+  background-color: rgb(93, 97, 99)
 }
 
 #chatButtons {
@@ -242,9 +241,8 @@ body {
 }
 
 #chatMessages {
-  flex:1 1 100%;
-  background-color: rgba(212, 54, 54, 0.404);
-
+  flex: 1 1 100%;
+  background-color: #e5ddd5;
   overflow-y: auto;
   list-style: none;
   display: flex;
@@ -252,8 +250,9 @@ body {
 }
 
 #chatMessagesBox {
-  flex:1 1 80%;
+  flex: 1 1 80%;
   display: flex;
+  flex-direction: column;
   overflow-y: auto;
   list-style: none;
 }
@@ -262,17 +261,79 @@ body {
   display: block;
   list-style: none;
   padding: 0;
+  margin:0;
 }
 
 #chatUsersOnline {
-  flex:1 1 20%;
-  background-color: #00B7FF;
+  flex: 1 1 20%;
+  background-color: rgb(255, 255, 255);
   padding: 0;
   overflow-x: hidden;
   overflow-y: auto;
+  box-sizing:border-box;
 }
-
+#chatMessages h2 {
+  padding-left:0.5rem;
+  font-size:100%;
+}
+#chatUsersOnline h3 {
+  padding-left:0.5rem;
+  margin: 0.22rem 0;
+  
+  
+}
 #chatUsersUl {
   list-style: none;
   padding-left: 0;
+}
+
+.chatInputTextBox ::before {
+  color: #a3a3a3;
+}
+
+.chatInputTextBox ::after {
+  color: #4b4b4b;
+}
+
+.newMessageLi {
+  font-size: 14.2px;
+  line-height: 19px;
+  color: #262626;
+  padding: 2px 3px 3px 10px;
+  box-sizing: border-box;
+  background-color: white;
+  margin: 0.2rem 1rem;
+  border-radius: 0px 7.5px 7.5px 7.5px;
+  box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+}
+
+.newMessageLi h3 {
+  flex: 1 1 20%;
+  margin: 0.1rem;
+}
+
+.newMessageLi p {
+  flex: 1 1 80%;
+  margin: 0.1rem;
+}
+
+.newUserLi{
+  
+
+}
+
+
+
+:root {
+  --c1: #8b7add;
+  --c2: #96af14;
+  --c3: #b14834;
+  --c4: #ffaf83;
+  --c5: #3ecf9a;
+  --c6: #fd88d5;
+  --c7: #32a82b;
+  --c8: #e74ca8;
 }

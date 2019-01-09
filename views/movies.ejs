@@ -107,12 +107,13 @@
             </div>
             <div id='chatMessages'>
               <div id='chatUsersOnline'>
-                Online Users:
+                <h2>Online:</h2>
                 <ul id='chatUsersUl'>
                   <li></li>
                 </ul>
               </div>
-              <div id='chatMessagesBox'>Chet:
+              <div id='chatMessagesBox'>
+                <h2>Chat:</h2>
                 <ul id='chatUl'>
                   <li></li>
                 </ul>
@@ -121,7 +122,7 @@
           </div>
 
           <div id='chatInputDiv'>
-            <input id='chatInput' type='text' placeholde='Message:' required>
+            <input class='chatInputTextBox' id='chatInput' type='text' placeholder='Type a message' required>
             <button id='chatSend' type='button'>Send</button>
           </div>
         </div>
@@ -195,13 +196,23 @@
         userName: userName
       });
     };
-
+    let newUserChatCount = 0;
+    let newUserChatColorList = new Array;
     socket.on('newUserConnected', function (d) {
-      console.log(d);
+      newUserChatCount ++;
       let newUserChatLi = document.createElement('li');
-      newUserChatLi.appendChild(document.createTextNode(d));
-      newUserChatLi.setAttribute('class', 'newMessageLi');
-      console.log(chatUsersUl.firstElementChild)
+      let newChatH3 = document.createElement('h3');
+      newChatH3.appendChild(document.createTextNode(d));
+      newUserChatLi.appendChild(newChatH3);
+      let colorPickerVar = newUserChatCount % 8;
+      newChatH3.style.color = 'var(--c'+ colorPickerVar+ ')';
+      newUserChatLi.setAttribute('class', 'newUserLi');
+      newUserChatColorList[d]= 'var(--c'+ colorPickerVar+ ')';
+
+    
+
+      
+      //console.log(chatUsersUl.firstElementChild)
       chatUsersUl.insertBefore(newUserChatLi, chatUsersUl.firstElementChild);
     });
 
@@ -228,7 +239,18 @@
     //recive message and print to screen
     socket.on('new message', function (d) {
       let newChatLi = document.createElement('li');
-      newChatLi.appendChild(document.createTextNode(d.user + ': ' + d.message));
+      let newChatH3 = document.createElement('h3');
+      let newChatP = document.createElement('p');
+      let newChatH3Color = newUserChatColorList[d.user];
+      console.log(newUserChatColorList[d.user]);
+     // newChatLi.appendChild(document.createTextNode(d.user + ': ' + d.message));
+     // newChatLi.setAttribute('class', 'newMessageLi');
+      
+      newChatH3.appendChild(document.createTextNode(d.user));
+      newChatH3.style.color = newChatH3Color;
+      newChatP.appendChild(document.createTextNode(d.message));
+      newChatLi.appendChild(newChatH3);
+      newChatLi.appendChild(newChatP);
       newChatLi.setAttribute('class', 'newMessageLi');
       chatUl.appendChild(newChatLi);
       let messages = chatUl.querySelectorAll('li');
