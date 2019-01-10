@@ -12,6 +12,7 @@
 
 <body>
   <div id='mainPage'>
+
     <nav class='navColumn'>
       <div class='navLogo flex-row'>
 
@@ -36,8 +37,8 @@
           <%= userName %>
         </h2>
       </div>
-      <div class='dropdownButton  '>
-        <div class='dropdown hover navButtons '>
+      <div>
+        <div class='navButtons'>
           <h2>BI Querys</h2>
           <ul>
             <li><a type='button' method='get' action='/movies' onclick="includeThisHTML('/movies')">Movies In Stock </a></li>
@@ -50,10 +51,30 @@
             <li><a type='button' method='get' action='topRentedMovie' onclick="includeThisHTML('/topRentedMovie')">Top
                 Rented Movie </a></li>
           </ul>
+          <a type="button" class='menuButtonText' onclick="themeToggle('themeToggle')">
+            <div id="themeToggle" class="manuBox5">Dark-Side</div>
+          </a>
         </div>
       </div>
     </nav>
     <div class='mainContent'>
+      <div class="navMenu flex-column">
+        <h2 class='userNameMenu'>
+          <%= userName %>
+        </h2>
+        <div id="menuLogo">
+          <div class="menuContainer" onclick="menuX(this)">
+            <div class="menuBar1"></div>
+            <div class="menuBar2"></div>
+            <div class="menuBar3"></div>
+
+            <div id="menuPopUp">
+
+            </div>
+          </div>
+        </div>
+
+      </div>
       <div id='inventoryTab'>
         <div id='navTab'>
           <a type='button' class='tabNavButton' onclick="tabToggle('a')">Rent</a>
@@ -149,24 +170,9 @@
                 xml:space="preserve">
                 <g>
                   <g>
-                    <polygon points="0,497.25 535.5,267.75 0,38.25 0,216.75 382.5,267.75 0,318.75 		" />
+                    <polygon points="0,497.25 535.5,267.75 0,38.25 0,216.75 382.5,267.75 0,318.75"/>
                   </g>
                 </g>
-                <g></g>
-                <g></g>
-                <g></g>
-                <g></g>
-                <g></g>
-                <g></g>
-                <g></g>
-                <g></g>
-                <g></g>
-                <g></g>
-                <g></g>
-                <g></g>
-                <g></g>
-                <g></g>
-                <g></g>
               </svg>
             </a>
           </div>
@@ -210,7 +216,7 @@
       }
     };
 
-    //Dropdown manu
+    //Chat Toggles
     function minimizeToggle() {
       let button = document.getElementById('chatButtonToggle');
       let chatBox = document.getElementById('chatLiveBox');
@@ -223,8 +229,27 @@
         chatBox.setAttribute('class', 'chatLiveBox')
         button.setAttribute('class', 'chatMinimize')
       }
+    }
+
+    //menu X/E 
+    function menuX(x, st) {
+      x.classList.toggle("change");
+      menuClass = x;
+      if (menuOpen === 0) {
+        st = setTimeout(function () {
+          menuOpen = 1;
+        }, 200);
+      } else {
+        menuOpen = 0;
+      }
+    }
 
 
+    //close the menu if the user click anywhere else
+    function menuXX() {
+      if (menuOpen === 1) {
+        menuX(menuClass);
+      };
     }
 
     //Chat
