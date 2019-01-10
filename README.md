@@ -84,3 +84,4 @@ express-session
 
 https://www.flaticon.com/free-icon/send-button_60525
 
+https://www.iconfinder.com/icons/326503/chat_icon
