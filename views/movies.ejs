@@ -13,11 +13,11 @@
 <body>
   <div id='mainPage'>
 
-    <nav class='navColumn'>
+    <div class='navColumn'>
       <div class='navLogo flex-row'>
 
         <div class='logoImg'>
-          <svg height="100%" viewBox="0 0 512 512" width="512pt" style="fill:rgb(255, 255, 255)" xmlns="http://www.w3.org/2000/svg">
+          <svg height="100%" viewBox="0 0 512 512" width="100%" fill="rgb(255, 255, 255)" xmlns="http://www.w3.org/2000/svg">
             <path d="m338.5 178h-15v257.734375h-13.828125v-257.734375h-15v32.5h-76.75v15h17.191406l-29.691406 45.277344v-92.777344h-15v257.734375h-13.828125v-257.734375h-15v257.734375h-29.578125v38.289063h43.992187v37.976562h15v-37.976562h43.992188v-38.289063h-29.578125v-54.617187h76.75v-15h-17.285156l29.785156-45.421876v115.039063h-29.578125v38.289063h43.992188v37.976562h15v-37.976562h43.992187v-38.289063h-29.578125zm-118.5 272.734375v8.289063h-72.980469v-8.289063zm33.050781-225.234375h24.0625l-30.164062 46h-24.0625zm-6.101562 140.617188h-24.0625l30.164062-46h24.0625zm-29.027344-61v15h17.191406l-29.691406 45.277343v-78.894531h76.75v-15h-17.285156l29.785156-45.421875v79.039063zm135.15625 145.617187v8.289063h-72.984375v-8.289063zm0 0" />
             <path d="m230.257812 136.925781-12.09375-12.089843h-4.40625v-124.835938h-60.496093v124.832031h-4.410157l-12.09375 12.09375v28.574219h93.5zm-61.996093-29.09375h17.996093v-15h-17.996093v-15.332031h17.996093v-15h-17.996093v-15.5h17.996093v-15h-17.996093v-17h30.496093v109.832031h-30.496093zm46.996093 42.667969h-63.5v-7.359375l3.308594-3.308594h56.886719l3.304687 3.308594zm0 0" />
             <path d="m363.335938 136.925781-12.09375-12.089843h-4.410157v-124.835938h-60.492187v124.832031h-4.410156l-12.09375 12.09375v28.574219h93.5zm-61.996094-29.09375h17.992187v-15h-17.992187v-15.332031h17.992187v-15h-17.992187v-15.5h17.992187v-15h-17.992187v-17h30.492187v109.832031h-30.492187zm46.996094 42.667969h-63.5v-7.359375l3.308593-3.304687h56.886719l3.304688 3.304687zm0 0" />
@@ -56,24 +56,21 @@
           </a>
         </div>
       </div>
-    </nav>
+    </div>
     <div class='mainContent'>
-      <div class="navMenu flex-column">
-        <h2 class='userNameMenu'>
-          <%= userName %>
-        </h2>
+      <div class=" navMenu">
+        <div class='flex-space '>
         <div id="menuLogo">
           <div class="menuContainer" onclick="menuX(this)">
             <div class="menuBar1"></div>
             <div class="menuBar2"></div>
             <div class="menuBar3"></div>
-
-            <div id="menuPopUp">
-
-            </div>
           </div>
         </div>
-
+        <h2 class='userNameMenu'>
+            <%= userName %>
+          </h2>
+        </div>
       </div>
       <div id='inventoryTab'>
         <div id='navTab'>
@@ -182,9 +179,6 @@
     </div>
   </div>
 
-
-
-
   <script src="/socket.io/socket.io.js"></script>
   <script>
     function pageSize() {
@@ -192,9 +186,9 @@
       page.style.width = window.innerWidth + 'px';
       page.style.height = window.innerHeight + 'px';
     }
-    pageSize();
+    //pageSize();
     window.onresize = function () {
-      pageSize()
+      //pageSize()
     };
 
     function tabToggle(l) {
@@ -232,8 +226,13 @@
     }
 
     //menu X/E 
+    let menuOpen = 0;
+    let menuClass;
+    let navColumn = document.getElementById('mainPage');
+
     function menuX(x, st) {
-      x.classList.toggle("change");
+      x.classList.toggle('change');
+      navColumn.classList.toggle('change');
       menuClass = x;
       if (menuOpen === 0) {
         st = setTimeout(function () {
@@ -251,6 +250,8 @@
         menuX(menuClass);
       };
     }
+    
+    document.body.addEventListener("click", menuXX);
 
     //Chat
     let socket = io();

@@ -7,6 +7,8 @@ body {
   text-align: left;
   background-color: #f7f7f7;
   text-rendering: optimizeLegibility;
+  box-sizing:border-box;
+  
 }
 
 .flex-row {
@@ -24,6 +26,16 @@ body {
   align-items: center;
   box-sizing: border-box;
 }
+.flex-space{
+  display: flex;
+  flex-direction: row;
+  flex-basis:100%;
+  padding: 0 1rem ;
+  justify-content: space-between;
+  align-items:center;
+  margin:0;
+
+}
 
 #mainPage {
   display: flex;
@@ -32,22 +44,34 @@ body {
   overflow-x: hidden;
   overflow-y: hidden;
   color: rgb(69, 69, 69);
+  height:100vh;
+  width:100vw;
 }
 
 .navColumn {
   display: flex;
   flex-direction: column;
   color: whitesmoke;
-  flex: 1 1 20%;
+  flex: 1 1 15%;
   align-self: stretch;
   background-color: rgb(42, 63, 84);
   box-sizing: border-box;
+  transition: 1000ms ease;
+
+}
+.navLogo{
+}
+.navLogo h1{
+margin-left: 6%;
+margin-right:6%;
 }
 
 .logoImg {
   display: flex;
-  width: 41px;
-  height: 41px;
+width:3rem;  
+
+  
+
 }
 
 #userNameTitle {
@@ -98,6 +122,7 @@ body {
   margin-top: 2rem;
   flex-wrap: wrap;
 }
+
 #querysResults {
   display: flex;
   flex-direction: column;
@@ -109,9 +134,11 @@ body {
   border-radius: 0.3rem;
 }
 
-.navMenu{
-  flex-basis:10%;
-  justify-items:space-between;
+.navMenu {
+  display:none;
+  flex-basis: 10%;
+  margin:0;
+  width:100%;
 }
 
 @media(max-width:1050px) {
@@ -122,11 +149,10 @@ body {
   }
   #querysResults {
     margin-top: 2rem;
+    transition: 0.3s ease-in-out;
+
   }
-  
 }
-
-
 
 #inventoryTab {
   display: flex;
@@ -139,32 +165,40 @@ body {
   border-radius: 0.3rem;
 }
 
-
-
 #querysResults ul {
   list-style: none;
   padding-left: 0;
 }
 
-
-
 @media(max-width:600px) {
-  #mainPage {
-   
+  #mainPage {}
+  .mainContent {
+    margin-top: 0;
   }
- .mainContent{
-   margin-top:0;
- }
   #querysResults {
-    display:none;
-    }
-    .navColumn {
-      display:none;
-      flex-basis: 0%;
-    }
+    display: none;
+  }
+  .navMenu {
+    display:flex;
+  }
+  .navColumn {
+    display: none;
+    flex-basis: 0%;
+    transition: 1000ms ease;
 
+  }
+  .chage .mainContent {
+    flex-basis: 80%;
+  }
+
+  .change .navColumn  {
+    display: flex;
+    flex-basis: 20%;
+    transition: 1000ms ease;
+  }
+
+  
 }
-
 
 
 #navTab {
@@ -285,8 +319,6 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-
-
 .chatLiveBoxMini h2 {
   font-size: 80%;
 }
@@ -306,7 +338,7 @@ body {
   flex-direction: row;
   align-content: stretch;
   color: #404040;
-  overflow-x:hidden;
+  overflow-x: hidden;
 }
 
 #chatInputDiv {
@@ -472,29 +504,65 @@ body {
 }
 
 @media(max-width:600px) {
-  .chatLiveBox{
+  .chatLiveBox {
     max-height: 30vh;
     min-height: 30vh;
     width: 90vw;
-    font-size:70%;
-
+    font-size: 70%;
   }
-  .chatLiveBoxMini  {
-
+  .chatLiveBoxMini {
     width: 50vw;
   }
-  #chatInput{
-
-    font-size:0.8rem;
+  #chatInput {
+    font-size: 0.8rem;
   }
-  .newMessageLi h3{
-    font-size:80%;
+  .newMessageLi h3 {
+    font-size: 80%;
   }
+}
 
+.newUserLi {}
+
+#menuLogo {
+ 
+  z-index: 10;
+}
+
+.menuContainer {
+  display: inline-block;
+  cursor: pointer;
+}
+
+.menuBar1,
+.menuBar2,
+.menuBar3 {
+  width: 30px;
+  height: 5px;
+  background-color: var(--tc);
+  margin: 4px 0;
+  transition: 0.4s;
+  -webkit-filter: invert(50%);
+  filter: invert(50%);
+  border-radius: 2px;
+
+  
+}
+
+.change .menuBar1 {
+  -webkit-transform: rotate(-45deg) translate(-9px, 6px);
+  transform: rotate(-45deg) translate(-9px, 6px);
+}
+
+.change .menuBar2 {
+  opacity: 0;
+}
+
+.change .menuBar3 {
+  -webkit-transform: rotate(45deg) translate(-8px, -8px);
+  transform: rotate(45deg) translate(-8px, -8px);
 }
 
 
-.newUserLi {}
 
 :root {
   --c1: #8b7add;
@@ -505,4 +573,7 @@ body {
   --c6: #fd88d5;
   --c7: #32a82b;
   --c8: #e74ca8;
+  --tc: black;
+  --tb: white;
+  --te: black;
 }
