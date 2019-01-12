@@ -147,6 +147,10 @@ MongoClient.connect(usersdbUrl, function (err, db) {
   router.post('/submitrent', formidableMiddleware(), function (req, res) {
     updateRentedInventory(req.fields.title, req.fields.inventory, req.fields.email, res);
   });
+  
+  router.post('/submitNewCustomer', formidableMiddleware(), function (req, res) {
+    submitNewCustomer(req.fields.name, req.fields.email, req.fields.phone, req.fields.days, res)
+  });
 
   router.post('/submitreturn', formidableMiddleware(), function (req, res) {
     updateReturnedInventory(req.fields.title, req.fields.inventory, req.fields.email, res);
@@ -484,6 +488,33 @@ MongoClient.connect(usersdbUrl, function (err, db) {
   };
 
 
+  async function submitNewCustomer(name, email, phone, days, res){
+    let query = {};
+
+    if (name)
+      query.name = name;
+
+    if (phone)
+      query.phone = phone;
+
+    if (email)
+      email = email.toLowerCase(),
+      query['activeUsers.email'] = email;
+
+    if (days)
+      days = parseInt(days, 10),
+      query.days = days;
+
+      currentUserGeneralStatus(email, function (err, value) {
+      currentUserI = value;
+
+      if (currentUserI <= 0) {
+        
+      }
+    });
+  };
+
+
   /* Databas queries: */
 
   function currentMovieInventory(title, cb) {
@@ -509,6 +540,56 @@ MongoClient.connect(usersdbUrl, function (err, db) {
       cb(null, value);
     })
   }
+
+  function currentUserGeneralStatus(email, cb) {
+    collection.findOne({
+        activeUsers: {
+          $elemMatch: {
+            email: email
+          }
+        }
+      }, {
+        projection: {
+          _id: 0,
+          title: 1,
+          'activeUsers.$.email': 1,
+          'activeUsers.inventory': 1
+        }
+      },
+      function (err, result) {
+        if (err)
+          console.log(err);
+
+        let value = 0;
+
+        if (result === null) {
+          value = 0,
+            cb(null, value);
+
+        } else {
+          value = result.activeUsers[0].inventory;
+          if (result.activeUsers[0].inventory === 0) {
+            collection.updateOne({
+                title: title
+              }, {
+                $pull: {
+                  activeUsers: {
+                    email: email,
+                    inventory: 0
+                  }
+                }
+              },
+              function (err, r) {
+                if (err)
+                  console.log(err);
+
+                cb(null, value);
+              });
+          }
+          cb(null, value);
+        }
+      })
+  };
 
   function currentUserInventory(title, email, cb) {
     collection.findOne({

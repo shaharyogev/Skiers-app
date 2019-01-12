@@ -93,11 +93,10 @@
             <div id='customerTabA' class='form tabBox customerTab flex-show'>
               <h2>New Customer</h2>
               <form id='submitNewCustomer' name='submitNewCustomer' action='/submitNewCustomer' onsubmit='return checkForm(id)'>
-                <input id='movieTitle' type='text' placeholder='Customer Name' name='title' required>
+                <input id='movieTitle' type='text' placeholder='Customer Name' name='name' required>
                 <input id='userEmail' type='text' placeholder='Customer Email' name='email' required>
-                <input id='userEmail' type='text' placeholder='' name='' required>
-                <input id='userEmail' type='text' placeholder='' name='' required>
-                <input id='userEmail' type='text' placeholder='' name='' required>
+                <input type='text' placeholder='Phone Number' name='phone' required>
+                <input type='text' placeholder='Number of days' name='days' required>
                 <button id='submitInventory' type='submit' class='submitButton '> Submit</button>
                 <span class='error'></span>
               </form>
@@ -138,8 +137,8 @@
           <div id='inventoryTabA' class='form tabBox inventoryTab flex-show'>
             <h2>Rent Skis</h2>
             <form id='rent' name='rent' action='/submitrent' onsubmit='return checkForm(id)'>
-              <input id='movieTitle' type='text' placeholder='Customer Name' name='title' required>
-              <input id='titleInventory' type='number' placeholder='Ski Pairs' name='inventory' required>
+              <input id='movieTitle' type='text' placeholder='Item for rent' name='title' required>
+              <input id='titleInventory' type='number' placeholder='Number of Pairs' name='inventory' required>
               <input id='userEmail' type='text' placeholder='Customer Email' name='email' required>
               <button id='submitInventory' type='submit' class='submitButton '> Submit</button>
               <span class='error'></span>
@@ -149,8 +148,8 @@
           <div id='inventoryTabB' class='form tabBox inventoryTab hidden'>
             <h2>Return Skis</h2>
             <form id='return' name='return' action='/submitreturn' onsubmit='return checkForm(id)'>
-              <input id='movieTitle' type='text' placeholder='Customer Name' name='title' required>
-              <input id='titleInventory' type='number' placeholder='Ski Pairs' name='inventory' required>
+              <input id='movieTitle' type='text' placeholder='Item for rent' name='title' required>
+              <input id='titleInventory' type='number' placeholder='Number of Pairs' name='inventory' required>
               <input id='userEmail' type='text' placeholder='Customer Email' name='email' required>
               <button id='submitInventory' type='submit' class='submitButton'> Submit</button>
               <span class='error'></span>
@@ -160,8 +159,8 @@
           <div id='inventoryTabC' class='form tabBox inventoryTab hidden'>
             <h2>Add / Remove inventory</h2>
             <form id='addInventory' name='addInventory' action='/addmovietodb' onsubmit='return checkForm(id)'>
-              <input id='movieTitle' type='text' placeholder='Customer Name' name='title' required>
-              <input id='titleInventory' type='number' placeholder='Ski Pairs' name='inventory' required>
+              <input id='movieTitle' type='text' placeholder='Item for rent' name='title' required>
+              <input id='titleInventory' type='number' placeholder='Number of Pairs' name='inventory' required>
               <button id='submitInventory' type='submit' class='submitButton'> Submit</button>
               <span class='error'></span>
             </form>
