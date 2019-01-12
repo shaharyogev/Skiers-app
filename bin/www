@@ -41,14 +41,13 @@ var io = require('socket.io')(server);
 
 
 
-
 io.on('connection', function(socket){
   //console.log('a user connected');
   
   socket.on('namedUserConnected',function(d){
     console.log(d.userName + ' connected');
-
-    io.emit('newUserConnected', d.userName)
+        
+    io.emit('newUserConnected', d.userName);
   });
 
   

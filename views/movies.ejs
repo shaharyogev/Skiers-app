@@ -31,10 +31,7 @@
         <h1>Skiers</h1>
       </div>
       <div id='userNameTitle'>
-
-        <h2 id='userName'>
-          <%= userName %>
-        </h2>
+        <h2 id='userName'><%= userName%></h2>
       </div>
       <div>
         <div class='navButtons'>
@@ -74,8 +71,8 @@
           </div>
         </div>
 
-      <div class=" navMenu">
-        <div class='flex-space '>
+      <div class="navMenu">
+        <div class='flex-space'>
           <div id="menuLogo">
             <div class="menuContainer" onclick="menuX(this)">
               <div class="menuBar1"></div>
@@ -83,21 +80,64 @@
               <div class="menuBar3"></div>
             </div>
           </div>
-          <h2 class='userNameMenu'>
-            <%= userName %>
-          </h2>
+          <h2 class='userNameMenu'><%= userName %></h2>
         </div>
       </div>
       <div id='inventoryTab'>
+          <div id='navTab'>
+            <a type='button' class='tabNavButton' onclick="tabToggle(0, 'customerTab')">New Customer</a>
+            <a type='button' class='tabNavButton' onclick="tabToggle(1, 'customerTab')">New Order</a>
+            <a type='button' class='tabNavButton' onclick="tabToggle(2, 'customerTab')">Inventory</a>
+          </div>
+          <section id='contentTab'>
+            <div id='customerTabA' class='form tabBox customerTab flex-show'>
+              <h2>New Customer</h2>
+              <form id='submitNewCustomer' name='submitNewCustomer' action='/submitNewCustomer' onsubmit='return checkForm(id)'>
+                <input id='movieTitle' type='text' placeholder='Customer Name' name='title' required>
+                <input id='userEmail' type='text' placeholder='Customer Email' name='email' required>
+                <input id='userEmail' type='text' placeholder='' name='' required>
+                <input id='userEmail' type='text' placeholder='' name='' required>
+                <input id='userEmail' type='text' placeholder='' name='' required>
+                <button id='submitInventory' type='submit' class='submitButton '> Submit</button>
+                <span class='error'></span>
+              </form>
+            </div>
+  
+            <div id='customerTabB' class='form tabBox customerTab hidden'>
+              <h2>New Order</h2>
+              <form id='return' name='return' action='/submitreturn' onsubmit='return checkForm(id)'>
+                <input id='movieTitle' type='text' placeholder='Customer Name' name='title' required>
+                <input id='titleInventory' type='number' placeholder='Ski Pairs' name='inventory' required>
+                <input id='userEmail' type='text' placeholder='Customer Email' name='email' required>
+                <button id='submitInventory' type='submit' class='submitButton'> Submit</button>
+                <span class='error'></span>
+              </form>
+            </div>
+  
+            <div id='customerTabC' class='form tabBox customerTab hidden'>
+              <h2>Add / Remove inventory</h2>
+              <form id='addInventory' name='addInventory' action='/addmovietodb' onsubmit='return checkForm(id)'>
+                <input id='movieTitle' type='text' placeholder='Customer Name' name='title' required>
+                <input id='titleInventory' type='number' placeholder='Ski Pairs' name='inventory' required>
+                <button id='submitInventory' type='submit' class='submitButton'> Submit</button>
+                <span class='error'></span>
+              </form>
+            </div>
+            <br>
+            <br>
+          </section>
+        </div>
+  
+      <div id='inventoryTab'>
         <div id='navTab'>
-          <a type='button' class='tabNavButton' onclick="tabToggle('a')">Rent</a>
-          <a type='button' class='tabNavButton' onclick="tabToggle('b')">Return</a>
-          <a type='button' class='tabNavButton' onclick="tabToggle('c')">Inventory</a>
+          <a type='button' class='tabNavButton' onclick="tabToggle(0, 'inventoryTab')">Rent</a>
+          <a type='button' class='tabNavButton' onclick="tabToggle(1, 'inventoryTab')">Return</a>
+          <a type='button' class='tabNavButton' onclick="tabToggle(2, 'inventoryTab')">Inventory</a>
         </div>
         <section id='contentTab'>
-          <div id='inventoryTabA' class='form tabBox'>
+          <div id='inventoryTabA' class='form tabBox inventoryTab flex-show'>
             <h2>Rent Skis</h2>
-            <form id='rentMovie' name='rentmovie' action='/submitrent' onsubmit='return checkForm(id)'>
+            <form id='rent' name='rent' action='/submitrent' onsubmit='return checkForm(id)'>
               <input id='movieTitle' type='text' placeholder='Customer Name' name='title' required>
               <input id='titleInventory' type='number' placeholder='Ski Pairs' name='inventory' required>
               <input id='userEmail' type='text' placeholder='Customer Email' name='email' required>
@@ -106,9 +146,9 @@
             </form>
           </div>
 
-          <div id='inventoryTabB' class='form tabBox'>
+          <div id='inventoryTabB' class='form tabBox inventoryTab hidden'>
             <h2>Return Skis</h2>
-            <form id='returnMovie' name='rentmovie' action='/submitreturn' onsubmit='return checkForm(id)'>
+            <form id='return' name='return' action='/submitreturn' onsubmit='return checkForm(id)'>
               <input id='movieTitle' type='text' placeholder='Customer Name' name='title' required>
               <input id='titleInventory' type='number' placeholder='Ski Pairs' name='inventory' required>
               <input id='userEmail' type='text' placeholder='Customer Email' name='email' required>
@@ -117,9 +157,9 @@
             </form>
           </div>
 
-          <div id='inventoryTabC' class='form tabBox'>
+          <div id='inventoryTabC' class='form tabBox inventoryTab hidden'>
             <h2>Add / Remove inventory</h2>
-            <form id='addMovie' name='addmovie' action='/addmovietodb' onsubmit='return checkForm(id)'>
+            <form id='addInventory' name='addInventory' action='/addmovietodb' onsubmit='return checkForm(id)'>
               <input id='movieTitle' type='text' placeholder='Customer Name' name='title' required>
               <input id='titleInventory' type='number' placeholder='Ski Pairs' name='inventory' required>
               <button id='submitInventory' type='submit' class='submitButton'> Submit</button>
@@ -130,6 +170,7 @@
           <br>
         </section>
       </div>
+
 
 
       <div id='querysResults' class='querysResults'>
@@ -211,34 +252,18 @@
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
-    function pageSize() {
-      let page = document.getElementById('mainPage');
-      page.style.width = window.innerWidth + 'px';
-      page.style.height = window.innerHeight + 'px';
-    }
-    //pageSize();
-    window.onresize = function () {
-      //pageSize()
-    };
 
-    function tabToggle(l) {
-      let inventoryTabA = document.getElementById('inventoryTabA');
-      let inventoryTabB = document.getElementById('inventoryTabB');
-      let inventoryTabC = document.getElementById('inventoryTabC');
-      if (l == 'a') {
-        inventoryTabA.style.display = 'flex';
-        inventoryTabB.style.display = 'none';
-        inventoryTabC.style.display = 'none';
-      } else if (l == 'b') {
-        inventoryTabA.style.display = 'none';
-        inventoryTabB.style.display = 'flex';
-        inventoryTabC.style.display = 'none';
-      } else {
-        inventoryTabA.style.display = 'none';
-        inventoryTabB.style.display = 'none';
-        inventoryTabC.style.display = 'flex';
+    function tabToggle(num, className) {
+      let tabClassList = document.getElementsByClassName(className)
+        for(let i=0; i< tabClassList.length; i++){
+          if(i === num ){
+            tabClassList[i].style.display = 'flex';
+          }else{
+          tabClassList[i].style.display = 'none';
+        }
       }
     };
+        
 
     //Chat Toggles
     let chatClosed = 0;
@@ -315,13 +340,16 @@
 
     if (userName) {
       userName = userName.innerText;
+
       socket.emit('namedUserConnected', {
         userName: userName
       });
     };
+
     let newUserChatCount = 0;
     let newUserChatColorList = new Array;
-    socket.on('newUserConnected', function (d) {
+
+    function newUserOnline(d){
       newUserChatCount++;
       let newUserChatLi = document.createElement('li');
       let newChatH3 = document.createElement('h3');
@@ -331,12 +359,18 @@
       newChatH3.style.color = 'var(--c' + colorPickerVar + ')';
       newUserChatLi.setAttribute('class', 'newUserLi');
       newUserChatColorList[d] = 'var(--c' + colorPickerVar + ')';
-
-
-
-
       //console.log(chatUsersUl.firstElementChild)
       chatUsersUl.insertBefore(newUserChatLi, chatUsersUl.firstElementChild);
+    }
+    let usersOnlineListLocal = new Array;
+
+
+   
+
+    socket.on('newUserConnected', function (d) {
+      newUserOnline(d)
+      //console.log(d)
+      
     });
 
 
@@ -346,7 +380,7 @@
         user: userName,
         message: message.value
       }, function (d) {
-        console.log(d);
+        //console.log(d);
       });
       message.value = '';
     };
@@ -365,7 +399,7 @@
       let newChatH3 = document.createElement('h3');
       let newChatP = document.createElement('p');
       let newChatH3Color = newUserChatColorList[d.user];
-      console.log(newUserChatColorList[d.user]);
+      //console.log(newUserChatColorList[d.user]);
       // newChatLi.appendChild(document.createTextNode(d.user + ': ' + d.message));
       // newChatLi.setAttribute('class', 'newMessageLi');
 
@@ -389,7 +423,7 @@
 
       //console.log( formDataNode)
       let formAction = formId.action;
-      console.log('the action = ' + formAction)
+      //console.log('the action = ' + formAction)
       let titleTest = formId.querySelector('input[name="title"]').value;
       let inventoryTest = formId.querySelector('input[name="inventory"]').value;
       let emailTest;
@@ -475,7 +509,7 @@
       xhttp.onreadystatechange = function () {
         if (this.readyState == 4) {
           if (this.status == 200) {
-            console.log(this.response);
+            //console.log(this.response);
             contentToView(this.responseText);
           }
           if (this.status == 404) {
@@ -487,7 +521,7 @@
           }
         }
       }
-      xhttp.open('POST', pagePath, false);
+      xhttp.open('POST', pagePath, true);
       xhttp.send(formData);
 
     };

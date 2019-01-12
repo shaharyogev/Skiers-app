@@ -81,10 +81,12 @@ MongoClient.connect(usersdbUrl, function (err, db) {
 
   /* Router requests: */
 
-
+  //First 
   router.get('/', function (req, res, next) {
     res.render('login');
   })
+
+  //While the user in session the system will stay active.
 
   router.get('/:id', function (req, res, next) {
     if (req.session.succes)
@@ -93,8 +95,9 @@ MongoClient.connect(usersdbUrl, function (err, db) {
       res.render('login');
   })
 
+  //Handle user login request
 
-  router.post('/user', expressValidator(), function (req, res, ) {
+  router.post('/user', expressValidator(), function (req, res) {
 
     let email = req.body.email;
     let password = req.body.password;
@@ -113,6 +116,7 @@ MongoClient.connect(usersdbUrl, function (err, db) {
     }
   });
 
+  //Handle new user singUp
 
   router.post('/addUser', expressValidator(), function (req, res) {
     let name = req.body.name;
@@ -129,13 +133,12 @@ MongoClient.connect(usersdbUrl, function (err, db) {
       req.session.errors = errors;
       res.redirect('/login');
     } else {
-
       creatNewUser(req.body.name, req.body.email, req.body.password, req, res);
     }
   });
 
 
-  /* Qureys routes */
+  /* Qureys routes for the database */
 
   router.get('/movies/', function (req, res, next) {
     inventoryStatus('Movies In Stock', 'Largest inventory: ', '', res);
@@ -144,7 +147,6 @@ MongoClient.connect(usersdbUrl, function (err, db) {
   router.post('/submitrent', formidableMiddleware(), function (req, res) {
     updateRentedInventory(req.fields.title, req.fields.inventory, req.fields.email, res);
   });
-
 
   router.post('/submitreturn', formidableMiddleware(), function (req, res) {
     updateReturnedInventory(req.fields.title, req.fields.inventory, req.fields.email, res);
@@ -202,8 +204,11 @@ MongoClient.connect(usersdbUrl, function (err, db) {
               if (err) console.log(err);
               if (r !== null) {
                 if (r.result.n == 1) {
-                  req.session.succes = true;
-                  inventoryStatusInLogin('hello new user', '', name, res);
+                  ;
+                  // Callback if success 
+                  startUserSession(email, 'Most Avialebel Inventory:', '', '', req, res);
+                  //req.session.succes = true
+                  //inventoryStatusInLogin('hello new user', '', name, res);
                 }
               } else {
                 res.render('login')
@@ -250,8 +255,7 @@ MongoClient.connect(usersdbUrl, function (err, db) {
               }, function (err, r) {
                 if (err) console.log(err);
                 if (r.result.n == 1)
-                  req.session.succes = true,
-                  getUserName(email, 'hello ' + findRes.userName, '', '', req, res);
+                  startUserSession(email, 'Most Avialebel Inventory:', '', '', req, res);
 
               });
             } else {
@@ -277,7 +281,7 @@ MongoClient.connect(usersdbUrl, function (err, db) {
 
   //On login sucsess activat the user session
 
-  function getUserName(email, title, status, userName, req, res) {
+  function startUserSession(email, title, status, userName, req, res) {
     usersCollection.findOne({
       email: email
     }, {
@@ -288,6 +292,7 @@ MongoClient.connect(usersdbUrl, function (err, db) {
     }, function (err, r) {
       if (err) console.log(err)
       if (r !== null) {
+        req.session.succes = true,
         req.session.cookie = {
           name: 'moviesInventory',
           userName: r.userName,
@@ -333,7 +338,7 @@ MongoClient.connect(usersdbUrl, function (err, db) {
           if (err) console.log(err);
 
           if (r == null)
-            title = 'The movie: ' + title + ' wasnt add to the Inventory!',
+            title = 'The item: ' + title + ' wasnt add to the Inventory!',
             status = 'There was a problem'
 
           else if (r.value !== null)
@@ -403,14 +408,14 @@ MongoClient.connect(usersdbUrl, function (err, db) {
 
               if (r.value !== null)
                 title = title + ' inventory was updated to' + inventory,
-                status = email + ' have ' + inventory + ' new copies',
+                status = email + ' have ' + inventory + ' new items',
                 inventoryStatus(title, status, '', res);
 
               else
                 currentMovieInventory(title, function (err, value) {
                   currentMovieI = value;
                   title = title + ' inventory wasent updated, the current inventory is: ' + currentMovieI,
-                    status = email + ' can rent only: ' + currentMovieI + ' new copies',
+                    status = email + ' can rent only: ' + currentMovieI + ' new items',
                     inventoryStatus(title, status, '', res);
                 })
             });
@@ -418,7 +423,7 @@ MongoClient.connect(usersdbUrl, function (err, db) {
         else
           currentUserInventory(title, email, function (err, value) {
           title = title + ' inventory was updated to' + (r.value.inventory - inventory),
-          status = 'The user: ' + email + ' have ' + value + ' copies include the ' + inventory + ' new copies',
+          status = 'The user: ' + email + ' have ' + value + ' items include the ' + inventory + ' new items',
           inventoryStatus(title, status, '', res);
           })
       })
@@ -460,14 +465,14 @@ MongoClient.connect(usersdbUrl, function (err, db) {
 
         if (r.value === null) {
           currentUserInventory(title, email, function (err, value) {
-            title = 'The movie: ' + title + ' wasnt returnd to stock!',
+            title = 'The item: ' + title + ' wasnt returnd to stock!',
               status = 'The user: ' + email + ' cant return the amount of: ' + inventory + ' the current inventory for this user: ' + value;
             inventoryStatus(title, status, '', res);
           });
         }
         if (r.value !== null) {
           currentUserInventory(title, email, function (err, value) {
-            title = 'The movie: ' + title + ' was returnd to stock, the current stock is: ' + (r.value.inventory + inventory),
+            title = 'The item: ' + title + ' was returnd to stock, the current stock is: ' + (r.value.inventory + inventory),
               status = 'The user: ' + email + ' returnd ' + inventory + 'his total inventory for now is: ' + value;
 
             inventoryStatus(title, status, '', res);
@@ -589,7 +594,7 @@ MongoClient.connect(usersdbUrl, function (err, db) {
 
       let moviesList = [];
       for (let index in result) {
-        let temp = 'Movie titel: ' + result[index].title + ' Avialebel inventory: ' + result[index].inventory;
+        let temp = 'Item: ' + result[index].title + ' Avialebel inventory: ' + result[index].inventory;
         moviesList.push(temp);
       };
       res.send({
@@ -635,7 +640,7 @@ MongoClient.connect(usersdbUrl, function (err, db) {
 
       let moviesList = [];
       for (let index in result) {
-        let temp = 'Movie titel: ' + result[index].title + ' Avialebel inventory: ' + result[index].inventory;
+        let temp = 'Item: ' + result[index].title + ' Avialebel inventory: ' + result[index].inventory;
         moviesList.push(temp);
       }
       res.render('movies', {
@@ -704,7 +709,7 @@ MongoClient.connect(usersdbUrl, function (err, db) {
 
       let moviesList = [];
       for (let index in result) {
-        let temp = 'Movie title: ' + result[index]._id + ' Current rented inventory: ' + result[index].rentedMovieInventory;
+        let temp = 'Item: ' + result[index]._id + ' Current rented inventory: ' + result[index].rentedMovieInventory;
         moviesList.push(temp);
       }
       res.send({
@@ -922,13 +927,13 @@ MongoClient.connect(usersdbUrl, function (err, db) {
     ]).toArray(function (err, result) {
       if (err)
         res.send({
-          title: 'The top rented movie Is: error',
+          title: 'The top rented Item Is: error',
           status: err,
           moviesList: []
         });
       /*
       res.render('movies', {
-        title: 'The top rented movie Is: error',
+        title: 'The top rented Item Is: error',
         status: err,
         moviesList: []
       });*/
@@ -940,12 +945,12 @@ MongoClient.connect(usersdbUrl, function (err, db) {
       }
       /*
       res.render('movies', {
-        title: 'The top rented movie Is: ',
+        title: 'The top rented Item Is: ',
         status: result[0]._id,
         moviesList: usersList
       });*/
       res.send({
-        title: 'The top rented movie Is: ',
+        title: 'The top rented Item Is: ',
         status: result[0]._id,
         moviesList: usersList
       });
