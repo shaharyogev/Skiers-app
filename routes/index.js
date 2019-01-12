@@ -151,8 +151,7 @@ MongoClient.connect(usersdbUrl, function (err, db) {
   });
   
   router.post('/submitNewCustomer', formidableMiddleware(), function (req, res) {
-    console.log('/sumitNewCustomer')
-    submitNewCustomer(req.fields.name, req.fields.email, req.fields.phone, req.fields.days, res)
+    submitNewCustomer(req.fields.name, req.fields.email, req.fields.phone, res)
   });
 
   router.post('/submitreturn', formidableMiddleware(), function (req, res) {
@@ -491,10 +490,8 @@ MongoClient.connect(usersdbUrl, function (err, db) {
   };
 
 
-  async function submitNewCustomer( name, email, phone, days, res){
+  async function submitNewCustomer( name, email, phone, res){
     try{
-
-    
     let query = {};
 
     if (name)
@@ -506,21 +503,23 @@ MongoClient.connect(usersdbUrl, function (err, db) {
     if (email)
       email = email.toLowerCase(),
       query.email = email;
-
-    if (days)
-      days = parseInt(days, 10),
-      query.days = days;
     
-      let r1 = await collection.find({'email':email})
-      await function(){ if(r1){
-        console.log('r1');
-      }};
+    let r1 = await collection.findOneAndUpdate({'email':email},{$set:query},{
+      upsert:true,
+      projection:{'_id':0, 'email':1},
+      returnNewDocument:true
+    });
+    
+    if(r1){
+      console.log(r1);
+      
+    }
 
-     let r = await collection.insertOne(query);
-     //await console.log(r);
+    //let r = await collection.insertOne(query);
+    //await console.log(r);
 
-     await res.send({
-      moviesList: "",
+    await res.send({
+      moviesList: r1.value,
       title: 'user',
       status: ''
     });

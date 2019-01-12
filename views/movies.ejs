@@ -96,7 +96,6 @@
                 <input id='movieTitle' type='text' placeholder='Customer Name' name='name' required>
                 <input id='userEmail' type='text' placeholder='Customer Email' name='email' required>
                 <input type='text' placeholder='Phone Number' name='phone' required>
-                <input type='text' placeholder='Number of days' name='days' required>
                 <button id='submitInventory' type='submit' class='submitButton '> Submit</button>
                 <span class='error'></span>
               </form>
@@ -108,6 +107,8 @@
                 <input id='movieTitle' type='text' placeholder='Customer Name' name='title' required>
                 <input id='titleInventory' type='number' placeholder='Ski Pairs' name='inventory' required>
                 <input id='userEmail' type='text' placeholder='Customer Email' name='email' required>
+                <input type='text' placeholder='Number of days' name='days' required>
+
                 <button id='submitInventory' type='submit' class='submitButton'> Submit</button>
                 <span class='error'></span>
               </form>
@@ -450,7 +451,7 @@
       } 
     } 
     }*/
-        postForm(formAction, formDataNode);
+        postForm(formAction, formDataNode,contentToView(json));
       
     };
 
@@ -503,7 +504,7 @@
       }
     };
 
-    function postForm(file, formDataNode) {
+    function postForm(file, formDataNode, callback) {
 
       let i, pagePath, elmnt, xhttp, formData;
       formData = new FormData();
@@ -519,7 +520,7 @@
         if (this.readyState == 4) {
           if (this.status == 200) {
             //console.log(this.response);
-            contentToView(this.responseText);
+            callback(this.responseText);
           }
           if (this.status == 404) {
             contentToView({
