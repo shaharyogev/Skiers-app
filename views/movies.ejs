@@ -420,28 +420,38 @@
       let formId = document.getElementById(id);
       let formDataNode = formId.querySelectorAll('input');
 
-      //console.log( formDataNode)
+      console.log( formDataNode)
       let formAction = formId.action;
       //console.log('the action = ' + formAction)
-      let titleTest = formId.querySelector('input[name="title"]').value;
-      let inventoryTest = formId.querySelector('input[name="inventory"]').value;
+      let titleTest = formDataNode.values
+      console.lg
+      //
       let emailTest;
+      /*
 
       if (formId.querySelector('input[name="email"]')) {
         emailTest = formId.querySelector('input[name="email"]').value;
       }
-
+      if (formId.formId.querySelector('input[name="title"]')) {
+        let titleTest = formId.querySelector('input[name="title"]').value;
+        
+        postForm(formAction, formDataNode);
+      
       if (titleTest === ' ' || titleTest === '') {
         formId.querySelector('.error').innerHTML = ' cant use this movie title';
         return false;
 
-      } else if (inventoryTest == 0) {
+      }else if(formId.querySelector('input[name="inventory"]')){
+        let inventoryTest = formId.querySelector('input[name="inventory"]').value;
+
+      if (inventoryTest == 0) {
         formId.querySelector('.error').innerHTML = ' the inventory cant be "0"';
         return false;
-
-      } else {
+      } 
+    } 
+    }*/
         postForm(formAction, formDataNode);
-      }
+      
     };
 
     function contentToView(json) {

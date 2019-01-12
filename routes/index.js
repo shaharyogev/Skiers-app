@@ -10,6 +10,8 @@ const usersdbUrl = 'mongodb://127.0.0.1:27017/usersdb';
 const session = require('express-session');
 const expressValidator = require('express-validator');
 const formidableMiddleware = require('express-formidable');
+const async = require("async");
+
 
 
 /*MAP*/
@@ -149,6 +151,7 @@ MongoClient.connect(usersdbUrl, function (err, db) {
   });
   
   router.post('/submitNewCustomer', formidableMiddleware(), function (req, res) {
+    console.log('/sumitNewCustomer')
     submitNewCustomer(req.fields.name, req.fields.email, req.fields.phone, req.fields.days, res)
   });
 
@@ -488,7 +491,10 @@ MongoClient.connect(usersdbUrl, function (err, db) {
   };
 
 
-  async function submitNewCustomer(name, email, phone, days, res){
+  async function submitNewCustomer( name, email, phone, days, res){
+    try{
+
+    
     let query = {};
 
     if (name)
@@ -499,19 +505,28 @@ MongoClient.connect(usersdbUrl, function (err, db) {
 
     if (email)
       email = email.toLowerCase(),
-      query['activeUsers.email'] = email;
+      query.email = email;
 
     if (days)
       days = parseInt(days, 10),
       query.days = days;
+    
+      let r1 = await collection.find({'email':email})
+      await function(){ if(r1){
+        console.log('r1');
+      }};
 
-      currentUserGeneralStatus(email, function (err, value) {
-      currentUserI = value;
+     let r = await collection.insertOne(query);
+     //await console.log(r);
 
-      if (currentUserI <= 0) {
-        
-      }
+     await res.send({
+      moviesList: "",
+      title: 'user',
+      status: ''
     });
+    } catch(err){
+      console.log(err.stack);
+    }
   };
 
 
