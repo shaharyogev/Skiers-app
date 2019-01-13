@@ -310,6 +310,42 @@ MongoClient.connect(usersdbUrl, function (err, db) {
   }
 
 
+/* New Database functions: */
+
+async function submitNewCustomer( name, email, phone, res){
+  try{
+  let query = {};
+
+  if (name)
+    query.name = name;
+
+  if (phone)
+    query.phone = phone;
+
+  if (email)
+    email = email.toLowerCase(),
+    query.email = email;
+  
+  let r = await collection.findOneAndUpdate({'email':email},{$set:query},{
+    upsert:true,
+    projection:{'_id':0, 'email':1},
+    returnNewDocument:true
+  });
+
+  await res.send({
+    moviesList: r.value,
+    title: name,
+    status: phone
+  });
+  } catch(err){
+    console.log(err.stack);
+  }
+};
+
+
+
+
+
 
 
 
@@ -490,43 +526,7 @@ MongoClient.connect(usersdbUrl, function (err, db) {
   };
 
 
-  async function submitNewCustomer( name, email, phone, res){
-    try{
-    let query = {};
-
-    if (name)
-      query.name = name;
-
-    if (phone)
-      query.phone = phone;
-
-    if (email)
-      email = email.toLowerCase(),
-      query.email = email;
-    
-    let r1 = await collection.findOneAndUpdate({'email':email},{$set:query},{
-      upsert:true,
-      projection:{'_id':0, 'email':1},
-      returnNewDocument:true
-    });
-    
-    if(r1){
-      console.log(r1);
-      
-    }
-
-    //let r = await collection.insertOne(query);
-    //await console.log(r);
-
-    await res.send({
-      moviesList: r1.value,
-      title: 'user',
-      status: ''
-    });
-    } catch(err){
-      console.log(err.stack);
-    }
-  };
+  
 
 
   /* Databas queries: */
