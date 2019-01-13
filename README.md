@@ -1,4 +1,16 @@
-### Install Mongodb
+# Skiers
+Online ski rental shop management app
+
+##The app includes:
+* Login screen - for store employees + password hash. 
+* Creation of new employee.
+* Inventory and customers management system - MongoDB database.
+* Business intelligent API - managerial queries that help manage the store inventory. 
+* Chat - for an easy way to communicate between employees in the store - socket.Io.
+
+## Technologys in this project: 
+
+## Mongodb
 
 Install mongodb
 open new project folder
@@ -13,7 +25,7 @@ npm install
 
 conect the mongodb to env https://stackoverflow.com/questions/15053893/error-when-trying-to-connect-to-a-mongod/15055641
 
-## Start the database
+### Start the database
 
 start nodejs - 
 ```
@@ -30,14 +42,7 @@ http://localhost:3000/
 In a new terminal
 start mongodb: mongod --dbpath(the path to the data folder in the project)
 ```
-mongod --dbpath D:\Dropbox\Coding\Javascript\Database\database\data
-
-mongo
-```
-
-or 
-```
-mongod --dbpath "C:\Users\Shahar Yogev LP\Dropbox\Coding\Javascript\Database\database\data"
+mongod --dbpath D:\path\data
 
 mongo
 ```
@@ -47,40 +52,52 @@ The database is on port 27017 -
 http://localhost:27017/
 
 
-DropDown - https://codepen.io/ejsado/pen/dAtra
-
 Schema:
 db users
 collections:
 userslist
-    user name ~
-    email ~
-    movies
+    user name
+    email
+    pasword hash
 
 
-movieslist
-    movie name
+itemlist
+    item name
     inventory status +-
     users email + inventory 
     
+    customer name
+    email
+    phone
+    iventory
+    days
+
     dropdown bi - db querys
-        Most rented movies
-        The movie with the higest inventory
-        The movie with the lowst inventory
-        The user with the higest inventory
-        The user with the higest movies veraity 
-        Top 10 movies for rent
+        Most rented items
+        The items with the higest inventory
+        The items with the lowst inventory
+        The customer with the higest inventory
+        The customer with the higest movies veraity 
+        Top 10 items for rent
         
         
-Socket.IO 
+## Socket.IO 
 
 npm install --save socket.io 
 npm install --save express-validator
-https://express-validator.github.io/docs/index.html
-express-session
+  https://express-validator.github.io/docs/index.html
+npm install --save express-session
 
 
-<div>Icons made by <a href="https://www.freepik.com/" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" 			    title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" 			    title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+## Icons: 
+
+All the icons on this project are from flaticon and iconfinder I have the permission to use them but i dont own them:
+
+Icon made by https://www.freepik.com from www.flaticon.com 
+
+https://www.flaticon.com/free-icon/ski_1348799
+
+Icon made by Google from www.flaticon.com - https://www.flaticon.com/authors/google
 
 https://www.flaticon.com/free-icon/send-button_60525
 
