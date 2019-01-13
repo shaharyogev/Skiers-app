@@ -44,7 +44,7 @@ MongoClient.connect(usersdbUrl, function (err, db) {
     console.log(err.stack);
 
   const mydb = db.db('usersdb');
-  const collection = mydb.collection('moviesList');
+  const collection = mydb.collection('appData');
   const usersCollection = mydb.collection('usersList');
 
 
