@@ -1,7 +1,7 @@
 # Skiers
 Online ski rental shop management app
 
-##The app includes:
+## The app includes:
 * Login screen - for store employees + password hash. 
 * Creation of new employee.
 * Inventory and customers management system - MongoDB database.
