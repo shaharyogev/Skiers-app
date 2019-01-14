@@ -64,6 +64,15 @@ body {
   border: 0px solid #dadce0;
 }
 
+
+#error{
+  display:flex;
+  flex-wrap: wrap;
+  flex-direction:column;
+  text-align:center;
+  margin-top: 1.5vh;
+}
+
 @media(max-width:600px) {
   .logoStrip {
     width: 100%;

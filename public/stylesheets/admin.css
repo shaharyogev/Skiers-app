@@ -190,9 +190,7 @@ z-index:0;
   .mainContent {
     margin-top: 0;
   }
-  #querysResults {
-    display: none;
-  }
+  
   .navMenu {
     display: flex;
   }

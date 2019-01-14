@@ -14,10 +14,10 @@
   <div id='loginPage'>
     <div id='loginHeadlin'>
       <div class='logoStrip'>
-          
+
         <h1>Skiers - Ski Rental Shop</h1>
         <h2>Admin panel login</h2><br>
-          
+
         <div class='logoImg'>
           <svg height="100%" viewBox="0 0 512 512" width="512pt" xmlns="http://www.w3.org/2000/svg">
             <path d="m338.5 178h-15v257.734375h-13.828125v-257.734375h-15v32.5h-76.75v15h17.191406l-29.691406 45.277344v-92.777344h-15v257.734375h-13.828125v-257.734375h-15v257.734375h-29.578125v38.289063h43.992187v37.976562h15v-37.976562h43.992188v-38.289063h-29.578125v-54.617187h76.75v-15h-17.285156l29.785156-45.421876v115.039063h-29.578125v38.289063h43.992188v37.976562h15v-37.976562h43.992187v-38.289063h-29.578125zm-118.5 272.734375v8.289063h-72.980469v-8.289063zm33.050781-225.234375h24.0625l-30.164062 46h-24.0625zm-6.101562 140.617188h-24.0625l30.164062-46h24.0625zm-29.027344-61v15h17.191406l-29.691406 45.277343v-78.894531h76.75v-15h-17.285156l29.785156-45.421875v79.039063zm135.15625 145.617187v8.289063h-72.984375v-8.289063zm0 0" />
@@ -36,34 +36,36 @@
     <div id='loginCenterBox'>
       <div id='loginTabA' class='tabBox'>
         <h2>Please Login</h2>
-        <form id='singIn' method='post' action='/user' onsubmit='return checkForm(id)'>
+        <form id='singIn' method='post' action='/user' onsubmit='return checkForm(id, 0)'>
           <input id='userEmail' type='text' placeholder='Email' name='email' required>
-          <span class='errorEmail'></span>
           <input id='userPassword' type='text' placeholder='Password' name='password' required>
-          <span class='errorPassword'></span>
           <div class='stripBox'>
             <button class='loginButton' id='submitUser' type='submit'> Sbumit</button>
-            <a type='button' onclick="loginToggle()" id='newUserButton'>New Account</a>
+            <a type='button' onclick="loginToggle(0)" id='newUserButton'>New Account</a>
           </div>
-          <span class='error'></span>
         </form>
       </div>
       <div id='loginTabB' class='tabBox'>
         <h2>New User</h2>
-        <form id='addUser' method='post' action='/adduser' onsubmit='return checkForm(id)'>
+        <form id='addUser' method='post' action='/adduser' onsubmit='return checkForm(id, 1)'>
+          <input id='invite' type='text' placeholder='Invite' name='invite' required>
           <input id='userName' type='text' placeholder='User name' name='name' required>
-          <span class='errorName'></span>
           <input id='userEmail' type='text' placeholder='Valid email' name='email' required>
-          <span class='errorEmail'></span>
           <input id='userPassword' type='text' placeholder='Strong Password' name='password' required>
-          <span class='errorPassword'></span>
           <div class='stripBox'>
             <button class='loginButton' id='submitNewUser' type='submit'> Sbumit</button>
-            <a type='button' onclick="loginToggle('b')" id='newUserButton'>Registerd User</a>
+            <a type='button' onclick="loginToggle(1)" id='newUserButton'>Registerd User</a>
           </div>
         </form>
       </div>
     </div>
+    <span id='error'>
+        <span class='errorName'></span>
+        <span class='errorEmail'></span>
+        <span class='errorPassword'></span>
+    </span>
+    
+    
     <div class='filer3'>
       <span></span>
     </div>
@@ -85,7 +87,7 @@
     function loginToggle(b) {
       let loginTabA = document.getElementById('loginTabA');
       let loginTabB = document.getElementById('loginTabB');
-      if (b) {
+      if (b === 1) {
         loginTabA.style.display = 'flex';
         loginTabB.style.display = 'none';
       } else {
@@ -94,19 +96,22 @@
       }
     };
 
-    function checkForm(id) {
+    function checkForm(id,nextNum) {
+      event.preventDefault();
       let formId = document.getElementById(id);
+      let formDataNode = formId.querySelectorAll('input');
+      let formAction = formId.action;
+      /*
       if (formId.querySelector('input[name="name"]')) {
         let nameTest = formId.querySelector('input[name="name"]').value;
         if (nameTest === ' ' || nameTest === '') {
-          formId.querySelector('.errorName').innerHTML = 'cant use this user name';
+          document.querySelector('.errorName').innerHTML = 'Sorry but you can\'t use this username';
           test++;
         };
       }
       let emailTest = formId.querySelector('input[name="email"]');
       let passwordTest = formId.querySelector('input[name="password"]').value;
       let test = 0
-
       //validation - deactivated on testing
 
       if (emailTest != undefined) {
@@ -115,18 +120,80 @@
         let res = re.test(String(emailTest.value).toLowerCase());
         console.log('email is: ' + res);
         if (!res) {
-          formId.querySelector('.errorEmail').innerHTML = 'cant use this email, try a real one';
+          document.querySelector('.errorEmail').innerHTML = 'Sorry but you can\'t use this email, try a real one';
           test++;
         }
       };
-      if (passwordTest === ' ' || passwordTest === '') {
-        formId.querySelector('.errorPassword').innerHTML = 'cant use this password';
-        test++;
+      
+        if (passwordTest != undefined){
+          let re =
+          /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\S+$).{5,}$/;
+          let res = re.test(String(passwordTest));
+          console.log('password is: ' + res);
+          if (!res) {
+            document.querySelector('.errorPassword').innerHTML = 'The Password is at least 5 character long + upper cases + lower cases + digits ';
+            test++;
+          } 
       };
       if (test > 0) {
         test = 0;
         return false;
+      }else{
+        postForm(formAction, formDataNode, id, nextNum);
       }
+      */
+      postForm(formAction, formDataNode, id, nextNum);
+
+    };
+
+    function checkFormLogin(id, nextNum) {
+      event.preventDefault();
+      let formId = document.getElementById(id);
+      let formDataNode = formId.querySelectorAll('input');
+      let formAction = formId.action;
+      postForm(formAction, formDataNode, id, nextNum);
+    }
+
+
+    function contentToView(json, nextNum) {
+      let coment = document.getElementById('error')
+      obj = JSON.parse(json);
+      if (obj.err) {
+        coment.innerText = obj.err;
+      }else{
+        coment.innerText = "Your login attempt was not successful. Please try again.";
+      }
+    };
+
+    function postForm(file, formDataNode, id, nextNum) {
+
+      let i, pagePath, elmnt, xhttp, formData;
+      formData = new FormData();
+      pagePath = file;
+      for (i in formDataNode) {
+        formData.append(formDataNode[i].name, formDataNode[i].value);
+      };
+      xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4) {
+          if (this.status == 200) {
+            
+
+            
+            //console.log(this.response);
+            
+            //console.log(this.response);
+            //contentToView(this.responseText, nextNum );
+          }
+          if (this.status == 404) {
+            contentToView({
+              err: 'We have a little problem - Server is not responding',
+            }, nextNum ); //DEV
+          }
+        }
+      }
+      xhttp.open('POST', pagePath, true);
+      xhttp.send(formData);
     };
   </script>
 </body>
