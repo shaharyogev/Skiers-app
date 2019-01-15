@@ -252,7 +252,7 @@ client.connect(function (err, db) {
             if (bcRes) {
               resolve(true);
             } else {
-              resulve(false);
+              resolve(false);
             }
           })
         }
@@ -275,7 +275,7 @@ client.connect(function (err, db) {
           if (r !== null) {
             resolve(true);
           } else {
-            resulve(false);
+            resolve(false);
           }
         })
       })
@@ -314,19 +314,25 @@ client.connect(function (err, db) {
                   if (r !== null) {
                     if (r.result.n == 1) {;
                       // Callback if success 
-                      startUserSession(email, 'Most Avialebel Inventory:', '', '', req, res);
+                      startUserSession(email, 'Avialebel Inventory:', '', '', req, res);
                     }
                   } else {
-                    res.render('login')
+                    res.json({
+                      err: 'User created, try login as registerd User'
+                    });
                   }
                 })
               } else {
-                res.render('login')
+                res.json({
+                  err: 'The User is already created'
+                });
               }
             })
           })
       } else {
-        res.render('login')
+        res.json({
+          err: 'The invite is not valid! for a valid invite go to: https://shahary.com'
+        });
       }
     } catch (err) {
       console.log(err.stack);
@@ -367,7 +373,7 @@ client.connect(function (err, db) {
               }, function (err, r) {
                 if (err) console.log(err);
                 if (r.result.n == 1)
-                  startUserSession(email, 'Most Avialebel Inventory:', '', '', req, res);
+                  startUserSession(email, ' Highest Avialebel Inventory: ', '', '', req, res);
 
               });
             } else {
@@ -382,12 +388,18 @@ client.connect(function (err, db) {
               }, function (err, r) {
                 if (err) console.log(err);
                 if (r.result.n == 1)
-                  res.render('login');
+                  res.json({
+                  err: 'Incorrect password '
+                });
+
               });
             }
           });
         } else
-          res.render('login');
+            res.json({
+            err: 'The user is not registerd'
+        });
+
       })
   };
 
@@ -411,7 +423,7 @@ client.connect(function (err, db) {
             userName: r.userName,
             originalMaxAge: 1000 * 60 * 60 * 24 * 7
           };
-          
+
         inventoryStatusInLogin(title, status, r.userName, req, res);
       }
     })
@@ -560,7 +572,6 @@ client.connect(function (err, db) {
               }
             },
             function (err, r) {
-
               if (err) console.log(err)
 
               if (r.value !== null)
@@ -635,7 +646,6 @@ client.connect(function (err, db) {
             inventoryStatus(title, status, '', res);
           });
         }
-
       }
     )
   };
@@ -795,33 +805,18 @@ client.connect(function (err, db) {
           title: 'No inventory in stock',
           status: err
         });
-      /*
-      res.render('movies', {
-        moviesList: [],
-        title: 'No inventory in stock',
-        status: err
-      });*/
 
       let moviesList = [];
       for (let index in result) {
         let temp = 'Item: ' + result[index].title + ' Avialebel inventory: ' + result[index].inventory;
         moviesList.push(temp);
       };
-      console.log('inventoryStatus')
       res.send({
         moviesList: moviesList,
         title: title,
         status: status,
         userName: userName
       });
-      /*
-      res.render('movies', {
-        moviesList: moviesList,
-        title: title,
-        status: status,
-        userName: userName
-      });
-      */
     })
   };
 
@@ -854,9 +849,6 @@ client.connect(function (err, db) {
         let temp = 'Item: ' + result[index].title + ' Avialebel inventory: ' + result[index].inventory;
         moviesList.push(temp);
       }
-      console.log('res.render - movies');
-
-
 
       res.render('movies', {
         moviesList: moviesList,
@@ -920,7 +912,6 @@ client.connect(function (err, db) {
         let temp = 'Item: ' + result[index]._id + ' Current rented inventory: ' + result[index].rentedMovieInventory;
         moviesList.push(temp);
       }
-      console.log('topTenMovies');
       res.send({
         moviesList: moviesList,
         title: 'Top 10 rented movies: ',
@@ -975,13 +966,6 @@ client.connect(function (err, db) {
           title: 'The top 10 active users:',
           status: err
         });
-      /*
-      res.render('movies', {
-        moviesList: [],
-        userslist: [],
-        title: 'The top 10 active users:',
-        status: err
-      });*/
 
       let usersList = [];
 
@@ -994,13 +978,6 @@ client.connect(function (err, db) {
         title: 'The top 10 active users:',
         status: ''
       });
-      /*
-      res.render('movies', {
-        moviesList: usersList,
-        title: 'The top 10 active users:',
-        status: ''
-      });
-      */
     })
   };
 
@@ -1049,32 +1026,19 @@ client.connect(function (err, db) {
 
       if (err)
         res.send({
-          title: 'The most active user Is: error',
+          title: 'The highest inventory for singel user Is: error',
           status: err,
           moviesList: []
         });
-      /*
-      res.render('movies', {
-        title: 'The most active user Is: error',
-        status: err,
-        moviesList: []
-      });*/
 
       let usersList = []
       for (let index in result) {
         let temp = 'Email: ' + result[index].rentedMovies.email + ' Title: ' + result[index].rentedMovies.title + ' Inventory: ' + result[index].rentedMovies.inventory;
         usersList.push(temp)
       }
-      /*
-      res.render('movies', {
-        title: 'The most active user Is: ',
-        status: result[0].rentedMovies.email,
-        moviesList: usersList
-      });
-      */
 
       res.send({
-        title: 'The most active user Is: ',
+        title: 'The highest inventory for singel user Is: ',
         status: result[0].rentedMovies.email,
         moviesList: usersList
       });
@@ -1129,30 +1093,19 @@ client.connect(function (err, db) {
     ]).toArray(function (err, result) {
       if (err)
         res.send({
-          title: 'The top rented Item Is: error',
+          title: 'The highest rented Item Is: error',
           status: err,
           moviesList: []
         });
-      /*
-      res.render('movies', {
-        title: 'The top rented Item Is: error',
-        status: err,
-        moviesList: []
-      });*/
 
       let usersList = []
       for (let index in result) {
         let temp = 'Email: ' + result[index].users.email + ' Inventory: ' + result[index].users.inventory;
         usersList.push(temp)
       }
-      /*
-      res.render('movies', {
-        title: 'The top rented Item Is: ',
-        status: result[0]._id,
-        moviesList: usersList
-      });*/
+
       res.send({
-        title: 'The top rented Item Is: ',
+        title: 'The highest rented Item Is: ',
         status: result[0]._id,
         moviesList: usersList
       });

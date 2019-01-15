@@ -18,6 +18,8 @@ body {
 
 .filer3 {
   flex: 2 1 auto;
+  text-align: center;
+  margin: 0.5rem 0;
 }
 
 #loginHeadlin {
