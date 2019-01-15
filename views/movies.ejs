@@ -90,6 +90,7 @@
         </div>
       </div>
       
+      <div class = 'resultsPanel'>
 
       <div id='inventoryTab'>
         <div id='navTab'>
@@ -98,7 +99,7 @@
           <a type='button' class='tabNavButton' onclick="tabToggle(2, 'inventoryTab')">Return</a>
           <a type='button' class='tabNavButton' onclick="tabToggle(3, 'inventoryTab')">Inventory</a>
         </div>
-        <section id='contentTab'>
+        <div id='contentTab'>
           <div id='inventoryTabA' class='form tabBox inventoryTab flex-show'>
             <h2>New Customer</h2>
             <form id='submitNewCustomer' name='submitNewCustomer' action='/submitNewCustomer' onsubmit='return checkForm(id, 1)'>
@@ -143,7 +144,7 @@
           </div>
           <br>
           <br>
-        </section>
+        </div>
       </div>
 
       <div id='querysResults' class='querysResults'>
@@ -160,6 +161,7 @@
           </ul>
         </div>
       </div>
+    </div>
 
       <div id='chatLogoButton'>
         <a type='button' onclick="minimizeToggle('dot')">

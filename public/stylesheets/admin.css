@@ -133,6 +133,14 @@ z-index:0;
   flex-wrap: wrap;
 }
 
+.resultsPanel{
+display:flex;
+flex-wrap: wrap;
+flex-basis: 90%;
+overflow-x: auto;
+justify-content:center;
+}
+
 #querysResults {
   display: flex;
   flex-direction: column;
