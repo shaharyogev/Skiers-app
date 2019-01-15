@@ -181,8 +181,8 @@
             document.open();
             document.write(this.responseText);
             
-            //pagePath = '?' + id;
-            //history.pushState({data:pagePath},{title:pagePath}, pagePath );
+            pagePath = '?' + id;
+            history.pushState({data:pagePath},{title:pagePath}, "" );
             document.close();
            }else{
             contentToView(this.responseText, nextNum );

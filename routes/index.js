@@ -71,7 +71,7 @@ client.connect(function (err, db) {
     next();
   })
 
-  
+  */
   
     //clear cookie if session is over
 
@@ -83,7 +83,7 @@ client.connect(function (err, db) {
         next();
     });
 
-*/
+
 
   /* Router requests: */
 
@@ -92,7 +92,6 @@ client.connect(function (err, db) {
     if (req.session.succes){
       console.log(req.session);
       res.render('movies',{userName:req.session.userName})
-      //next()
     }else{
       res.render('login');
 
@@ -103,17 +102,11 @@ client.connect(function (err, db) {
   //While the user in session the system will stay active.
 
   router.get('/:id', function (req, res, next) {
-    if (req.session.succes){
-      //console.log(req.session);
-      //res.render('movies',{userName:req.session.userName})
-      next()
-      
-    }
-    else{
-      console.log('not in session');
+    if (req.session.succes)
+      next();
+    
+    else
       res.render('login');
-    }
-      
   })
 
   //Handle user login request
@@ -225,7 +218,9 @@ client.connect(function (err, db) {
     req.session.destroy(function(err) {
       if(err) console.log(err)
     });
+    res.clearCookie('skiersAdmin');
     res.render('login');
+
   });
 
 
