@@ -184,7 +184,7 @@ client.connect(function (err, db) {
   /* Qureys routes for the database */
 
   router.get('/movies', function (req, res, next) {
-    inventoryStatus('Movies In Stock', 'Largest inventory: ', '', res);
+    inventoryStatus('Items In Stock', 'Heigst inventory: ', '', res);
   });
 
   router.post('/submitrent', formidableMiddleware(), function (req, res) {
