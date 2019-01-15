@@ -173,21 +173,24 @@
       for (i in formDataNode) {
         formData.append(formDataNode[i].name, formDataNode[i].value);
       };
-      xhttp = new XMLHttpRequest();
+      xhttp = new window.XMLHttpRequest();
       xhttp.onreadystatechange = function () {
         if (this.readyState == 4) {
           if (this.status == 200) {
+           if(this.response.startsWith("<!DOCTYPE html>")){
+            document.open();
+            document.write(this.responseText);
             
-
-            
-            //console.log(this.response);
-            
-            //console.log(this.response);
-            //contentToView(this.responseText, nextNum );
+            //pagePath = '?' + id;
+            //history.pushState({data:pagePath},{title:pagePath}, pagePath );
+            document.close();
+           }else{
+            contentToView(this.responseText, nextNum );
+           }            
           }
           if (this.status == 404) {
             contentToView({
-              err: 'We have a little problem - Server is not responding',
+              "err": 'We have a little problem - Server is not responding',
             }, nextNum ); //DEV
           }
         }

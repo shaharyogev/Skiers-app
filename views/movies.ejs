@@ -216,19 +216,15 @@
 
       <div id='querysResults' class='querysResults'>
         <div id='topten' class='topten'>
-          <h2 class='title' id='title'>
-            <%= title %>
-          </h2>
-          <h3 class='subTitle' id='status'>
-            <%= status %>
-          </h3>
-          <ul id='queryUl'>
-            <% for( var index in moviesList ){  %>
-            <li>
-              <%= moviesList[index]%>
-            </li>
-            <% } %>
-          </ul>
+
+          <h2 class='title' id='title'> Welcome <%= userName %>
+            </h2>
+            <h3 class='subTitle' id='status'>
+            </h3>
+            <ul id='queryUl'>
+              <li>
+              </li>
+            </ul>
         </div>
       </div>
 
@@ -400,7 +396,6 @@
       newChatH3.style.color = 'var(--c' + colorPickerVar + ')';
       newUserChatLi.setAttribute('class', 'newUserLi');
       newUserChatColorList[d] = 'var(--c' + colorPickerVar + ')';
-      //console.log(chatUsersUl.firstElementChild)
       chatUsersUl.insertBefore(newUserChatLi, chatUsersUl.firstElementChild);
     }
     let usersOnlineListLocal = new Array;
@@ -410,7 +405,6 @@
 
     socket.on('newUserConnected', function (d) {
       newUserOnline(d)
-      //console.log(d)
 
     });
 
@@ -421,7 +415,6 @@
         user: userName,
         message: message.value
       }, function (d) {
-        //console.log(d);
       });
       message.value = '';
     };
@@ -460,7 +453,6 @@
       let thisTab = document.getElementById(id);
 
       if(thisTab.querySelector('input[name="email"]')){
-        console.log(thisTab.querySelector('input[name="email"]'))
       let email = thisTab.querySelector('input[name="email"]').value 
       let tabClassList = document.getElementsByClassName("inventoryTab");
       thisTab.reset();
@@ -511,6 +503,7 @@
 
     function contentToView(json) {
       obj = JSON.parse(json);
+
       if (obj.title) {
         let titleT = document.getElementById('title')
         titleT.innerText = obj.title;
@@ -554,9 +547,9 @@
             }
             if (this.status == 404) {
               contentToView({
-                title: 'We have a little problem',
-                status: '',
-                queryUl: ''
+                "title": 'We have a little problem',
+                "status": '',
+                "queryUl": ''
               }); //DEV
             }
           }
@@ -582,7 +575,6 @@
       xhttp.onreadystatechange = function () {
         if (this.readyState == 4) {
           if (this.status == 200) {
-            //console.log(this.response);
             contentToView(this.responseText);
             goToRentTabWithEmail(id, nextNum);
           }

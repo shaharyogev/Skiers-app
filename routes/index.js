@@ -72,34 +72,49 @@ client.connect(function (err, db) {
   })
 
   */
-  /*
+  
   //clear cookie if session is over
 
   router.use((req, res, next) =>{
     if ( req.session.cookie && !req.session.succes){
-      res.clearCookie('moviesInventory');
-      console.log('moviesInventory cookie cleard')
+      res.clearCookie('skiersAdmin');
+      console.log('skiersAdmin cookie cleard')
     }
       next();
   });
-  */
+
 
 
   /* Router requests: */
 
   //First 
   router.get('/', function (req, res, next) {
-    res.render('login');
+    if (req.session.succes){
+      console.log(req.session);
+      res.render('movies',{userName:req.session.cookie.userName})
+      //next()
+    }else{
+      res.render('login');
+
+    }
   })
 
   
   //While the user in session the system will stay active.
 
   router.get('/:id', function (req, res, next) {
-    if (req.session.succes)
-      next();
-    else
+    if (req.session.succes){
+      console.log(req.session);
+      //res.render('movies',{userName:req.session.cookie.userName})
+      next()
+      
+    }
+      
+    else{
+      console.log('not in session');
       res.render('login');
+    }
+      
   })
 
   //Handle user login request
@@ -136,10 +151,9 @@ client.connect(function (err, db) {
     console.log(errors);
     if (errors) {
       req.session.errors = errors;
-      res.send({
+      res.json({
         err: errors
       });
-      console.log('loginAttempt fail');
     } else {
       loginAttempt(req.fields.email, req.fields.password, req, res);
 
@@ -168,7 +182,7 @@ client.connect(function (err, db) {
 
   /* Qureys routes for the database */
 
-  router.get('/movies/', function (req, res, next) {
+  router.get('/movies', function (req, res, next) {
     inventoryStatus('Movies In Stock', 'Largest inventory: ', '', res);
   });
 
@@ -225,10 +239,8 @@ client.connect(function (err, db) {
           bcrypt.compare(invite, r.key, function (err, bcRes) {
             if (err) console.log(err);
             if (bcRes) {
-              console.log("66");
               resolve(true);
             } else {
-              console.log("99");
               resulve(false);
             }
           })
@@ -385,10 +397,11 @@ client.connect(function (err, db) {
       if (r !== null) {
         req.session.succes = true,
           req.session.cookie = {
-            name: 'moviesInventory',
+            name: 'skiersAdmin',
             userName: r.userName,
-            originalMaxAge: 1000 * 60 * 60 * 24 * 365
+            originalMaxAge: 1000 * 60 * 60 * 24 * 7
           };
+          
         inventoryStatusInLogin(title, status, r.userName, req, res);
       }
     })
@@ -784,6 +797,7 @@ client.connect(function (err, db) {
         let temp = 'Item: ' + result[index].title + ' Avialebel inventory: ' + result[index].inventory;
         moviesList.push(temp);
       };
+      console.log('inventoryStatus')
       res.send({
         moviesList: moviesList,
         title: title,
@@ -830,7 +844,7 @@ client.connect(function (err, db) {
         let temp = 'Item: ' + result[index].title + ' Avialebel inventory: ' + result[index].inventory;
         moviesList.push(temp);
       }
-      console.log('ok1');
+      console.log('res.render - movies');
 
 
 
@@ -890,31 +904,18 @@ client.connect(function (err, db) {
           title: 'Top 10 rented movies: ',
           status: err
         });
-      /*
-      res.render('movies', {
-        moviesList: [],
-        title: 'Top 10 rented movies: ',
-        status: err
-      });
-      */
 
       let moviesList = [];
       for (let index in result) {
         let temp = 'Item: ' + result[index]._id + ' Current rented inventory: ' + result[index].rentedMovieInventory;
         moviesList.push(temp);
       }
+      console.log('topTenMovies');
       res.send({
         moviesList: moviesList,
         title: 'Top 10 rented movies: ',
         status: ''
       });
-      /*
-      res.render('movies', {
-        moviesList: moviesList,
-        title: 'Top 10 rented movies: ',
-        status: ''
-      });
-      */
     })
   };
 
