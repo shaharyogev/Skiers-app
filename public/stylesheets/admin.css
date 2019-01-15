@@ -107,6 +107,12 @@ title{
   transition: 300ms ease;
   font-size: 1.8vh;
 }
+.navColumn a{
+
+color: whitesmoke;
+text-decoration: none;
+
+}
 
 .navLogo{
   flex-wrap:wrap;
@@ -209,10 +215,11 @@ title{
     align-items: center;
   }
   #querysResults {
-    margin-top: 2rem;
+    margin: 5vw;
     transition: 0.3s ease-in-out;
   }
 }
+
 
 #inventoryTab {
   display: flex;
@@ -230,6 +237,10 @@ title{
 #querysResults ul {
   list-style: none;
   padding-left: 0;
+}
+.topten{
+  padding: 2px 1px;
+
 }
 
 @media(max-width:600px) {
@@ -253,14 +264,18 @@ title{
     transition: 500ms ease;
   }
   .resultsPanel {
-    flex-basis: 90%;
+    flex-basis: 85%;
   }
+  
 }
 
 @media(pointer:none),
 (pointer:coarse) {
-  
+  .resultsPanel {
+    flex-basis: 90%;
+  }
 }
+
 
 @media (orientation:landscape) and (pointer:coarse),
 (pointer:none) {

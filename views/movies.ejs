@@ -54,7 +54,7 @@
             <li><a type="button" class='menuButtonText' onclick="themeToggle('themeToggle')">
                 <div id="themeToggle" class="manuBox5">Dark-Side</div>
               </a></li>
-            <li><a type="button" class='menuButtonText' method='get' action='/logout' onclick="includeThisHTML('/logout')">Log-Out</a></li>
+            <li><a type="button" class='menuButtonText' method='get' action='/logout' href='/logout'>Log-Out</a></li>
           </ul>
         </div>
       </div>
@@ -301,7 +301,8 @@
     function menuX(x, st) {
       x.classList.toggle('change');
       navColumn.classList.toggle('change');
-      minimizeToggle('dot', 1)
+      minimizeToggle('dot', 1);
+      openFullscreen();
       menuClass = x;
       if (menuOpen === 0) {
         st = setTimeout(function () {
@@ -596,6 +597,20 @@
       xhttp.open('POST', pagePath, true);
       xhttp.send(formData);
     };
+    
+
+let elem = document.documentElement;
+function openFullscreen() {
+if (elem.requestFullscreen) {
+elem.requestFullscreen();
+} else if (elem.mozRequestFullScreen) { /* Firefox */
+elem.mozRequestFullScreen();
+} else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+elem.webkitRequestFullscreen();
+} else if (elem.msRequestFullscreen) { /* IE/Edge */
+elem.msRequestFullscreen();
+}
+}
   </script>
 </body>
 
