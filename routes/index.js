@@ -71,19 +71,19 @@ client.connect(function (err, db) {
     next();
   })
 
-  */
   
-  //clear cookie if session is over
+  
+    //clear cookie if session is over
 
-  router.use((req, res, next) =>{
-    if ( req.session.cookie && !req.session.succes){
-      res.clearCookie('skiersAdmin');
-      console.log('skiersAdmin cookie cleard')
-    }
-      next();
-  });
+    router.use( function(req, res, next){
+      if ( req.session.cookie && !req.session.succes){
+        res.clearCookie('skiersAdmin');
+        console.log('skiersAdmin cookie cleard')
+      }
+        next();
+    });
 
-
+*/
 
   /* Router requests: */
 
@@ -91,7 +91,7 @@ client.connect(function (err, db) {
   router.get('/', function (req, res, next) {
     if (req.session.succes){
       console.log(req.session);
-      res.render('movies',{userName:req.session.cookie.userName})
+      res.render('movies',{userName:req.session.userName})
       //next()
     }else{
       res.render('login');
@@ -104,12 +104,11 @@ client.connect(function (err, db) {
 
   router.get('/:id', function (req, res, next) {
     if (req.session.succes){
-      console.log(req.session);
-      //res.render('movies',{userName:req.session.cookie.userName})
+      //console.log(req.session);
+      //res.render('movies',{userName:req.session.userName})
       next()
       
     }
-      
     else{
       console.log('not in session');
       res.render('login');
@@ -227,8 +226,8 @@ client.connect(function (err, db) {
       if(err) console.log(err)
     });
     res.render('login');
+  });
 
-  })
 
 
   function testInviteListForLogin(invite) {
@@ -312,8 +311,6 @@ client.connect(function (err, db) {
                     if (r.result.n == 1) {;
                       // Callback if success 
                       startUserSession(email, 'Most Avialebel Inventory:', '', '', req, res);
-                      //req.session.succes = true
-                      //inventoryStatusInLogin('hello new user', '', name, res);
                     }
                   } else {
                     res.render('login')
@@ -404,6 +401,7 @@ client.connect(function (err, db) {
       if (err) console.log(err)
       if (r !== null) {
         req.session.succes = true,
+        req.session.userName = r.userName,
           req.session.cookie = {
             name: 'skiersAdmin',
             userName: r.userName,
