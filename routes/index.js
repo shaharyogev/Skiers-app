@@ -65,32 +65,21 @@ client.connect(function (err, db) {
     saveUninitialized: false,
   }));
 
-  /*
-  router.use((req, res, next)=>{
-    console.log(req.session)
-    next();
-  })
-
-  */
   
     //clear cookie if session is over
 
     router.use( function(req, res, next){
       if ( req.session.cookie && !req.session.succes){
         res.clearCookie('skiersAdmin');
-        console.log('skiersAdmin cookie cleard')
       }
         next();
     });
-
-
 
   /* Router requests: */
 
   //First 
   router.get('/', function (req, res, next) {
     if (req.session.succes){
-      console.log(req.session);
       res.render('movies',{userName:req.session.userName})
     }else{
       res.render('login');
@@ -104,10 +93,10 @@ client.connect(function (err, db) {
   router.get('/:id', function (req, res, next) {
     if (req.session.succes)
       next();
-    
+
     else
       res.render('login');
-  })
+  });
 
   //Handle user login request
 
@@ -160,11 +149,31 @@ client.connect(function (err, db) {
     let name = req.fields.name;
     let email = req.fields.email;
     let password = req.fields.password;
-
     let errors;
+
+    if (email != undefined) {
+      let re =
+        /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      let res = re.test(String(email).toLowerCase());
+      if (!res) {
+        errors = 'Hi ' + email + ' You cant use this email, try a real one';
+      }
+    }
+
+    if (password != undefined) {
+      let re =
+        /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\S+$).{5,}$/;
+      let res = re.test(String(password));
+      if (!res) {
+        errors += ' the assword is Minmum 5 character long + upper cases + lower cases + digits ';
+      }
+    }
+
     if (errors) {
       req.session.errors = errors;
-      res.redirect('/login');
+      res.json({
+        err: errors
+      });
     } else {
       creatNewUser(req.fields.invite, req.fields.name, req.fields.email, req.fields.password, req, res);
     }

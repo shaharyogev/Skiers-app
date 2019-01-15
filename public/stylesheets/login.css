@@ -12,6 +12,8 @@ body {
   flex-wrap: wrap;
   flex-direction: column;
   align-content: center;
+  height: 100vh;
+  width: 100vw;
 }
 
 .filer3 {
@@ -42,7 +44,12 @@ body {
 }
 
 #loginHeadlin h1 {
-  margin-left: 0.5rem;
+  margin: 0 0.5rem ;
+  text-align:center;
+}
+#loginHeadlin h2 {
+  margin: 0.5rem 0 ; 
+  text-align:center;
 }
 
 .logoImg {
