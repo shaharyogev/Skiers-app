@@ -89,75 +89,7 @@
           </h2>
         </div>
       </div>
-      <!--
-      <div id='inventoryTab'>
-        <div id='navTab'>
-          <a type='button' class='tabNavButton' onclick="tabToggle(0, 'customerTab')">New Customer</a>
-          <a type='button' class='tabNavButton' onclick="tabToggle(1, 'customerTab')">New Order</a>
-          <a type='button' class='tabNavButton' onclick="tabToggle(2, 'customerTab')">Inventory</a>
-        </div>
-         
-        <section id='contentTab'>
-          <div id='customerTabA' class='form tabBox customerTab flex-show'>
-            <h2>New Customer</h2>
-            <form id='submitNewCustomer' name='submitNewCustomer' action='/submitNewCustomer' onsubmit='return checkForm(id)'>
-              <input id='movieTitle' type='text' placeholder='Customer Name' name='name' required>
-              <input id='userEmail' type='text' placeholder='Customer Email' name='email' required>
-              <input type='text' placeholder='Phone Number' name='phone' required>
-              <button id='submitInventory' type='submit' class='submitButton '> Submit</button>
-              <span class='error'></span>
-            </form>
-          </div>
-
-          <div id='customerTabB' class='form tabBox customerTab hidden'>
-            <h2>New Order for:</h2>
-              <h2>Rent Skis</h2>
-            <form id='rent' name='rent' action='/submitrent' onsubmit='return checkForm(id)'>
-              <input id='userEmail' type='text' placeholder='Customer Email' name='email' required>
-              <input id='movieTitle' type='text' placeholder='Item for rent' name='title' required>
-              <input id='titleInventory' type='number' placeholder='Number of Pairs' name='inventory' required>
-              <input type='text' placeholder='Number of days' name='days' required>
-              <button id='submitInventory' type='submit' class='submitButton '> Submit</button>
-              <span class='error'></span>
-            </form>
-            <h2>Rent Boots</h2>
-            <form id='rent' name='rent' action='/submitrent' onsubmit='return checkForm(id)'>
-              <input id='userEmail' type='text' placeholder='Customer Email' name='email' required>
-              <input id='movieTitle' type='text' placeholder='Item for rent' name='title' required>
-              <input id='titleInventory' type='number' placeholder='Number of Pairs' name='inventory' required>
-              <input type='text' placeholder='Number of days' name='days' required>
-              <button id='submitInventory' type='submit' class='submitButton '> Submit</button>
-              <span class='error'></span>
-            </form>
-            <h2>Rent Stikes</h2>
-            <form id='rent' name='rent' action='/submitrent' onsubmit='return checkForm(id)'>
-              <input id='userEmail' type='text' placeholder='Customer Email' name='email' required>
-              <input id='movieTitle' type='text' placeholder='Item for rent' name='title' required>
-              <input id='titleInventory' type='number' placeholder='Number of Pairs' name='inventory' required>
-              <input type='text' placeholder='Number of days' name='days' required>
-              <button id='submitInventory' type='submit' class='submitButton '> Submit</button>
-              <span class='error'></span>
-            </form>
-
-              <button id='submitInventory' type='submit' class='submitButton'> Submit</button>
-              <span class='error'></span>
-            </form>
-          </div>
-
-          <div id='customerTabC' class='form tabBox customerTab hidden'>
-            <h2>Add / Remove inventory</h2>
-            <form id='addInventory' name='addInventory' action='/addmovietodb' onsubmit='return checkForm(id)'>
-              <input id='movieTitle' type='text' placeholder='Customer Name' name='title' required>
-              <input id='titleInventory' type='number' placeholder='Ski Pairs' name='inventory' required>
-              <button id='submitInventory' type='submit' class='submitButton'> Submit</button>
-              <span class='error'></span>
-            </form>
-          </div>
-          <br>
-          <br>
-        </section>
-      </div>
-      -->
+      
 
       <div id='inventoryTab'>
         <div id='navTab'>
@@ -214,8 +146,6 @@
         </section>
       </div>
 
-
-
       <div id='querysResults' class='querysResults'>
         <div id='topten' class='topten'>
 
@@ -230,7 +160,6 @@
           </ul>
         </div>
       </div>
-
 
       <div id='chatLogoButton'>
         <a type='button' onclick="minimizeToggle('dot')">
@@ -287,7 +216,6 @@
           </div>
         </div>
       </div>
-
     </div>
   </div>
 
@@ -307,30 +235,41 @@
 
     //Chat Toggles
     let chatClosed = 0;
+    let chatMini = 0;
     let miniButton = document.getElementById('chatButtonToggle');
     let chatBox = document.getElementById('chatLiveBox');
     let chatLogoButton = document.getElementById('chatLogoButton');
 
     function minimizeToggle(size, close) {
-      if (size == 'mini' && close !== 1) {
-        if (miniButton.innerText == '_') {
-          miniButton.innerText = '{ }';
-          chatBox.setAttribute('class', 'chatLiveBoxMini');
-          miniButton.setAttribute('class', 'chatEnlarge');
-        } else {
-          miniButton.innerText = '_';
+      function minimizeChat(){
+        miniButton.innerText = '{ }';
+        chatBox.setAttribute('class', 'chatLiveBoxMini');
+        miniButton.setAttribute('class', 'chatEnlarge');
+        chatMini = 1;
+      }
+      function enlargeChat(){
+        miniButton.innerText = '_';
           chatBox.setAttribute('class', 'chatLiveBox');
           miniButton.setAttribute('class', 'chatMinimize');
+          chatMini = 0;
+      }
+      if (size == 'mini' && close !== 1) {
+        if (miniButton.innerText == '_') {
+          minimizeChat()
+        } else {
+          enlargeChat()
         }
       } else if (size == 'dot') {
         if (chatClosed === 0) {
           chatBox.setAttribute('class', 'chatLiveBoxDot');
           chatLogoButton.classList.toggle('changeDot');
           chatClosed = 1;
-        } else {
-          miniButton.innerText = '_';
-          chatBox.setAttribute('class', 'chatLiveBox');
-          miniButton.setAttribute('class', 'chatMinimize');
+        } else if(close !=1){
+          if(chatMini !=1){
+            enlargeChat()
+          }else{
+            minimizeChat()
+          }
           chatLogoButton.classList.toggle('changeDot');
           chatClosed = 0;
         }
@@ -347,7 +286,7 @@
     function menuX(x, st) {
       x.classList.toggle('change');
       navColumn.classList.toggle('change');
-      minimizeToggle('mini', chatClosed)
+      minimizeToggle('dot', 1)
       menuClass = x;
       if (menuOpen === 0) {
         st = setTimeout(function () {
@@ -435,9 +374,6 @@
       let newChatH3 = document.createElement('h3');
       let newChatP = document.createElement('p');
       let newChatH3Color = newUserChatColorList[d.user];
-      //console.log(newUserChatColorList[d.user]);
-      // newChatLi.appendChild(document.createTextNode(d.user + ': ' + d.message));
-      // newChatLi.setAttribute('class', 'newMessageLi');
 
       newChatH3.appendChild(document.createTextNode(d.user));
       newChatH3.style.color = newChatH3Color;
@@ -446,6 +382,7 @@
       newChatLi.appendChild(newChatP);
       newChatLi.setAttribute('class', 'newMessageLi');
       chatUl.appendChild(newChatLi);
+
       let messages = chatUl.querySelectorAll('li');
       let lastMessage = messages[messages.length - 1];
       lastMessage.scrollIntoView();
@@ -510,14 +447,15 @@
         let titleT = document.getElementById('title')
         titleT.innerText = obj.title;
       }
+
       if (obj.status) {
         let statusT = document.getElementById('status')
         statusT.innerText = obj.status
       }
+
       if (obj.moviesList) {
         let ul = document.getElementById('queryUl');
         ul.innerHTML = '';
-
         for (i in obj.moviesList) {
           let li = document.createElement('li');
           li.appendChild(document.createTextNode(obj.moviesList[i]));
@@ -525,8 +463,6 @@
         }
       }
     };
-
-
 
 
     function includeThisHTML(page, back) {
@@ -583,13 +519,12 @@
 
     function postForm(file, formDataNode, id, nextNum) {
 
-      let i, pagePath, elmnt, xhttp, formData;
+      let i, pagePath, xhttp, formData;
       formData = new FormData();
       pagePath = file;
       for (i in formDataNode) {
         formData.append(formDataNode[i].name, formDataNode[i].value);
       };
-      elmnt = document.getElementById("topten");
 
       xhttp = new XMLHttpRequest();
 
@@ -610,47 +545,7 @@
       }
       xhttp.open('POST', pagePath, true);
       xhttp.send(formData);
-
     };
-
-
-    //Forms
-    /*
-    (function(){
-    function checkForm(id){
-      let formId = document.getElementById(id);
-      let titleTest = formId.querySelector('input[name="title"]').value;
-      /* email validation - deactivated on testing.
-      let emailTest = formId.querySelector('input[name="email"]');
-      if(emailTest != undefined){
-        let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        let res =  re.test(String(emailTest.value).toLowerCase());
-        console.log('email is: '+ res);
-        formId.querySelector('.error').innerHTML = 'cant use this email: ' + res;
-      }
-      */
-    /*
-  socket.emit('form data', titleTest);
-  if(titleTest === ' ' || titleTest === ''){
-    formId.querySelector('.error').innerHTML = 'cant use this movie title';
-    return false;
-  };
-};
-
-let submitClick = document.getElementById('submitInventory');
-submitClick.addEventListener("click", function(){
-  console.log('button was clicked')
-  socket.emit('submit', submitClick.id);
-});
-
-socket.on('form data', function(d){
-  let ul = document.getElementById('queryUl');
-  let li = document.createElement('li');
-  li.appendChild(document.createTextNode(d));
-  ul.appendChild(li)
-});
-})();
-*/
   </script>
 </body>
 
