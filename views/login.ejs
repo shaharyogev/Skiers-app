@@ -37,8 +37,8 @@
       <div id='loginTabA' class='tabBox'>
         <h2>Please Login</h2>
         <form id='singIn' method='post' action='/user' onsubmit='return checkForm(id, 0)'>
-          <input id='userEmail' type='text' placeholder='Email' name='email' required>
-          <input id='userPassword' type='text' placeholder='Password' name='password' required>
+          <input id='userEmail' type='email' placeholder='Email' name='email' required>
+          <input id='userPassword' type='password' placeholder='Password' name='password' required>
           <div class='stripBox'>
             <button class='loginButton' id='submitUser' type='submit'> Sbumit</button>
             <a type='button' onclick="loginToggle(0)" id='newUserButton'>New Account</a>
@@ -48,10 +48,10 @@
       <div id='loginTabB' class='tabBox'>
         <h2>New User</h2>
         <form id='addUser' method='post' action='/adduser' onsubmit='return checkForm(id, 1)'>
-          <input id='invite' type='text' placeholder='Invite' name='invite' required>
+          <input id='invite' type='password' placeholder='Invite Code' name='invite' required>
           <input id='userName' type='text' placeholder='User name' name='name' required>
-          <input id='userEmail' type='text' placeholder='Valid email' name='email' required>
-          <input id='userPassword' type='text' placeholder='Strong Password' name='password' required>
+          <input id='userEmail' type='email' placeholder='Valid email' name='email' required>
+          <input id='userPassword' type='password' placeholder='Strong Password' name='password' required>
           <div class='stripBox'>
             <button class='loginButton' id='submitNewUser' type='submit'> Sbumit</button>
             <a type='button' onclick="loginToggle(1)" id='newUserButton'>Registerd User</a>
