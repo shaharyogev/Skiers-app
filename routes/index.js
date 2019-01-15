@@ -60,7 +60,7 @@ client.connect(function (err, db) {
   router.use(session({
     key: 'user_id',
     name: 'activeSession',
-    secret: '1234',
+    secret: 'en2834yhf19@#$RQ!@RHOH234w',
     resave: false,
     saveUninitialized: false,
   }));
@@ -221,6 +221,14 @@ client.connect(function (err, db) {
   router.get('/login', function (req, res) {
     res.render('login');
   });
+
+  router.get('/logout', function(req,res,next){
+    req.session.destroy(function(err) {
+      if(err) console.log(err)
+    });
+    res.render('login');
+
+  })
 
 
   function testInviteListForLogin(invite) {

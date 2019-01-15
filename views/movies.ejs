@@ -51,7 +51,9 @@
           </ul>
           <a type="button" class='menuButtonText' onclick="themeToggle('themeToggle')">
             <div id="themeToggle" class="manuBox5">Dark-Side</div>
+            
           </a>
+          <a type="button" class='menuButtonText' method='get' action='/logout' onclick="includeThisHTML('/logout')">Log-Out</a>
         </div>
       </div>
     </div>
@@ -543,7 +545,13 @@
         xhttp.onreadystatechange = function () {
           if (this.readyState == 4) {
             if (this.status == 200) {
-              contentToView(this.responseText);
+              if(this.response.startsWith("<!DOCTYPE html>")){
+              document.open();
+              document.write(this.responseText);
+              document.close();
+              }else{
+                contentToView(this.responseText);
+              }
             }
             if (this.status == 404) {
               contentToView({
