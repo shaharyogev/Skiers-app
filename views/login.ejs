@@ -103,15 +103,10 @@
       let formId = document.getElementById(id);
       let formDataNode = formId.querySelectorAll('input');
       let formAction = formId.action;
-      if (formId.querySelector('input[name="name"]')) {
-        let nameTest = formId.querySelector('input[name="name"]').value;
-        if (nameTest === ' ' || nameTest === '') {
-          document.querySelector('.errorName').innerHTML = 'Sorry but you can\'t use this username';
-          test++;
-        };
-      }
       let emailTest = formId.querySelector('input[name="email"]');
-      let passwordTest = formId.querySelector('input[name="password"]').value;
+      let passwordTest = formId.querySelector('input[name="password"]');
+      let nameTest = formId.querySelector('input[name="name"]');
+
       let test = 0
 
       if (emailTest != undefined) {
@@ -127,10 +122,20 @@
       if (passwordTest != undefined) {
         let re =
           /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\S+$).{5,}$/;
-        let res = re.test(String(passwordTest));
+        let res = re.test(String(passwordTest.value));
         if (!res) {
           document.querySelector('.errorPassword').innerHTML =
             'The Password is at least 5 character long + upper cases + lower cases + digits ';
+          test++;
+        }
+      };
+      if (nameTest != undefined) {
+        let re =
+        /^[\W \D \S ]{3,100}$/;
+        let res = re.test(String(nameTest.value));
+        if (!res) {
+          formId.querySelector('.error').innerHTML =
+            'The customer name must be at least 3 character long ';
           test++;
         }
       };

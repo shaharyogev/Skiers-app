@@ -370,7 +370,7 @@ client.connect(function (err, db) {
 
     if (titleTest != undefined) {
       let re =
-      /^[\w \d \s]{3,50}$/;
+      /^[\W \D \S ]{3,100}$/;
       let res = re.test(String(titleTest));
       if (!res) {
         error += 'The title is at least 3 character long. ';
@@ -380,7 +380,7 @@ client.connect(function (err, db) {
 
     if (nameTest != undefined) {
       let re =
-      /^[\w \d \s]{3,50}$/;
+      /^[\W \D \S ]{3,100}$/;
       let res = re.test(String(nameTest));
       if (!res) {
         error += 'The customer name must be at least 3 character long. ';

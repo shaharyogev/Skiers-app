@@ -504,7 +504,7 @@
 
       if (titleTest != undefined) {
         let re =
-          /^[\w \d \s]{3,50}$/;
+        /^[\W \D \S ]{3,100}$/;
         let res = re.test(String(titleTest.value));
         if (!res) {
           formId.querySelector('.error').innerHTML =
@@ -515,7 +515,7 @@
 
       if (nameTest != undefined) {
         let re =
-          /^[\w \d \s]{3,50}$/;
+        /^[\W \D \S ]{3,100}$/;
         let res = re.test(String(nameTest.value));
         if (!res) {
           formId.querySelector('.error').innerHTML =
