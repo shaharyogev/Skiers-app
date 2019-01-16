@@ -41,15 +41,17 @@
         <div class='navButtons'>
           <h2>BI Querys</h2>
           <ul>
-            <li><a type='button' method='get' action='/movies' onclick="includeThisHTML('/movies')">Items In Stock </a></li>
-            <li><a type='button' method='get' action='/topTenMovies' onclick="includeThisHTML('/topTenMovies')">Top Ten
-                Available Items </a></li>
-            <li><a type='button' method='get' action='/topTenUsers' onclick="includeThisHTML('/topTenUsers')">Top Ten
-                Users </a></li>
-            <li><a type='button' method='get' action='/mostActiveUser' onclick="includeThisHTML('/mostActiveUser')">Most
-                Active User </a></li>
-            <li><a type='button' method='get' action='topRentedMovie' onclick="includeThisHTML('/topRentedMovie')">Top
-                Rented Items </a></li>
+            <li><a type='button' method='get' action='/app' onclick="includeThisHTML('/app')">
+              Largest Inventory </a></li>
+            <li><a type='button' method='get' action='/topTenItems' onclick="includeThisHTML('/topTenItems')">
+              Most Popolar items </a></li>
+            <li><a type='button' method='get' action='topRentedItem' onclick="includeThisHTML('/topRentedItem')">
+                Most Popolar Item </a></li>
+            <li><a type='button' method='get' action='/topTenUsers' onclick="includeThisHTML('/topTenUsers')">
+              Most Active Users </a></li>
+            <li><a type='button' method='get' action='/mostActiveUser' onclick="includeThisHTML('/mostActiveUser')">
+              Most Active User </a></li>
+            
 
             <li><a type="button" class='menuButtonText' onclick="themeToggle('themeToggle')">
                 <div id="themeToggle" class="manuBox5">Dark-Side</div>
@@ -105,7 +107,7 @@
             <div id='inventoryTabA' class='form tabBox inventoryTab flex-show'>
               <h2>New Customer</h2>
               <form id='submitNewCustomer' name='submitNewCustomer' action='/submitNewCustomer' onsubmit='return checkForm(id, 1)'>
-                <input id='movieTitle' type='text' placeholder='Customer Name' name='name' required>
+                <input id='itemTitle' type='text' placeholder='Customer Name' name='name' required>
                 <input id='userEmail' type='text' placeholder='Customer Email' name='email' required>
                 <input type='text' placeholder='Phone Number' name='phone' required>
                 <button id='submitInventory' type='submit' class='submitButton '> Submit</button>
@@ -116,7 +118,7 @@
               <h2>Rent</h2>
               <form id='rent' name='rent' action='/submitrent' onsubmit='return checkForm(id, 1)'>
                 <input id='userEmail' type='text' placeholder='Customer Email' name='email' required>
-                <input id='movieTitle' type='text' placeholder='Item for rent' name='title' required>
+                <input id='itemTitle' type='text' placeholder='Item for rent' name='title' required>
                 <input id='titleInventory' type='number' placeholder='Number of Pairs' name='inventory' required>
                 <input id='days' type='number' placeholder='Number of Days' name='inventoryDays' required>
                 <button id='submitInventory' type='submit' class='submitButton '> Submit</button>
@@ -127,7 +129,7 @@
             <div id='inventoryTabC' class='form tabBox inventoryTab hidden'>
               <h2>Return</h2>
               <form id='return' name='return' action='/submitreturn' onsubmit='return checkForm(id,2)'>
-                <input id='movieTitle' type='text' placeholder='Item for rent' name='title' required>
+                <input id='itemTitle' type='text' placeholder='Item for rent' name='title' required>
                 <input id='titleInventory' type='number' placeholder='Number of Pairs' name='inventory' required>
                 <input id='userEmail' type='text' placeholder='Customer Email' name='email' required>
                 <button id='submitInventory' type='submit' class='submitButton'> Submit</button>
@@ -137,15 +139,15 @@
 
             <div id='inventoryTabD' class='form tabBox inventoryTab hidden'>
               <h2>Add / Remove inventory</h2>
-              <form id='addInventory' name='addInventory' action='/addmovietodb' onsubmit='return checkForm(id,3)'>
-                <input id='movieTitle' type='text' placeholder='Item Name' name='title' required>
+              <form id='addInventory' name='addInventory' action='/additemtodb' onsubmit='return checkForm(id,3)'>
+                <input id='itemTitle' type='text' placeholder='Item Name' name='title' required>
                 <input id='titleInventory' type='number' placeholder='Number of Pairs' name='inventory' required>
                 <button id='submitInventory' type='submit' class='submitButton'> Submit</button>
                 <span class='error'></span>
               </form>
               <h2>Inventory status</h2>
               <form id='inventoryStatus' name='inventoryStatus' action='/inventoryStatus' onsubmit='return checkForm(id,3)'>
-                <input id='movieTitle' type='text' placeholder='Item Name' name='title' required>
+                <input id='itemTitle' type='text' placeholder='Item Name' name='title' required>
                 <button id='submitInventory' type='submit' class='submitButton'> Submit</button>
                 <span class='error'></span>
               </form>
@@ -542,7 +544,7 @@
     function includeThisHTML(page, back) {
       var z, pagePath, file, xhttp;
       if (page === 'home') {
-        file = 'movies';
+        file = 'app';
         pagePath = '';
       } else {
         file = page;

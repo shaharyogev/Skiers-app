@@ -80,7 +80,7 @@ client.connect(function (err, db) {
   //First 
   router.get('/', function (req, res, next) {
     if (req.session.succes){
-      res.render('movies',{userName:req.session.userName})
+      res.render('app',{userName:req.session.userName})
     }else{
       res.render('login');
 
@@ -183,8 +183,8 @@ client.connect(function (err, db) {
 
   /* Qureys routes for the database */
 
-  router.get('/movies', function (req, res, next) {
-    inventoryStatus('Items In Stock', 'Heigst inventory: ', '', res);
+  router.get('/app', function (req, res, next) {
+    inventoryStatus('Items In Stock', 'Sort by highest inventory: ', '', res);
   });
 
   router.post('/submitrent', formidableMiddleware(), function (req, res) {
@@ -199,13 +199,13 @@ client.connect(function (err, db) {
     updateReturnedInventory(req.fields.title, req.fields.inventory, req.fields.email, res);
   });
 
-  router.post('/addmovietodb', formidableMiddleware(), function (req, res) {
+  router.post('/addItemtodb', formidableMiddleware(), function (req, res) {
     updateNewInventory(req.fields.title, req.fields.inventory, res);
   });
 
 
   router.post('/inventoryStatus', formidableMiddleware(), function (req, res) {
-    currentMovieInventory(req.fields.title,  function (err, value) {
+    currentItemInventory(req.fields.title,  function (err, value) {
       if(err)
         res.json({err:err});
       else
@@ -228,8 +228,8 @@ client.connect(function (err, db) {
   });
 });
 
-  router.get('/topTenMovies', function (req, res) {
-    topTenMovies(res);
+  router.get('/topTenItems', function (req, res) {
+    topTenItems(res);
   });
 
   router.get('/topTenUsers', function (req, res) {
@@ -240,8 +240,8 @@ client.connect(function (err, db) {
     mostActiveUser(res);
   });
 
-  router.get('/topRentedMovie', function (req, res) {
-    topRentedMovie(res);
+  router.get('/topRentedItem', function (req, res) {
+    topRentedItem(res);
   });
 
   router.get('/login', function (req, res) {
@@ -506,7 +506,7 @@ client.connect(function (err, db) {
   function updateNewInventory(title, inventory, res) {
     let query = {};
     let status = '';
-    let currentMovieI = 0;
+    let currentItemI = 0;
 
     if (title)
       query.title = title;
@@ -514,12 +514,12 @@ client.connect(function (err, db) {
     if (inventory)
       inventory = parseInt(inventory, 10);
 
-    currentMovieInventory(title, function (err, value) {
-      currentMovieI = value;
+    currentItemInventory(title, function (err, value) {
+      currentItemI = value;
 
-      if ((currentMovieI + inventory) <= 0) {
+      if ((currentItemI + inventory) <= 0) {
         title = title + ' inventory was not update - inventory is too low',
-          status = 'The maximum inventory to raduse is: ' + currentMovieI,
+          status = 'The maximum inventory to raduse is: ' + currentItemI,
           inventoryStatus(title, status, '', res);
       } else {
         collection.findOneAndUpdate(query, {
@@ -537,11 +537,11 @@ client.connect(function (err, db) {
 
           else if (r.value !== null)
             title = title + ' inventory was updated successfuly',
-            status = 'The inventory is: ' + (currentMovieI + inventory);
+            status = 'The inventory is: ' + (currentItemI + inventory);
 
           else if (r.lastErrorObject.upserted !== null)
             title = title + ' is new, inventory updated successfuly',
-            status = 'The inventory is: ' + (currentMovieI + inventory);
+            status = 'The inventory is: ' + (currentItemI + inventory);
 
           inventoryStatus(title, status, '', res);
         });
@@ -553,7 +553,7 @@ client.connect(function (err, db) {
   function updateRentedInventory(title, inventory, email, res) {
     let query = {};
     let status = '';
-    let currentMovieI = 0;
+    let currentItemI = 0;
 
     if (title)
       query.title = title;
@@ -605,10 +605,10 @@ client.connect(function (err, db) {
                 inventoryStatus(title, status, '', res);
 
               else
-                currentMovieInventory(title, function (err, value) {
-                  currentMovieI = value;
-                  title = title + ' inventory wasent updated, the current inventory is: ' + currentMovieI,
-                    status = email + ' can rent only: ' + currentMovieI + ' new items',
+                currentItemInventory(title, function (err, value) {
+                  currentItemI = value;
+                  title = title + ' inventory wasent updated, the current inventory is: ' + currentItemI,
+                    status = email + ' can rent only: ' + currentItemI + ' new items',
                     inventoryStatus(title, status, '', res);
                 })
             });
@@ -681,7 +681,7 @@ client.connect(function (err, db) {
 
   /* Databas queries: */
 
-  function currentMovieInventory(title, cb) {
+  function currentItemInventory(title, cb) {
     collection.findOne({
       title: title
     }, {
@@ -833,7 +833,7 @@ client.connect(function (err, db) {
 
       let itemsList = [];
       for (let index in result) {
-        let temp = result[index].title + ' in stock: ' + result[index].inventory;
+        let temp = result[index].title + ' - ' + result[index].inventory;
         itemsList.push(temp);
       };
       res.send({
@@ -863,7 +863,7 @@ client.connect(function (err, db) {
       },
     ]).toArray(function (err, result) {
       if (err)
-        res.render('movies', {
+        res.render('app', {
           itemsList: [],
           title: 'No inventory in stock',
           status: err
@@ -871,11 +871,11 @@ client.connect(function (err, db) {
 
       let itemsList = [];
       for (let index in result) {
-        let temp = result[index].title + ' in stock: ' + result[index].inventory;
+        let temp = result[index].title + ' - ' + result[index].inventory;
         itemsList.push(temp);
       }
 
-      res.render('movies', {
+      res.render('app', {
         itemsList: itemsList,
         title: title,
         status: status,
@@ -889,7 +889,7 @@ client.connect(function (err, db) {
   /* BI Querys: */
 
 
-  function topTenMovies(res) {
+  function topTenItems(res) {
 
     collection.aggregate([{
         $match: {
@@ -911,14 +911,14 @@ client.connect(function (err, db) {
       {
         $group: {
           _id: '$title',
-          rentedMovieInventory: {
+          rentedItemInventory: {
             $sum: '$activeUsers.inventory'
           }
         }
       },
       {
         $sort: {
-          rentedMovieInventory: -1
+          rentedItemInventory: -1
         }
       },
       {
@@ -934,7 +934,7 @@ client.connect(function (err, db) {
 
       let itemsList = [];
       for (let index in result) {
-        let temp = result[index]._id + ' Current rented inventory: ' + result[index].rentedMovieInventory;
+        let temp = result[index]._id + ' - ' + result[index].rentedItemInventory;
         itemsList.push(temp);
       }
       res.send({
@@ -995,7 +995,7 @@ client.connect(function (err, db) {
       let usersList = [];
 
       for (let index in result) {
-        let temp = 'Email: ' + result[index]._id + ' Currnt inventory: ' + result[index].userInventorySum
+        let temp = 'Email: ' + result[index]._id + ' - ' + result[index].userInventorySum
         usersList.push(temp);
       }
       res.send({
@@ -1021,13 +1021,13 @@ client.connect(function (err, db) {
       {
         $group: {
           _id: '$activeUsers.email',
-          moviesCount: {
+          itemsCount: {
             $sum: 1
           },
           inventoryCount: {
             '$sum': '$activeUsers.inventory'
           },
-          rentedMovies: {
+          rentedItems: {
             $push: {
               email: '$activeUsers.email',
               title: '$title',
@@ -1045,26 +1045,26 @@ client.connect(function (err, db) {
         $limit: 1
       },
       {
-        $unwind: '$rentedMovies'
+        $unwind: '$rentedItems'
       }
     ]).toArray(function (err, result) {
 
       if (err)
         res.send({
-          title: 'The highest inventory for singel user Is: error',
+          title: ' Error ',
           status: err,
           itemsList: []
         });
 
       let usersList = []
       for (let index in result) {
-        let temp = 'Email: ' + result[index].rentedMovies.email + ' Title: ' + result[index].rentedMovies.title + ' Inventory: ' + result[index].rentedMovies.inventory;
+        let temp =  result[index].rentedItems.email + ' - ' + result[index].rentedItems.title + ' - ' + result[index].rentedItems.inventory;
         usersList.push(temp)
       }
 
       res.send({
         title: 'The highest inventory for singel user Is: ',
-        status: result[0].rentedMovies.email,
+        status: result[0].rentedItems.email,
         itemsList: usersList
       });
     })
@@ -1109,7 +1109,7 @@ client.connect(function (err, db) {
       }
       /*,
       {
-        $unwind: '$rentedMovies'
+        $unwind: '$rentedItems'
       }*/
     ]).toArray(function (err, r) {
 
@@ -1130,7 +1130,7 @@ client.connect(function (err, db) {
     })
   };
 
-  function topRentedMovie(res) {
+  function topRentedItem(res) {
     collection.aggregate([{
         $unwind: '$activeUsers'
       },
@@ -1184,7 +1184,7 @@ client.connect(function (err, db) {
 
       let usersList = []
       for (let index in result) {
-        let temp = 'Email: ' + result[index].users.email + ' Inventory: ' + result[index].users.inventory;
+        let temp = result[index].users.email + ' - ' + result[index].users.inventory;
         usersList.push(temp)
       }
 
