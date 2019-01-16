@@ -7,27 +7,34 @@
   --c6: #fd88d5;
   --c7: #32a82b;
   --c8: #e74ca8;
-  --tc: var(--tcl);
-  --tb:  var(--tbl);
-  --te: var(--tel);
-  --tec: var(--tecl);
-  --tcc: var(--tccl);
-
-
-  
-
-
-  --tcl: #454545;
+  --tc: var(--tcl);/*Text color*/
+  --tb: var(--tbl);/*Background color*/
+  --tbi: var(--tbil);/*Input background color*/
+  --te: var(--tel);/*Element background color*/
+  --tec: var(--tecl);/*Chat maseges element background color*/
+  --tcc: var(--tccl);/*Chat element text color*/
+  --tbc: var(--tbcl);/*Chat element background color*/
+  --tbic: var(--tbicl);/*Chat input element background color*/
+  /*Light side*/
+  --tcl: #3f362d;
   --tbl: #f7f7f7;
+  --tbil: white;
   --tel: white;
-  --tecl:#e5ddd5;
-  --tccl:#7f868a;
+  --tecl: #e5ddd5;
+  --tccl: #7f868a;
+  --tbcl: #efefef;
+  --tbicl: white;
 
+
+  /*Dark side*/
   --tcd: #f7f7f7;
   --tbd: #1e272f;
+  --tbib: #f7f7f7;
   --ted: #2a3f54;
-  --tecd:#3f362d;
-  --tccd:#f7f7f7;
+  --tecd: #3f362d;
+  --tccd: #cecdcd;
+  --tbcd: #2a3f54;
+  --tbicd: #1e272f;
 
 
 }
@@ -43,10 +50,22 @@ body {
   text-rendering: optimizeLegibility;
   box-sizing: border-box;
 }
+
 .title,
-title{
+title {
   text-transform: capitalize;
 }
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus {
+  outline: none;
+}
+input::placeholder{
+  color: var(--tcc);
+}
+
 .flex-row {
   display: flex;
   flex-direction: row;
@@ -107,30 +126,29 @@ title{
   transition: 300ms ease;
   font-size: 1.8vh;
 }
-.navColumn a{
 
-color: whitesmoke;
-text-decoration: none;
-
+.navColumn a {
+  color: whitesmoke;
+  text-decoration: none;
 }
 
-.navLogo{
-  flex-wrap:wrap;
+.navLogo {
+  flex-wrap: wrap;
 }
+
 .navLogo h1 {
- margin: 4% 0%;
+  margin: 4% 0%;
 }
 
 .logoImg {
   display: flex;
   margin: 1% 6%;
-
   width: 4vh;
 }
 
 #userNameTitle {
   justify-content: flex-start;
-  align-self:center;
+  align-self: center;
   margin: 0 2vh;
   text-transform: capitalize;
 }
@@ -139,7 +157,6 @@ text-decoration: none;
   justify-content: flex-start;
   margin: 3vw;
 }
-
 
 .navButtons ul {
   list-style: none;
@@ -171,16 +188,17 @@ text-decoration: none;
 .mainContent {
   display: flex;
   flex: 1 1 80%;
-  flex-direction: row;
+  flex-flow: row wrap;
   justify-content: space-around;
   align-items: flex-start;
-  margin-top: 2rem;
-  flex-wrap: wrap;
+  margin-top: 3vmin;
+ 
+
 }
 
 .resultsPanel {
   display: flex;
-  flex-wrap: wrap;
+  flex-flow:row wrap;
   overflow-x: auto;
   justify-content: center;
 }
@@ -204,7 +222,7 @@ text-decoration: none;
   width: 100%;
 }
 
-.userNameMenu{
+.userNameMenu {
   text-transform: capitalize;
 }
 
@@ -219,7 +237,6 @@ text-decoration: none;
     transition: 0.3s ease-in-out;
   }
 }
-
 
 #inventoryTab {
   display: flex;
@@ -238,9 +255,9 @@ text-decoration: none;
   list-style: none;
   padding-left: 0;
 }
-.topten{
-  padding: 2px 1px;
 
+.topten {
+  padding: 2px 1px;
 }
 
 @media(max-width:600px) {
@@ -266,7 +283,6 @@ text-decoration: none;
   .resultsPanel {
     flex-basis: 85%;
   }
-  
 }
 
 @media(pointer:none),
@@ -276,11 +292,8 @@ text-decoration: none;
   }
 }
 
-
 @media (orientation:landscape) and (pointer:coarse),
-(pointer:none) {
-
-}
+(pointer:none) {}
 
 #navTab {
   display: flex;
@@ -329,6 +342,8 @@ text-decoration: none;
   border-radius: 0.3rem;
   border-style: solid;
   border-width: 1px;
+  color: var(--tc);
+  background-color: var(--tbi);
   border-color: rgb(218, 220, 224);
   padding: 0.2rem 1rem;
 }
@@ -366,7 +381,7 @@ text-decoration: none;
   flex-direction: column;
   align-content: stretch;
   flex-basis: 100%;
-  background-color: var(--te);
+  background-color: var(--tbc);
 }
 
 .chatLiveBox {
@@ -466,7 +481,8 @@ text-decoration: none;
   flex-basis: auto;
   flex-direction: row;
   justify-content: space-evenly;
-  background-color: var(--te);
+  background-color: var(--tbc);
+  
 }
 
 #chatInput {
@@ -474,8 +490,9 @@ text-decoration: none;
   display: flex;
   border-style: solid;
   border-radius: 21px;
-  border-color: var(--tb);
-  background-color: var(--tb);
+  border-color: var(--tbic);
+  background-color: var(--tbic);
+  color: var(--tc);
   border-width: 1px;
   box-shadow: none;
   padding: 9px 12px 11px 12px;
@@ -491,7 +508,6 @@ text-decoration: none;
   display: flex;
   flex-basis: 10%;
   border-style: none;
-  background-color: var(--te);
 }
 
 #chatSend:visited {
@@ -578,7 +594,7 @@ text-decoration: none;
 }
 
 .chatMessages h3 {
-  padding:0 0.3rem;
+  padding: 0 0.3rem;
   margin: 0.22rem 0;
   color: var(--tcc);
 }
@@ -651,7 +667,6 @@ text-decoration: none;
   }
 }
 
-
 #menuLogo {
   z-index: 1;
 }
@@ -695,4 +710,3 @@ text-decoration: none;
 .hidden {
   display: none;
 }
-

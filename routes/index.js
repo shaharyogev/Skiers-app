@@ -203,6 +203,31 @@ client.connect(function (err, db) {
     updateNewInventory(req.fields.title, req.fields.inventory, res);
   });
 
+
+  router.post('/inventoryStatus', formidableMiddleware(), function (req, res) {
+    currentMovieInventory(req.fields.title,  function (err, value) {
+      if(err)
+        res.json({err:err});
+      else
+      res.json({
+        title: req.fields.title,
+        status: value
+      });
+   })
+  });
+
+  router.post('/userStatus', formidableMiddleware(), function (req, res) {
+    currentUserGeneralStatus(req.fields.email,  function (err, value) {
+      if(err)
+        res.send({err:err});
+      else
+      res.send({
+        title: req.fields.title,
+        status: value
+      });
+  });
+});
+
   router.get('/topTenMovies', function (req, res) {
     topTenMovies(res);
   });
@@ -314,7 +339,7 @@ client.connect(function (err, db) {
                   if (r !== null) {
                     if (r.result.n == 1) {;
                       // Callback if success 
-                      startUserSession(email, 'Avialebel Inventory:', '', '', req, res);
+                      startUserSession(email, ' Highest inventory in stock: ', '', '', req, res);
                     }
                   } else {
                     res.json({
@@ -373,7 +398,7 @@ client.connect(function (err, db) {
               }, function (err, r) {
                 if (err) console.log(err);
                 if (r.result.n == 1)
-                  startUserSession(email, ' Highest Avialebel Inventory: ', '', '', req, res);
+                  startUserSession(email, ' Highest inventory in stock: ', '', '', req, res);
 
               });
             } else {
@@ -460,7 +485,7 @@ client.connect(function (err, db) {
       });
 
       await res.send({
-        moviesList: r.value,
+        itemsList: r.value,
         title: name,
         status: phone
       });
@@ -575,7 +600,7 @@ client.connect(function (err, db) {
               if (err) console.log(err)
 
               if (r.value !== null)
-                title = title + ' inventory was updated to' + inventory,
+                title = title + ' inventory was updated to ' + inventory,
                 status = email + ' have ' + inventory + ' new items',
                 inventoryStatus(title, status, '', res);
 
@@ -641,7 +666,7 @@ client.connect(function (err, db) {
         if (r.value !== null) {
           currentUserInventory(title, email, function (err, value) {
             title = 'The item: ' + title + ' was returnd to stock, the current stock is: ' + (r.value.inventory + inventory),
-              status = 'The user: ' + email + ' returnd ' + inventory + 'his total inventory for now is: ' + value;
+              status = 'The user: ' + email + ' returnd ' + inventory + ' his total inventory for now is: ' + value;
 
             inventoryStatus(title, status, '', res);
           });
@@ -801,18 +826,18 @@ client.connect(function (err, db) {
     ]).toArray(function (err, result) {
       if (err)
         res.send({
-          moviesList: [],
+          itemsList: [],
           title: 'No inventory in stock',
           status: err
         });
 
-      let moviesList = [];
+      let itemsList = [];
       for (let index in result) {
-        let temp = 'Item: ' + result[index].title + ' Avialebel inventory: ' + result[index].inventory;
-        moviesList.push(temp);
+        let temp = result[index].title + ' in stock: ' + result[index].inventory;
+        itemsList.push(temp);
       };
       res.send({
-        moviesList: moviesList,
+        itemsList: itemsList,
         title: title,
         status: status,
         userName: userName
@@ -839,19 +864,19 @@ client.connect(function (err, db) {
     ]).toArray(function (err, result) {
       if (err)
         res.render('movies', {
-          moviesList: [],
+          itemsList: [],
           title: 'No inventory in stock',
           status: err
         });
 
-      let moviesList = [];
+      let itemsList = [];
       for (let index in result) {
-        let temp = 'Item: ' + result[index].title + ' Avialebel inventory: ' + result[index].inventory;
-        moviesList.push(temp);
+        let temp = result[index].title + ' in stock: ' + result[index].inventory;
+        itemsList.push(temp);
       }
 
       res.render('movies', {
-        moviesList: moviesList,
+        itemsList: itemsList,
         title: title,
         status: status,
         userName: userName
@@ -902,19 +927,19 @@ client.connect(function (err, db) {
     ]).toArray(function (err, result) {
       if (err)
         res.send({
-          moviesList: [],
-          title: 'Top 10 rented movies: ',
+          itemsList: [],
+          title: 'Top 10 rented: ',
           status: err
         });
 
-      let moviesList = [];
+      let itemsList = [];
       for (let index in result) {
-        let temp = 'Item: ' + result[index]._id + ' Current rented inventory: ' + result[index].rentedMovieInventory;
-        moviesList.push(temp);
+        let temp = result[index]._id + ' Current rented inventory: ' + result[index].rentedMovieInventory;
+        itemsList.push(temp);
       }
       res.send({
-        moviesList: moviesList,
-        title: 'Top 10 rented movies: ',
+        itemsList: itemsList,
+        title: 'Top 10 rented: ',
         status: ''
       });
     })
@@ -961,7 +986,7 @@ client.connect(function (err, db) {
 
       if (err)
         res.send({
-          moviesList: [],
+          itemsList: [],
           userslist: [],
           title: 'The top 10 active users:',
           status: err
@@ -974,7 +999,7 @@ client.connect(function (err, db) {
         usersList.push(temp);
       }
       res.send({
-        moviesList: usersList,
+        itemsList: usersList,
         title: 'The top 10 active users:',
         status: ''
       });
@@ -1028,7 +1053,7 @@ client.connect(function (err, db) {
         res.send({
           title: 'The highest inventory for singel user Is: error',
           status: err,
-          moviesList: []
+          itemsList: []
         });
 
       let usersList = []
@@ -1040,11 +1065,70 @@ client.connect(function (err, db) {
       res.send({
         title: 'The highest inventory for singel user Is: ',
         status: result[0].rentedMovies.email,
-        moviesList: usersList
+        itemsList: usersList
       });
     })
   };
 
+  function userStatus(email, cb) {
+    collection.aggregate([{
+        $unwind: '$activeUsers'
+      },
+      {
+        $project: {
+          _id: 0,
+          title: 1,
+          activeUsers: 1
+        }
+      },
+      {
+        $match:{'$activeUsers.email': email}
+      },
+      {
+        $group: {
+          _id: '$activeUsers.email',
+          itemsCount: {
+            $sum: 1
+          },
+          inventoryCount: {
+            '$sum': '$activeUsers.inventory'
+          },
+          itemsList: {
+            $push: {
+              email: '$activeUsers.email',
+              title: '$title',
+              inventory: '$activeUsers.inventory'
+            }
+          }
+        }
+      },
+      {
+        $sort: {
+          'inventoryCount': -1
+        }
+      }
+      /*,
+      {
+        $unwind: '$rentedMovies'
+      }*/
+    ]).toArray(function (err, r) {
+
+      if (err)
+        cb({err:err})
+
+      let userItemsList = []
+      for (let i in r) {
+        let temp = r[i].itemsList.title + ' - ' + r[i].itemsList.inventory ;
+        userItemsList.push(temp)
+      }
+
+      cb({
+        title: email,
+        status: 'Nuber of items: '+ r.inventoryCount+'' ,
+        itemsList: usersList
+      });
+    })
+  };
 
   function topRentedMovie(res) {
     collection.aggregate([{
@@ -1095,7 +1179,7 @@ client.connect(function (err, db) {
         res.send({
           title: 'The highest rented Item Is: error',
           status: err,
-          moviesList: []
+          itemsList: []
         });
 
       let usersList = []
@@ -1105,9 +1189,9 @@ client.connect(function (err, db) {
       }
 
       res.send({
-        title: 'The highest rented Item Is: ',
+        title: 'The highest demand is for: ',
         status: result[0]._id,
-        moviesList: usersList
+        itemsList: usersList
       });
     })
   };

@@ -138,14 +138,25 @@
             <div id='inventoryTabD' class='form tabBox inventoryTab hidden'>
               <h2>Add / Remove inventory</h2>
               <form id='addInventory' name='addInventory' action='/addmovietodb' onsubmit='return checkForm(id,3)'>
-                <input id='movieTitle' type='text' placeholder='Item for rent' name='title' required>
+                <input id='movieTitle' type='text' placeholder='Item Name' name='title' required>
                 <input id='titleInventory' type='number' placeholder='Number of Pairs' name='inventory' required>
                 <button id='submitInventory' type='submit' class='submitButton'> Submit</button>
                 <span class='error'></span>
               </form>
+              <h2>Inventory status</h2>
+              <form id='inventoryStatus' name='inventoryStatus' action='/inventoryStatus' onsubmit='return checkForm(id,3)'>
+                <input id='movieTitle' type='text' placeholder='Item Name' name='title' required>
+                <button id='submitInventory' type='submit' class='submitButton'> Submit</button>
+                <span class='error'></span>
+              </form>
+              <h2>Customer Status</h2>
+              <form id='userStatus' name='userStatus' action='/userStatus' onsubmit='return checkForm(id,3)'>
+                <input id='userEmail' type='text' placeholder='Customer Email' name='email' required>
+                <button id='submitInventory' type='submit' class='submitButton'> Submit</button>
+                <span class='error'></span>
+              </form>
             </div>
-            <br>
-            <br>
+
           </div>
         </div>
 
@@ -267,12 +278,16 @@
       }
       if (size == 'max' && close !== 1) {
         maxChat();
+        openFullscreen();
+
       }
       if (size == 'mini' && close !== 1) {
         if (miniButton.innerText == '_') {
-          minimizeChat()
+          minimizeChat();
+          closeFullscreen();
         } else {
-          enlargeChat()
+          enlargeChat();
+          closeFullscreen();
         }
       } else if (size == 'dot') {
         if (chatClosed === 0) {
@@ -302,7 +317,6 @@
       x.classList.toggle('change');
       navColumn.classList.toggle('change');
       minimizeToggle('dot', 1);
-      openFullscreen();
       menuClass = x;
       if (menuOpen === 0) {
         st = setTimeout(function () {
@@ -337,6 +351,15 @@
         },
         {
           tcc: ""
+        },
+        {
+          tbi: ""
+        },
+        {
+          tbc: ""
+        },
+        {
+          tbic: ""
         }
       ];
       for (index in rootColors) {
@@ -476,7 +499,7 @@
         postForm(formAction, formDataNode);
       
       if (titleTest === ' ' || titleTest === '') {
-        formId.querySelector('.error').innerHTML = ' cant use this movie title';
+        formId.querySelector('.error').innerHTML = ' cant use this title';
         return false;
 
       }else if(formId.querySelector('input[name="inventory"]')){
@@ -504,12 +527,12 @@
         statusT.innerText = obj.status
       }
 
-      if (obj.moviesList) {
+      if (obj.itemsList) {
         let ul = document.getElementById('queryUl');
         ul.innerHTML = '';
-        for (i in obj.moviesList) {
+        for (i in obj.itemsList) {
           let li = document.createElement('li');
-          li.appendChild(document.createTextNode(obj.moviesList[i]));
+          li.appendChild(document.createTextNode(obj.itemsList[i]));
           ul.appendChild(li);
         }
       }
@@ -600,6 +623,7 @@
     
 
 let elem = document.documentElement;
+/* View in fullscreen */
 function openFullscreen() {
 if (elem.requestFullscreen) {
 elem.requestFullscreen();
@@ -610,6 +634,19 @@ elem.webkitRequestFullscreen();
 } else if (elem.msRequestFullscreen) { /* IE/Edge */
 elem.msRequestFullscreen();
 }
+}
+
+/* Close fullscreen */
+function closeFullscreen() {
+  if (document.exitFullscreen) {
+    document.exitFullscreen();
+  } else if (document.mozCancelFullScreen) { /* Firefox */
+    document.mozCancelFullScreen();
+  } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
+    document.webkitExitFullscreen();
+  } else if (document.msExitFullscreen) { /* IE/Edge */
+    document.msExitFullscreen();
+  }
 }
   </script>
 </body>
