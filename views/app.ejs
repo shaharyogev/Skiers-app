@@ -42,16 +42,16 @@
           <h2>BI Querys</h2>
           <ul>
             <li><a type='button' method='get' action='/app' onclick="includeThisHTML('/app')">
-              Largest Inventory </a></li>
+                Largest Inventory </a></li>
             <li><a type='button' method='get' action='/topTenItems' onclick="includeThisHTML('/topTenItems')">
-              Most Popolar items </a></li>
+                Most Popolar items </a></li>
             <li><a type='button' method='get' action='topRentedItem' onclick="includeThisHTML('/topRentedItem')">
                 Most Popolar Item </a></li>
             <li><a type='button' method='get' action='/topTenUsers' onclick="includeThisHTML('/topTenUsers')">
-              Most Active Users </a></li>
+                Most Active Users </a></li>
             <li><a type='button' method='get' action='/mostActiveUser' onclick="includeThisHTML('/mostActiveUser')">
-              Most Active User </a></li>
-            
+                Most Active User </a></li>
+
 
             <li><a type="button" class='menuButtonText' onclick="themeToggle('themeToggle')">
                 <div id="themeToggle" class="manuBox5">Dark-Side</div>
@@ -120,7 +120,7 @@
                 <input id='userEmail' type='text' placeholder='Customer Email' name='email' required>
                 <input id='itemTitle' type='text' placeholder='Item for rent' name='title' required>
                 <input id='titleInventory' type='number' placeholder='Number of Pairs' name='inventory' required>
-                <input id='days' type='number' placeholder='Number of Days' name='inventoryDays' required>
+                <input id='days' type='number' placeholder='Number of Days' name='days' required>
                 <button id='submitInventory' type='submit' class='submitButton '> Submit</button>
                 <span class='error'></span>
               </form>
@@ -485,35 +485,78 @@
       let formId = document.getElementById(id);
       let formDataNode = formId.querySelectorAll('input');
       let formAction = formId.action;
-      let titleTest = formDataNode.values
-      let emailTest;
+      let nameTest = formId.querySelector('input[name="name"]');
+      let titleTest = formId.querySelector('input[name="title"]');
+      let emailTest = formId.querySelector('input[name="email"]');
+      let inventoryTest = formId.querySelector('input[name="inventory"]');
+      let phoneTest = formId.querySelector('input[name="phone"]');
+      let daysTest = formId.querySelector('input[name="days"]');
+      let test = 0;
 
+      if (emailTest != undefined) {
+        let re =
+          /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        let res = re.test(String(emailTest.value).toLowerCase());
+        if (!res) {
+          formId.querySelector('.error').innerHTML = 'Sorry but you can\'t use this email, try a real one';
+          test++;
+        }
+      };
 
-      postForm(formAction, formDataNode, id, nextNum);
+      if (titleTest != undefined) {
+        let re =
+          /^(?=.*[a-z]).{5,}$/;
+        let res = re.test(String(titleTest.value));
+        if (!res) {
+          formId.querySelector('.error').innerHTML =
+            'The title is at least 5 character long ';
+          test++;
+        }
+      };
 
-      /*
-            if (formId.querySelector('input[name="email"]')) {
-        emailTest = formId.querySelector('input[name="email"]').value;
+      if (nameTest != undefined) {
+        let re =
+          /^(?=.*[a-z]).{5,}$/;
+        let res = re.test(String(nameTest.value));
+        if (!res) {
+          formId.querySelector('.error').innerHTML =
+            'The customer name must be at least 5 character long ';
+          test++;
+        }
+      };
+      if (phoneTest != undefined) {
+        let re =
+          /^(?=.*[0-9]).{5,}$/;
+        let res = re.test(String(phoneTest.value));
+        if (!res) {
+          formId.querySelector('.error').innerHTML =
+            'The customer phone number be at least 5 character long ';
+          test++;
+        }
+      };
+
+      if (inventoryTest != undefined) {
+        if (inventoryTest.value == 0) {
+          formId.querySelector('.error').innerHTML =
+            'The inventory cant be 0 ';
+          test++;
+        }
+      };
+
+      if (daysTest != undefined) {
+        if (daysTest.value <= 0) {
+          formId.querySelector('.error').innerHTML =
+            'The days must be more than 0 ';
+          test++;
+        }
+      };
+
+      if (test > 0) {
+        test = 0;
+        return false;
+      } else {
+        postForm(formAction, formDataNode, id, nextNum);
       }
-      if (formId.formId.querySelector('input[name="title"]')) {
-        let titleTest = formId.querySelector('input[name="title"]').value;
-        
-        postForm(formAction, formDataNode);
-      
-      if (titleTest === ' ' || titleTest === '') {
-        formId.querySelector('.error').innerHTML = ' cant use this title';
-        return false;
-
-      }else if(formId.querySelector('input[name="inventory"]')){
-        let inventoryTest = formId.querySelector('input[name="inventory"]').value;
-
-      if (inventoryTest == 0) {
-        formId.querySelector('.error').innerHTML = ' the inventory cant be "0"';
-        return false;
-      } 
-    } 
-    }*/
-
     };
 
     function contentToView(json) {
@@ -622,34 +665,34 @@
       xhttp.open('POST', pagePath, true);
       xhttp.send(formData);
     };
-    
 
-let elem = document.documentElement;
-/* View in fullscreen */
-function openFullscreen() {
-if (elem.requestFullscreen) {
-elem.requestFullscreen();
-} else if (elem.mozRequestFullScreen) { /* Firefox */
-elem.mozRequestFullScreen();
-} else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
-elem.webkitRequestFullscreen();
-} else if (elem.msRequestFullscreen) { /* IE/Edge */
-elem.msRequestFullscreen();
-}
-}
 
-/* Close fullscreen */
-function closeFullscreen() {
-  if (document.exitFullscreen) {
-    document.exitFullscreen();
-  } else if (document.mozCancelFullScreen) { /* Firefox */
-    document.mozCancelFullScreen();
-  } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
-    document.webkitExitFullscreen();
-  } else if (document.msExitFullscreen) { /* IE/Edge */
-    document.msExitFullscreen();
-  }
-}
+    let elem = document.documentElement;
+    /* View in fullscreen */
+    function openFullscreen() {
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if (elem.mozRequestFullScreen) { /* Firefox */
+        elem.mozRequestFullScreen();
+      } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+        elem.webkitRequestFullscreen();
+      } else if (elem.msRequestFullscreen) { /* IE/Edge */
+        elem.msRequestFullscreen();
+      }
+    }
+
+    /* Close fullscreen */
+    function closeFullscreen() {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.mozCancelFullScreen) { /* Firefox */
+        document.mozCancelFullScreen();
+      } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
+        document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) { /* IE/Edge */
+        document.msExitFullscreen();
+      }
+    }
   </script>
 </body>
 
