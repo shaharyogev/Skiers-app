@@ -103,75 +103,25 @@ client.connect(function (err, db) {
   //Handle user login request
 
   router.post('/user', formidableMiddleware(), function (req, res) {
+    checkFormData(req.fields, res, function (err, r) {
+      if (r)
+        loginAttempt(req.fields.email, req.fields.password, req, res);
 
-    let email = req.fields.email;
-    let password = req.fields.password;
-    let errors;
-
-    if (email != undefined) {
-      let re =
-        /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-      let res = re.test(String(email).toLowerCase());
-      if (!res) {
-        errors = 'Hi ' + email + ' You cant use this email, try a real one';
-      }
-    }
-
-
-    if (password != undefined) {
-      let re =
-        /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\S+$).{5,}$/;
-      let res = re.test(String(password));
-      if (!res) {
-        errors += ' the assword is Minmum 5 character long + upper cases + lower cases + digits ';
-      }
-    }
-
-    if (errors) {
-      req.session.errors = errors;
-      res.json({
-        err: errors
-      });
-    } else {
-      loginAttempt(req.fields.email, req.fields.password, req, res);
-    }
+      else
+        sendJsonErr(err, res);
+    });
   });
 
   //Handle new user singUp
 
   router.post('/addUser', formidableMiddleware(), function (req, res, next) {
-    let invite = req.fields.invite;
-    let name = req.fields.name;
-    let email = req.fields.email;
-    let password = req.fields.password;
-    let errors;
+    checkFormData(req.fields, res, function (err, r) {
+      if (r)
+        creatNewUser(req.fields.invite, req.fields.name, req.fields.email, req.fields.password, req, res);
 
-    if (email != undefined) {
-      let re =
-        /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-      let res = re.test(String(email).toLowerCase());
-      if (!res) {
-        errors = 'Hi ' + email + ' You cant use this email, try a real one';
-      }
-    }
-
-    if (password != undefined) {
-      let re =
-        /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\S+$).{5,}$/;
-      let res = re.test(String(password));
-      if (!res) {
-        errors += ' the assword is Minmum 5 character long + upper cases + lower cases + digits ';
-      }
-    }
-
-    if (errors) {
-      req.session.errors = errors;
-      res.json({
-        err: errors
-      });
-    } else {
-      creatNewUser(req.fields.invite, req.fields.name, req.fields.email, req.fields.password, req, res);
-    }
+      else
+        sendJsonErr(err, res);
+    });
   });
 
 
@@ -262,6 +212,11 @@ client.connect(function (err, db) {
   router.get('/topRentedItem', function (req, res) {
     topRentedItem(res);
   });
+  router.get('/inventoryStatusList',function(req, res){
+    inventoryStatusList(res, function(err,r){
+      res.json(r);
+    });
+  });
 
   router.get('/login', function (req, res) {
     res.render('login');
@@ -333,7 +288,7 @@ client.connect(function (err, db) {
   }
 
   function checkFormData(data, res, cb) {
-
+    let passwordTest = data.password;
     let nameTest = data.name;
     let titleTest = data.title;
     let emailTest = data.email;
@@ -352,6 +307,15 @@ client.connect(function (err, db) {
         test++;
       }
     };
+
+    if (passwordTest != undefined) {
+      let re =
+        /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\S+$).{5,}$/;
+      let res = re.test(String(passwordTest));
+      if (!res) {
+        errors += ' the assword is Minmum 5 character long + upper cases + lower cases + digits ';
+      }
+    }
 
     if (titleTest != undefined) {
       let re =
@@ -1168,10 +1132,11 @@ client.connect(function (err, db) {
     })
   };
 
-  function inventoryStatusList(title, res, cb) {
+ 
+  function inventoryStatusList(res, cb) {
     collection.aggregate([{
         $match: {
-          $title
+          inventory :{ $gte: 1 }
         }
       },
       {
@@ -1193,7 +1158,7 @@ client.connect(function (err, db) {
       }
     })
   };
-
+  
 
   function itemStatus(title, res, cb) {
     collection.aggregate([{
