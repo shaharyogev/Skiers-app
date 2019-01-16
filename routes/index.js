@@ -65,29 +65,31 @@ client.connect(function (err, db) {
     saveUninitialized: false,
   }));
 
-  
-    //clear cookie if session is over
 
-    router.use( function(req, res, next){
-      if ( req.session.cookie && !req.session.succes){
-        res.clearCookie('skiersAdmin');
-      }
-        next();
-    });
+  //clear cookie if session is over
+
+  router.use(function (req, res, next) {
+    if (req.session.cookie && !req.session.succes) {
+      res.clearCookie('skiersAdmin');
+    }
+    next();
+  });
 
   /* Router requests: */
 
   //First 
   router.get('/', function (req, res, next) {
-    if (req.session.succes){
-      res.render('app',{userName:req.session.userName})
-    }else{
+    if (req.session.succes) {
+      res.render('app', {
+        userName: req.session.userName
+      })
+    } else {
       res.render('login');
 
     }
   })
 
-  
+
   //While the user in session the system will stay active.
 
   router.get('/:id', function (req, res, next) {
@@ -103,33 +105,28 @@ client.connect(function (err, db) {
   router.post('/user', formidableMiddleware(), function (req, res) {
 
     let email = req.fields.email;
-    console.log(email);
-
+    let password = req.fields.password;
     let errors;
 
     if (email != undefined) {
       let re =
         /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
       let res = re.test(String(email).toLowerCase());
-      console.log('email is: ' + res);
       if (!res) {
         errors = 'Hi ' + email + ' You cant use this email, try a real one';
       }
     }
 
-    let password = req.fields.password;
+
     if (password != undefined) {
       let re =
         /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\S+$).{5,}$/;
       let res = re.test(String(password));
-      console.log('password is: ' + res);
       if (!res) {
         errors += ' the assword is Minmum 5 character long + upper cases + lower cases + digits ';
       }
     }
-    console.log(password);
 
-    console.log(errors);
     if (errors) {
       req.session.errors = errors;
       res.json({
@@ -137,8 +134,6 @@ client.connect(function (err, db) {
       });
     } else {
       loginAttempt(req.fields.email, req.fields.password, req, res);
-
-
     }
   });
 
@@ -188,45 +183,84 @@ client.connect(function (err, db) {
   });
 
   router.post('/submitrent', formidableMiddleware(), function (req, res) {
-    updateRentedInventory(req.fields.title, req.fields.inventory, req.fields.email, res);
+    checkFormData(req.fields, function (err, r) {
+      if (r)
+        updateRentedInventory(req.fields.title, req.fields.inventory, req.fields.email, res);
+
+      else
+        sendJsonErr(err, res);
+    })
   });
 
   router.post('/submitNewCustomer', formidableMiddleware(), function (req, res) {
-    submitNewCustomer(req.fields.name, req.fields.email, req.fields.phone, res)
+    checkFormData(req.fields, function (err, r) {
+      if (r)
+        submitNewCustomer(req.fields.name, req.fields.email, req.fields.phone, res);
+
+      else
+        sendJsonErr(err, res);
+    })
+
   });
 
   router.post('/submitreturn', formidableMiddleware(), function (req, res) {
-    updateReturnedInventory(req.fields.title, req.fields.inventory, req.fields.email, res);
+    checkFormData(req.fields, function (err, r) {
+      if (r)
+        updateReturnedInventory(req.fields.title, req.fields.inventory, req.fields.email, res);
+
+      else
+        sendJsonErr(err, res);
+    })
   });
 
   router.post('/addItemtodb', formidableMiddleware(), function (req, res) {
-    updateNewInventory(req.fields.title, req.fields.inventory, res);
+    checkFormData(req.fields, function (err, r) {
+      if (r)
+        updateNewInventory(req.fields.title, req.fields.inventory, res);
+
+      else
+        sendJsonErr(err, res);
+    })
   });
 
 
   router.post('/inventoryStatus', formidableMiddleware(), function (req, res) {
-    currentItemInventory(req.fields.title,  function (err, value) {
-      if(err)
-        res.json({err:err});
+    checkFormData(req.fields, function (err, r) {
+      if (r)
+        currentItemInventory(req.fields.title, function (err, value) {
+          if (err)
+            res.json({
+              err: err
+            });
+          else
+            res.json({
+              title: req.fields.title,
+              status: value
+            });
+        });
       else
-      res.json({
-        title: req.fields.title,
-        status: value
-      });
-   })
+        sendJsonErr(err, res);
+    })
   });
 
   router.post('/userStatus', formidableMiddleware(), function (req, res) {
-    currentUserGeneralStatus(req.fields.email,  function (err, value) {
-      if(err)
-        res.send({err:err});
+    checkFormData(req.fields, function (err, r) {
+      if (r)
+        currentUserGeneralStatus(req.fields.email, function (err, value) {
+          if (err)
+            res.send({
+              err: err
+            });
+          else
+            res.send({
+              title: req.fields.title,
+              status: value
+            });
+        });
       else
-      res.send({
-        title: req.fields.title,
-        status: value
-      });
+        sendJsonErr(err, res);
+    })
   });
-});
 
   router.get('/topTenItems', function (req, res) {
     topTenItems(res);
@@ -248,9 +282,9 @@ client.connect(function (err, db) {
     res.render('login');
   });
 
-  router.get('/logout', function(req,res,next){
-    req.session.destroy(function(err) {
-      if(err) console.log(err)
+  router.get('/logout', function (req, res, next) {
+    req.session.destroy(function (err) {
+      if (err) console.log(err)
     });
     res.clearCookie('skiersAdmin');
     res.render('login');
@@ -306,6 +340,85 @@ client.connect(function (err, db) {
       })
     })
   }
+
+  function sendJsonErr(err, res) {
+    res.json({
+      err: err
+    });
+  }
+
+  function checkFormData(data, cb) {
+
+    let nameTest = data.name;
+    let titleTest = data.title;
+    let emailTest = data.email;
+    let inventoryTest = data.inventory;
+    let phoneTest = data.phone;
+    let daysTest = data.days;
+    let test = 0;
+    let error = '';
+
+    if (emailTest != undefined) {
+      let re =
+        /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      let res = re.test(String(emailTest).toLowerCase());
+      if (!res) {
+        error += 'Sorry but you can\'t use this email, try a real one. ';
+        test++;
+      }
+    };
+
+    if (titleTest != undefined) {
+      let re =
+      /^[\w \d \s]{3,50}$/;
+      let res = re.test(String(titleTest));
+      if (!res) {
+        error += 'The title is at least 3 character long. ';
+        test++;
+      }
+    };
+
+    if (nameTest != undefined) {
+      let re =
+      /^[\w \d \s]{3,50}$/;
+      let res = re.test(String(nameTest));
+      if (!res) {
+        error += 'The customer name must be at least 3 character long. ';
+        test++;
+      }
+    };
+    if (phoneTest != undefined) {
+      let re =
+      /^[(]{0,1}[0-9]{1,3}[)]{0,1}[-\s\.]{0,1}[0-9]{3}[-\s\.]{0,1}[0-9]{1,6}$/;
+      let res = re.test(String(phoneTest));
+      if (!res) {
+        error += 'Phone number ex: 000-000-000000). ';
+        test++;
+      }
+    };
+
+    if (inventoryTest != undefined) {
+      if (inventoryTest == 0) {
+        error += 'The inventory cant be 0. ';
+        test++;
+      }
+    };
+
+    if (daysTest != undefined) {
+      if (daysTest <= 0) {
+        error += 'The days must be more than 0.';
+        test++;
+      }
+    };
+
+    if (test > 0) {
+      test = 0;
+      cb(error, false);
+
+    } else {
+      cb('', true)
+    }
+  };
 
 
   /* User login and creation: */
@@ -414,16 +527,16 @@ client.connect(function (err, db) {
                 if (err) console.log(err);
                 if (r.result.n == 1)
                   res.json({
-                  err: 'Incorrect password '
-                });
+                    err: 'Incorrect password '
+                  });
 
               });
             }
           });
         } else
-            res.json({
+          res.json({
             err: 'The user is not registerd'
-        });
+          });
 
       })
   };
@@ -442,7 +555,7 @@ client.connect(function (err, db) {
       if (err) console.log(err)
       if (r !== null) {
         req.session.succes = true,
-        req.session.userName = r.userName,
+          req.session.userName = r.userName,
           req.session.cookie = {
             name: 'skiersAdmin',
             userName: r.userName,
@@ -845,7 +958,7 @@ client.connect(function (err, db) {
     })
   };
 
-  function inventoryStatusInLogin(title, status, userName,req, res) {
+  function inventoryStatusInLogin(title, status, userName, req, res) {
     collection.aggregate([{
         $project: {
           _id: 0,
@@ -1058,7 +1171,7 @@ client.connect(function (err, db) {
 
       let usersList = []
       for (let index in result) {
-        let temp =  result[index].rentedItems.email + ' - ' + result[index].rentedItems.title + ' - ' + result[index].rentedItems.inventory;
+        let temp = result[index].rentedItems.email + ' - ' + result[index].rentedItems.title + ' - ' + result[index].rentedItems.inventory;
         usersList.push(temp)
       }
 
@@ -1082,7 +1195,9 @@ client.connect(function (err, db) {
         }
       },
       {
-        $match:{'$activeUsers.email': email}
+        $match: {
+          '$activeUsers.email': email
+        }
       },
       {
         $group: {
@@ -1114,17 +1229,19 @@ client.connect(function (err, db) {
     ]).toArray(function (err, r) {
 
       if (err)
-        cb({err:err})
+        cb({
+          err: err
+        })
 
       let userItemsList = []
       for (let i in r) {
-        let temp = r[i].itemsList.title + ' - ' + r[i].itemsList.inventory ;
+        let temp = r[i].itemsList.title + ' - ' + r[i].itemsList.inventory;
         userItemsList.push(temp)
       }
 
       cb({
         title: email,
-        status: 'Nuber of items: '+ r.inventoryCount+'' ,
+        status: 'Nuber of items: ' + r.inventoryCount + '',
         itemsList: usersList
       });
     })

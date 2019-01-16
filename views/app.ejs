@@ -164,7 +164,7 @@
 
         <div id='querysResults' class='querysResults'>
           <div id='topten' class='topten'>
-
+            <span id='error'></span>
             <h2 class='title' id='title'> Welcome
               <%= userName %>
             </h2>
@@ -492,7 +492,6 @@
       let phoneTest = formId.querySelector('input[name="phone"]');
       let daysTest = formId.querySelector('input[name="days"]');
       let test = 0;
-
       if (emailTest != undefined) {
         let re =
           /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -505,32 +504,32 @@
 
       if (titleTest != undefined) {
         let re =
-          /^(?=.*[a-z]).{5,}$/;
+          /^[\w \d \s]{3,50}$/;
         let res = re.test(String(titleTest.value));
         if (!res) {
           formId.querySelector('.error').innerHTML =
-            'The title is at least 5 character long ';
+            'The title is at least 3 character long ';
           test++;
         }
       };
 
       if (nameTest != undefined) {
         let re =
-          /^(?=.*[a-z]).{5,}$/;
+          /^[\w \d \s]{3,50}$/;
         let res = re.test(String(nameTest.value));
         if (!res) {
           formId.querySelector('.error').innerHTML =
-            'The customer name must be at least 5 character long ';
+            'The customer name must be at least 3 character long ';
           test++;
         }
       };
       if (phoneTest != undefined) {
         let re =
-          /^(?=.*[0-9]).{5,}$/;
+      /^[(]{0,1}[0-9]{1,3}[)]{0,1}[-\s\.]{0,1}[0-9]{3}[-\s\.]{0,1}[0-9]{1,6}$/;
         let res = re.test(String(phoneTest.value));
         if (!res) {
           formId.querySelector('.error').innerHTML =
-            'The customer phone number be at least 5 character long ';
+            'Phone number ex: 000-000-000000). ';
           test++;
         }
       };
@@ -557,11 +556,15 @@
       } else {
         postForm(formAction, formDataNode, id, nextNum);
       }
+      //postForm(formAction, formDataNode, id, nextNum);
     };
 
     function contentToView(json) {
       obj = JSON.parse(json);
-
+      if (obj.err) {
+        let coment = document.getElementById('error')
+        coment.innerText = obj.err;
+      }
       if (obj.title) {
         let titleT = document.getElementById('title')
         titleT.innerText = obj.title;
