@@ -871,12 +871,18 @@ client.connect(function (err, db) {
 
   function inventoryStatus(title, status, userName, res) {
     collection.aggregate([{
+      $match: {
+        inventory :{ $gte: 1 }
+      }
+    },
+      {
         $project: {
           _id: 0,
           title: 1,
           inventory: 1
         }
       },
+      
       {
         $sort: {
           inventory: -1
@@ -886,6 +892,12 @@ client.connect(function (err, db) {
         $limit: 10
       },
     ]).toArray(function (err, result) {
+      try {
+        console.log(result)
+        res.json(result);
+      } catch (err) {
+        console.log(err)
+      }/*
       if (err)
         res.send({
           itemsList: [],
@@ -903,7 +915,7 @@ client.connect(function (err, db) {
         title: title,
         status: status,
         userName: userName
-      });
+      });*/
     })
   };
 
@@ -987,6 +999,12 @@ client.connect(function (err, db) {
         $limit: 10
       },
     ]).toArray(function (err, result) {
+      try {
+        res.json(result);
+      } catch (err) {
+        console.log(err)
+      }
+      /*
       if (err)
         res.send({
           itemsList: [],
@@ -1003,7 +1021,7 @@ client.connect(function (err, db) {
         itemsList: itemsList,
         title: 'Top 10 rented: ',
         status: ''
-      });
+      });*/
     })
   };
 
@@ -1045,7 +1063,12 @@ client.connect(function (err, db) {
         $limit: 10
       }
     ]).toArray(function (err, result) {
-
+      try {
+        res.json(result);
+      } catch (err) {
+        console.log(err)
+      }
+/*
       if (err)
         res.send({
           itemsList: [],
@@ -1064,7 +1087,7 @@ client.connect(function (err, db) {
         itemsList: usersList,
         title: 'The top 10 active users:',
         status: ''
-      });
+      });*/
     })
   };
 
@@ -1105,12 +1128,15 @@ client.connect(function (err, db) {
       },
       {
         $limit: 1
-      },
-      {
-        $unwind: '$rentedItems'
       }
+      
     ]).toArray(function (err, result) {
-
+      try {
+        res.json(result);
+      } catch (err) {
+        console.log(err)
+      }
+/*
       if (err)
         res.send({
           title: ' Error ',
@@ -1128,7 +1154,7 @@ client.connect(function (err, db) {
         title: 'The highest inventory for singel user Is: ',
         status: result[0].rentedItems.email,
         itemsList: usersList
-      });
+      });*/
     })
   };
 
@@ -1270,7 +1296,12 @@ client.connect(function (err, db) {
         }
       }
     ]).toArray(function (err, result) {
-      if (err)
+      try {
+        res.json(result);
+      } catch (err) {
+        console.log(err)
+      }
+      /*if (err)
         res.send({
           title: 'The highest rented Item Is: error',
           status: err,
@@ -1287,7 +1318,7 @@ client.connect(function (err, db) {
         title: 'The highest demand is for: ',
         status: result[0]._id,
         itemsList: usersList
-      });
+      });*/
     })
   };
 });
