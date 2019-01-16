@@ -183,7 +183,7 @@ client.connect(function (err, db) {
   });
 
   router.post('/submitrent', formidableMiddleware(), function (req, res) {
-    checkFormData(req.fields, function (err, r) {
+    checkFormData(req.fields, res, function (err, r) {
       if (r)
         updateRentedInventory(req.fields.title, req.fields.inventory, req.fields.email, res);
 
@@ -193,7 +193,7 @@ client.connect(function (err, db) {
   });
 
   router.post('/submitNewCustomer', formidableMiddleware(), function (req, res) {
-    checkFormData(req.fields, function (err, r) {
+    checkFormData(req.fields, res, function (err, r) {
       if (r)
         submitNewCustomer(req.fields.name, req.fields.email, req.fields.phone, res);
 
@@ -204,7 +204,7 @@ client.connect(function (err, db) {
   });
 
   router.post('/submitreturn', formidableMiddleware(), function (req, res) {
-    checkFormData(req.fields, function (err, r) {
+    checkFormData(req.fields, res, function (err, r) {
       if (r)
         updateReturnedInventory(req.fields.title, req.fields.inventory, req.fields.email, res);
 
@@ -214,7 +214,7 @@ client.connect(function (err, db) {
   });
 
   router.post('/addItemtodb', formidableMiddleware(), function (req, res) {
-    checkFormData(req.fields, function (err, r) {
+    checkFormData(req.fields, res, function (err, r) {
       if (r)
         updateNewInventory(req.fields.title, req.fields.inventory, res);
 
@@ -225,18 +225,10 @@ client.connect(function (err, db) {
 
 
   router.post('/inventoryStatus', formidableMiddleware(), function (req, res) {
-    checkFormData(req.fields, function (err, r) {
+    checkFormData(req.fields, res, function (err, r) {
       if (r)
-        currentItemInventory(req.fields.title, function (err, value) {
-          if (err)
-            res.json({
-              err: err
-            });
-          else
-            res.json({
-              title: req.fields.title,
-              status: value
-            });
+      itemStatus(req.fields.title, res, function (err, r) {
+        res.json(r);
         });
       else
         sendJsonErr(err, res);
@@ -244,22 +236,15 @@ client.connect(function (err, db) {
   });
 
   router.post('/userStatus', formidableMiddleware(), function (req, res) {
-    checkFormData(req.fields, function (err, r) {
+    checkFormData(req.fields, res, function (err, r) {
       if (r)
-        currentUserGeneralStatus(req.fields.email, function (err, value) {
-          if (err)
-            res.send({
-              err: err
-            });
-          else
-            res.send({
-              title: req.fields.title,
-              status: value
-            });
+        userStatus(req.fields.email, res, function (err, r) {
+          res.json(r);
         });
+
       else
         sendJsonErr(err, res);
-    })
+    });
   });
 
   router.get('/topTenItems', function (req, res) {
@@ -347,7 +332,7 @@ client.connect(function (err, db) {
     });
   }
 
-  function checkFormData(data, cb) {
+  function checkFormData(data, res, cb) {
 
     let nameTest = data.name;
     let titleTest = data.title;
@@ -370,7 +355,7 @@ client.connect(function (err, db) {
 
     if (titleTest != undefined) {
       let re =
-      /^[\W \D \S ]{3,100}$/;
+        /^[\W \D \S ]{3,100}$/;
       let res = re.test(String(titleTest));
       if (!res) {
         error += 'The title is at least 3 character long. ';
@@ -380,7 +365,7 @@ client.connect(function (err, db) {
 
     if (nameTest != undefined) {
       let re =
-      /^[\W \D \S ]{3,100}$/;
+        /^[\W \D \S ]{3,100}$/;
       let res = re.test(String(nameTest));
       if (!res) {
         error += 'The customer name must be at least 3 character long. ';
@@ -389,7 +374,7 @@ client.connect(function (err, db) {
     };
     if (phoneTest != undefined) {
       let re =
-      /^[(]{0,1}[0-9]{1,3}[)]{0,1}[-\s\.]{0,1}[0-9]{3}[-\s\.]{0,1}[0-9]{1,6}$/;
+        /^[(]{0,1}[0-9]{1,3}[)]{0,1}[-\s\.]{0,1}[0-9]{3}[-\s\.]{0,1}[0-9]{1,6}$/;
       let res = re.test(String(phoneTest));
       if (!res) {
         error += 'Phone number ex: 000-000-000000). ';
@@ -1183,7 +1168,57 @@ client.connect(function (err, db) {
     })
   };
 
-  function userStatus(email, cb) {
+  function inventoryStatusList(title, res, cb) {
+    collection.aggregate([{
+        $match: {
+          $title
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          title: 1,
+          inventory: 1
+        }
+      },{
+        $sort: {
+          title:1
+        }
+      }
+    ]).toArray(function (err, r) {
+      try {
+        cb(err, r);
+      } catch (err) {
+        console.log(err)
+      }
+    })
+  };
+
+
+  function itemStatus(title, res, cb) {
+    collection.aggregate([{
+        $match: {
+          title: title
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          title: 1,
+          inventory: 1
+        }
+      }
+    ]).toArray(function (err, r) {
+      try {
+        cb(err, r);
+      } catch (err) {
+        console.log(err)
+      }
+    })
+  };
+
+
+  function userStatus(email, res, cb) {
     collection.aggregate([{
         $unwind: '$activeUsers'
       },
@@ -1196,7 +1231,7 @@ client.connect(function (err, db) {
       },
       {
         $match: {
-          '$activeUsers.email': email
+          'activeUsers.email': email
         }
       },
       {
@@ -1206,44 +1241,22 @@ client.connect(function (err, db) {
             $sum: 1
           },
           inventoryCount: {
-            '$sum': '$activeUsers.inventory'
+            $sum: '$activeUsers.inventory'
           },
           itemsList: {
             $push: {
-              email: '$activeUsers.email',
               title: '$title',
               inventory: '$activeUsers.inventory'
             }
           }
         }
-      },
-      {
-        $sort: {
-          'inventoryCount': -1
-        }
       }
-      /*,
-      {
-        $unwind: '$rentedItems'
-      }*/
     ]).toArray(function (err, r) {
-
-      if (err)
-        cb({
-          err: err
-        })
-
-      let userItemsList = []
-      for (let i in r) {
-        let temp = r[i].itemsList.title + ' - ' + r[i].itemsList.inventory;
-        userItemsList.push(temp)
+      try {
+        cb(err, r);
+      } catch (err) {
+        console.log(err)
       }
-
-      cb({
-        title: email,
-        status: 'Nuber of items: ' + r.inventoryCount + '',
-        itemsList: usersList
-      });
     })
   };
 

@@ -561,6 +561,10 @@
 
     function contentToView(json) {
       obj = JSON.parse(json);
+      console.log(obj)
+      if(obj[0]._id)
+      console.log(obj[0]._id)
+
       if (obj.err) {
         let coment = document.getElementById('error')
         coment.innerText = obj.err;
