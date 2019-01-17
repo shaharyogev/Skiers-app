@@ -664,14 +664,14 @@ client.connect(function (err, db) {
               if (r.value !== null)
                 title = title + ' inventory was updated to ' + inventory,
                 status = email + ' have ' + inventory + ' new items',
-                inventoryStatus(title, status, '', res);
+                inventoryStatus(title, status, email, res);
 
               else
                 currentItemInventory(title, function (err, value) {
                   currentItemI = value;
                   title = title + ' inventory wasent updated, the current inventory is: ' + currentItemI,
                     status = email + ' can rent only: ' + currentItemI + ' new items',
-                    inventoryStatus(title, status, '', res);
+                    inventoryStatus(title, status, email, res);
                 })
             });
 
@@ -679,7 +679,7 @@ client.connect(function (err, db) {
           currentUserInventory(title, email, function (err, value) {
             title = title + ' inventory was updated to' + (r.value.inventory - inventory),
               status = 'The user: ' + email + ' have ' + value + ' items include the ' + inventory + ' new items',
-              inventoryStatus(title, status, '', res);
+              inventoryStatus(title, status, email, res);
           })
       })
   };
@@ -869,37 +869,56 @@ client.connect(function (err, db) {
   };
 
 
-  function inventoryStatus(title, status, userName, res) {
+  function inventoryStatus(title, status, email, res) {
+
     try {
-    collection.aggregate([{
-        $match: {
-          inventory: {
-            $gte: 1
+      collection.aggregate([
+        {
+          $match: {
+            'activeUsers.email': email
+          }
+        },
+        {
+          $unwind: '$activeUsers'
+        },
+        {
+          $match: {
+            'activeUsers.email': email
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            title: 1,
+            'activeUsers.inventory': 1
+          }
+        },
+        
+        {
+          $group: {
+            _id: '$title', 
+            quantity: {$sum: '$activeUsers.inventory'}
+          }
+        },
+        {
+          $sort: {
+            quantity: -1
+          }
+        },
+        {
+          $project:{
+            _id:0,
+            item:'$_id',
+            quantity:'$quantity',
           }
         }
-      },
-      {
-        $project: {
-          _id: 0,
-          title: 1,
-          inventory: 1
-        }
-      },
-
-      {
-        $sort: {
-          inventory: -1
-        }
-      },
-      {
-        $limit: 10
-      },
-    ]).toArray(function (err, result) {
-      res.send(result);
-    })
+      ]).toArray(function (err, r) {
+        res.send(r);
+      });
       } catch (err) {
-        console.log(err)
-      }
+      console.log(err)
+    }
+    
   };
 
   function inventoryStatusInLogin(title, status, userName, req, res) {
@@ -981,6 +1000,13 @@ client.connect(function (err, db) {
       {
         $limit: 10
       },
+      {
+        $project:{
+          _id:0,
+          item:'$_id',
+          quantity:'$rentedItemInventory',
+        }
+      }
     ]).toArray(function (err, result) {
       
         res.json(result);
@@ -1027,6 +1053,13 @@ client.connect(function (err, db) {
       },
       {
         $limit: 10
+      },
+      {
+        $project:{
+          _id:0,
+          user:'$_id',
+          quantity:'$userInventorySum',
+        }
       }
     ]).toArray(function (err, result) {
 
@@ -1036,50 +1069,47 @@ client.connect(function (err, db) {
         console.log(err)
       }
       //The top 10 active users
-     
-
   };
 
 
   function mostActiveUser(res) {
     try {
-    collection.aggregate([{
-        $unwind: '$activeUsers'
-      },
-      {
-        $project: {
-          _id: 0,
-          title: 1,
-          activeUsers: 1
-        }
-      },
-      {
-        $group: {
-          _id: '$activeUsers.email',
-          itemsCount: {
-            $sum: 1
-          },
-          inventoryCount: {
-            '$sum': '$activeUsers.inventory'
-          },
-          rentedItems: {
-            $push: {
-              email: '$activeUsers.email',
-              title: '$title',
-              inventory: '$activeUsers.inventory'
-            }
+    collection.aggregate([
+      
+      {$match:{
+        'activeUsers.inventory':{ $gte:1}
+      }
+    },
+    {
+      $unwind: '$activeUsers'
+    },
+    {
+      $group: {
+        _id: '$activeUsers.email',
+        totalQuantityG: {
+          $sum: '$activeUsers.inventory'
+        },
+        rentedItems: {
+          $push: {
+            title: '$title',
+            inventory: '$activeUsers.inventory'
           }
         }
-      },
-      {
-        $sort: {
-          'inventoryCount': -1
-        }
-      },
-      {
-        $limit: 1
       }
-
+    },{
+      $sort:{totalQuantityG: -1}
+    },{$limit:1},{
+      $unwind:'$rentedItems'
+    },{
+      $project:{
+        _id:0,
+        user:'$_id',
+        item:'$rentedItems.title',
+        quantity:'$rentedItems.inventory',
+        totalQuantity:'$totalQuantityG'
+      }
+    }
+    
     ]).toArray(function (err, result) {
       res.json(result);
     })
@@ -1088,7 +1118,6 @@ client.connect(function (err, db) {
       }
       //title: 'The highest inventory for singel user Is: ',
   };
-
 
   function inventoryStatusList(res, cb) {
     try {
@@ -1108,6 +1137,13 @@ client.connect(function (err, db) {
       }, {
         $sort: {
           title: 1
+        }
+      },
+      {
+        $project:{
+          _id:0,
+          item:'$title',
+          quantity:'$quantity',
         }
       }
     ]).toArray(function (err, r) {
@@ -1130,10 +1166,11 @@ client.connect(function (err, db) {
       {
         $project: {
           _id: 0,
-          title: 1,
-          inventory: 1
+          item:'$title',
+          quantity:'$inventory'
         }
       }
+    
     ]).toArray(function (err, r) {
         cb(err, r);
       })
@@ -1179,6 +1216,13 @@ client.connect(function (err, db) {
           quantity: -1
         }
       },
+      {
+        $project:{
+          _id:0,
+          item:'$_id',
+          quantity:'$quantity',
+        }
+      }
     ]).toArray(function (err, r) {
       cb(err, r);
     });
@@ -1210,6 +1254,13 @@ client.connect(function (err, db) {
         }
       },{
         $limit:1
+      },
+      {
+        $project:{
+          _id:0,
+          item:'$_id',
+          quantity:'$quantity',
+        }
       }
     ]).toArray(function (err, result) {
         res.json(result);

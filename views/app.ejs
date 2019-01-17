@@ -41,15 +41,15 @@
         <div class='navButtons'>
           <h2>BI Querys</h2>
           <ul>
-            <li><a type='button' method='get' action='/app' onclick="includeThisHTML('/app')">
+            <li><a type='button' method='get' action='/app' onclick="includeThisHTML('/app',false,'Largest Inventory:')">
                 Largest Inventory </a></li>
-            <li><a type='button' method='get' action='/topTenItems' onclick="includeThisHTML('/topTenItems')">
+            <li><a type='button' method='get' action='/topTenItems' onclick="includeThisHTML('/topTenItems',false,'Most Popolar items:')">
                 Most Popolar items </a></li>
-            <li><a type='button' method='get' action='topRentedItem' onclick="includeThisHTML('/topRentedItem')">
+            <li><a type='button' method='get' action='topRentedItem' onclick="includeThisHTML('/topRentedItem',false,'Most Popolar Item:')">
                 Most Popolar Item </a></li>
-            <li><a type='button' method='get' action='/topTenUsers' onclick="includeThisHTML('/topTenUsers')">
+            <li><a type='button' method='get' action='/topTenUsers' onclick="includeThisHTML('/topTenUsers',false,'Most Active Users:')">
                 Most Active Users </a></li>
-            <li><a type='button' method='get' action='/mostActiveUser' onclick="includeThisHTML('/mostActiveUser')">
+            <li><a type='button' method='get' action='/mostActiveUser' onclick="includeThisHTML('/mostActiveUser',false,'Most Active User:')">
                 Most Active User </a></li>
 
 
@@ -559,43 +559,22 @@
       //postForm(formAction, formDataNode, id, nextNum);
     };
 
-    function contentToView(json) {
+    function contentToView(json, title) {
       let x, y, obj, objKey, txt, columnHeadline;
       txt = '';
       try {
-        //console.log(json)
+        console.log(json)
         obj = JSON.parse(json);
-        columnHeadline = Object.getOwnPropertyNames(obj[0])
-        txt += "<table border='0'>"
-        txt += "<tr>"
-        for (x in columnHeadline) {
-          txt += "<th>" + columnHeadline[x] + "</th>";
-        }
-        txt += "</tr>"
-        for (x in obj) {
-          txt += "<tr>"
-          for (y in obj[x]) {
-            txt += "<td>" + obj[x][y] + "</td>"
-          }
-          txt += "</tr>";
-        }
-        txt += "</table>"
-        document.getElementById("queryUl").innerHTML = txt;
 
+        if (obj.err) {
+          let coment = document.getElementById('error')
+          coment.innerText = obj.err;
+        } else {
 
-      } catch (err) {
-        console.log(err);
-      }
+          if (obj.title) {
+            let titleT = document.getElementById('title')
+            titleT.innerText = obj.title;
 
-      /*
-            if (obj.err) {
-              let coment = document.getElementById('error')
-              coment.innerText = obj.err;
-            }
-            if (obj.title) {
-              let titleT = document.getElementById('title')
-              titleT.innerText = obj.title;
-            }
 
             if (obj.status) {
               let statusT = document.getElementById('status')
@@ -610,11 +589,37 @@
                 li.appendChild(document.createTextNode(obj.itemsList[i]));
                 ul.appendChild(li);
               }
-            }*/
+            }
+          } else {
+
+            let titleT = document.getElementById('title')
+            titleT.innerText = title;
+
+            columnHeadline = Object.getOwnPropertyNames(obj[0])
+            txt += "<table border='0'>"
+            txt += "<tr>"
+            for (x in columnHeadline) {
+              txt += "<th>" + columnHeadline[x] + "</th>";
+            }
+            txt += "</tr>"
+            for (x in obj) {
+              txt += "<tr>"
+              for (y in obj[x]) {
+                txt += "<td>" + obj[x][y] + "</td>"
+              }
+              txt += "</tr>";
+            }
+            txt += "</table>"
+            document.getElementById("queryUl").innerHTML = txt;
+          }
+        }
+      } catch (err) {
+        console.log(err);
+      }
     };
 
 
-    function includeThisHTML(page, back) {
+    function includeThisHTML(page, back,title) {
       let z, pagePath, file, xhttp;
       file = page;
       if (file) {
@@ -622,27 +627,33 @@
         xhttp.onreadystatechange = function () {
           if (this.readyState == 4) {
             if (this.status == 200) {
-              contentToView(this.responseText);
-              if (!back) {
-                if (page === '/app') {
-                  pagePath = '';
-                } else {
-                  pagePath = '?' + file;
+              if (this.response.startsWith("<!DOCTYPE html>")) {
+                document.open();
+                document.write(this.responseText);
+                document.close();
+              } else {
+                contentToView(this.responseText, title);
+                if (!back) {
+                  if (page === '/app') {
+                    pagePath = '';
+                  } else {
+                    pagePath = '?' + file;
+                  }
+                  history.pushState(pagePath, pagePath, pagePath);
                 }
-                history.pushState(pagePath, pagePath, pagePath);
               }
             }
           }
           if (this.status == 404) {
             contentToView({
               "title": 'We have a little problem'
-            }); 
+            });
           }
         }
       }
       xhttp.open("GET", file, true);
       xhttp.send();
-    
+
     };
 
     window.onpopstate = function (event) {
