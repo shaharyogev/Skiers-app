@@ -504,7 +504,7 @@
 
       if (titleTest != undefined) {
         let re =
-        /^[\W \D \S ]{3,100}$/;
+          /^[\W \D \S ]{3,100}$/;
         let res = re.test(String(titleTest.value));
         if (!res) {
           formId.querySelector('.error').innerHTML =
@@ -515,7 +515,7 @@
 
       if (nameTest != undefined) {
         let re =
-        /^[\W \D \S ]{3,100}$/;
+          /^[\W \D \S ]{3,100}$/;
         let res = re.test(String(nameTest.value));
         if (!res) {
           formId.querySelector('.error').innerHTML =
@@ -525,7 +525,7 @@
       };
       if (phoneTest != undefined) {
         let re =
-      /^[(]{0,1}[0-9]{1,3}[)]{0,1}[-\s\.]{0,1}[0-9]{3}[-\s\.]{0,1}[0-9]{1,6}$/;
+          /^[(]{0,1}[0-9]{1,3}[)]{0,1}[-\s\.]{0,1}[0-9]{3}[-\s\.]{0,1}[0-9]{1,6}$/;
         let res = re.test(String(phoneTest.value));
         if (!res) {
           formId.querySelector('.error').innerHTML =
@@ -560,76 +560,89 @@
     };
 
     function contentToView(json) {
-      obj = JSON.parse(json);
-      console.log(obj)
-      if(obj[0])
-      console.log(obj[0]._id)
-
-      if (obj.err) {
-        let coment = document.getElementById('error')
-        coment.innerText = obj.err;
-      }
-      if (obj.title) {
-        let titleT = document.getElementById('title')
-        titleT.innerText = obj.title;
-      }
-
-      if (obj.status) {
-        let statusT = document.getElementById('status')
-        statusT.innerText = obj.status
-      }
-
-      if (obj.itemsList) {
-        let ul = document.getElementById('queryUl');
-        ul.innerHTML = '';
-        for (i in obj.itemsList) {
-          let li = document.createElement('li');
-          li.appendChild(document.createTextNode(obj.itemsList[i]));
-          ul.appendChild(li);
+      let x, y, obj, objKey, txt, columnHeadline;
+      txt = '';
+      try {
+        //console.log(json)
+        obj = JSON.parse(json);
+        columnHeadline = Object.getOwnPropertyNames(obj[0])
+        txt += "<table border='0'>"
+        txt += "<tr>"
+        for (x in columnHeadline) {
+          txt += "<th>" + columnHeadline[x] + "</th>";
         }
+        txt += "</tr>"
+        for (x in obj) {
+          txt += "<tr>"
+          for (y in obj[x]) {
+            txt += "<td>" + obj[x][y] + "</td>"
+          }
+          txt += "</tr>";
+        }
+        txt += "</table>"
+        document.getElementById("queryUl").innerHTML = txt;
+
+
+      } catch (err) {
+        console.log(err);
       }
+
+      /*
+            if (obj.err) {
+              let coment = document.getElementById('error')
+              coment.innerText = obj.err;
+            }
+            if (obj.title) {
+              let titleT = document.getElementById('title')
+              titleT.innerText = obj.title;
+            }
+
+            if (obj.status) {
+              let statusT = document.getElementById('status')
+              statusT.innerText = obj.status
+            }
+
+            if (obj.itemsList) {
+              let ul = document.getElementById('queryUl');
+              ul.innerHTML = '';
+              for (i in obj.itemsList) {
+                let li = document.createElement('li');
+                li.appendChild(document.createTextNode(obj.itemsList[i]));
+                ul.appendChild(li);
+              }
+            }*/
     };
 
 
     function includeThisHTML(page, back) {
-      var z, pagePath, file, xhttp;
-      if (page === 'home') {
-        file = 'app';
-        pagePath = '';
-      } else {
-        file = page;
-        pagePath = '?' + file;
-      }
-
+      let z, pagePath, file, xhttp;
+      file = page;
       if (file) {
         xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
           if (this.readyState == 4) {
             if (this.status == 200) {
-              if (this.response.startsWith("<!DOCTYPE html>")) {
-                document.open();
-                document.write(this.responseText);
-                document.close();
-              } else {
-                contentToView(this.responseText);
-                if (!back) {
-                  history.pushState(pagePath, pagePath, pagePath);
+              contentToView(this.responseText);
+              if (!back) {
+                if (page === '/app') {
+                  pagePath = '';
+                } else {
+                  pagePath = '?' + file;
                 }
+                history.pushState(pagePath, pagePath, pagePath);
               }
             }
-            if (this.status == 404) {
-              contentToView({
-                "title": 'We have a little problem',
-                "status": '',
-                "queryUl": ''
-              }); //DEV
-            }
+          }
+          if (this.status == 404) {
+            contentToView({
+              "title": 'We have a little problem'
+            }); 
           }
         }
-        xhttp.open("GET", file, true);
-        xhttp.send();
-        return;
       }
+      xhttp.open("GET", file, true);
+      xhttp.send();
+    
     };
 
     window.onpopstate = function (event) {
@@ -639,7 +652,7 @@
         newPage = newPage.slice(1, newPageLen)
         includeThisHTML(newPage, "1");
       } else {
-        includeThisHTML('home');
+        includeThisHTML('/app');
       }
     };
 
@@ -653,12 +666,17 @@
       };
 
       xhttp = new XMLHttpRequest();
-
       xhttp.onreadystatechange = function () {
         if (this.readyState == 4) {
           if (this.status == 200) {
-            contentToView(this.responseText);
-            goToRentTabWithEmail(id, nextNum);
+            if (this.response.startsWith("<!DOCTYPE html>")) {
+              document.open();
+              document.write(this.responseText);
+              document.close();
+            } else {
+              contentToView(this.responseText);
+              goToRentTabWithEmail(id, nextNum);
+            }
           }
           if (this.status == 404) {
             contentToView({

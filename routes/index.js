@@ -177,8 +177,8 @@ client.connect(function (err, db) {
   router.post('/inventoryStatus', formidableMiddleware(), function (req, res) {
     checkFormData(req.fields, res, function (err, r) {
       if (r)
-      itemStatus(req.fields.title, res, function (err, r) {
-        res.json(r);
+        itemStatus(req.fields.title, res, function (err, r) {
+          res.json(r);
         });
       else
         sendJsonErr(err, res);
@@ -212,8 +212,8 @@ client.connect(function (err, db) {
   router.get('/topRentedItem', function (req, res) {
     topRentedItem(res);
   });
-  router.get('/inventoryStatusList',function(req, res){
-    inventoryStatusList(res, function(err,r){
+  router.get('/inventoryStatusList', function (req, res) {
+    inventoryStatusList(res, function (err, r) {
       res.json(r);
     });
   });
@@ -870,11 +870,14 @@ client.connect(function (err, db) {
 
 
   function inventoryStatus(title, status, userName, res) {
+    try {
     collection.aggregate([{
-      $match: {
-        inventory :{ $gte: 1 }
-      }
-    },
+        $match: {
+          inventory: {
+            $gte: 1
+          }
+        }
+      },
       {
         $project: {
           _id: 0,
@@ -882,7 +885,7 @@ client.connect(function (err, db) {
           inventory: 1
         }
       },
-      
+
       {
         $sort: {
           inventory: -1
@@ -892,31 +895,11 @@ client.connect(function (err, db) {
         $limit: 10
       },
     ]).toArray(function (err, result) {
-      try {
-        console.log(result)
-        res.json(result);
+      res.send(result);
+    })
       } catch (err) {
         console.log(err)
-      }/*
-      if (err)
-        res.send({
-          itemsList: [],
-          title: 'No inventory in stock',
-          status: err
-        });
-
-      let itemsList = [];
-      for (let index in result) {
-        let temp = result[index].title + ' - ' + result[index].inventory;
-        itemsList.push(temp);
-      };
-      res.send({
-        itemsList: itemsList,
-        title: title,
-        status: status,
-        userName: userName
-      });*/
-    })
+      }
   };
 
   function inventoryStatusInLogin(title, status, userName, req, res) {
@@ -964,7 +947,7 @@ client.connect(function (err, db) {
 
 
   function topTenItems(res) {
-
+    try {
     collection.aggregate([{
         $match: {
           'activeUsers.inventory': {
@@ -999,36 +982,19 @@ client.connect(function (err, db) {
         $limit: 10
       },
     ]).toArray(function (err, result) {
-      try {
+      
         res.json(result);
+      })
       } catch (err) {
         console.log(err)
       }
-      /*
-      if (err)
-        res.send({
-          itemsList: [],
-          title: 'Top 10 rented: ',
-          status: err
-        });
-
-      let itemsList = [];
-      for (let index in result) {
-        let temp = result[index]._id + ' - ' + result[index].rentedItemInventory;
-        itemsList.push(temp);
-      }
-      res.send({
-        itemsList: itemsList,
-        title: 'Top 10 rented: ',
-        status: ''
-      });*/
-    })
   };
 
 
 
 
   function topTenUsers(res) {
+    try {
     collection.aggregate([{
         $match: {
           'activeUsers.inventory': {
@@ -1063,36 +1029,20 @@ client.connect(function (err, db) {
         $limit: 10
       }
     ]).toArray(function (err, result) {
-      try {
+
         res.json(result);
+      })
       } catch (err) {
         console.log(err)
       }
-/*
-      if (err)
-        res.send({
-          itemsList: [],
-          userslist: [],
-          title: 'The top 10 active users:',
-          status: err
-        });
+      //The top 10 active users
+     
 
-      let usersList = [];
-
-      for (let index in result) {
-        let temp = 'Email: ' + result[index]._id + ' - ' + result[index].userInventorySum
-        usersList.push(temp);
-      }
-      res.send({
-        itemsList: usersList,
-        title: 'The top 10 active users:',
-        status: ''
-      });*/
-    })
   };
 
 
   function mostActiveUser(res) {
+    try {
     collection.aggregate([{
         $unwind: '$activeUsers'
       },
@@ -1129,40 +1079,24 @@ client.connect(function (err, db) {
       {
         $limit: 1
       }
-      
+
     ]).toArray(function (err, result) {
-      try {
-        res.json(result);
+      res.json(result);
+    })
       } catch (err) {
         console.log(err)
       }
-/*
-      if (err)
-        res.send({
-          title: ' Error ',
-          status: err,
-          itemsList: []
-        });
-
-      let usersList = []
-      for (let index in result) {
-        let temp = result[index].rentedItems.email + ' - ' + result[index].rentedItems.title + ' - ' + result[index].rentedItems.inventory;
-        usersList.push(temp)
-      }
-
-      res.send({
-        title: 'The highest inventory for singel user Is: ',
-        status: result[0].rentedItems.email,
-        itemsList: usersList
-      });*/
-    })
+      //title: 'The highest inventory for singel user Is: ',
   };
 
- 
+
   function inventoryStatusList(res, cb) {
+    try {
     collection.aggregate([{
         $match: {
-          inventory :{ $gte: 1 }
+          inventory: {
+            $gte: 1
+          }
         }
       },
       {
@@ -1171,22 +1105,23 @@ client.connect(function (err, db) {
           title: 1,
           inventory: 1
         }
-      },{
+      }, {
         $sort: {
-          title:1
+          title: 1
         }
       }
     ]).toArray(function (err, r) {
-      try {
+    })
         cb(err, r);
       } catch (err) {
         console.log(err)
       }
-    })
+    
   };
-  
+
 
   function itemStatus(title, res, cb) {
+    try {
     collection.aggregate([{
         $match: {
           title: title
@@ -1200,25 +1135,25 @@ client.connect(function (err, db) {
         }
       }
     ]).toArray(function (err, r) {
-      try {
         cb(err, r);
+      })
       } catch (err) {
         console.log(err)
       }
-    })
+    
   };
 
 
   function userStatus(email, res, cb) {
-    collection.aggregate([{
-        $unwind: '$activeUsers'
+    try {
+    collection.aggregate([
+      {
+        $match: {
+          'activeUsers.email': email
+        }
       },
       {
-        $project: {
-          _id: 0,
-          title: 1,
-          activeUsers: 1
-        }
+        $unwind: '$activeUsers'
       },
       {
         $match: {
@@ -1226,101 +1161,64 @@ client.connect(function (err, db) {
         }
       },
       {
-        $group: {
-          _id: '$activeUsers.email',
-          itemsCount: {
-            $sum: 1
-          },
-          inventoryCount: {
-            $sum: '$activeUsers.inventory'
-          },
-          itemsList: {
-            $push: {
-              title: '$title',
-              inventory: '$activeUsers.inventory'
-            }
-          }
-        }
-      }
-    ]).toArray(function (err, r) {
-      try {
-        cb(err, r);
-      } catch (err) {
-        console.log(err)
-      }
-    })
-  };
-
-  function topRentedItem(res) {
-    collection.aggregate([{
-        $unwind: '$activeUsers'
-      },
-      {
         $project: {
           _id: 0,
           title: 1,
-          activeUsers: 1
+          'activeUsers.inventory': 1
         }
+      },
+      
+      {
+        $group: {
+          _id: '$title', 
+          quantity: {$sum: '$activeUsers.inventory'}
+        }
+      },
+      {
+        $sort: {
+          quantity: -1
+        }
+      },
+    ]).toArray(function (err, r) {
+      cb(err, r);
+    });
+    } catch (err) {
+    console.log(err)
+  }
+  };
+
+  function topRentedItem(res) {
+    try {
+    collection.aggregate([
+      {
+        $match:{'activeUsers.inventory': {$gte: 1}
+        }
+      },
+      {
+        $unwind: '$activeUsers'
       },
       {
         $group: {
           _id: '$title',
-          usersCount: {
-            $sum: 1
-          },
-          inventoryCount: {
-            '$sum': '$activeUsers.inventory'
-          },
-          users: {
-            $push: {
-              email: '$activeUsers.email',
-              inventory: '$activeUsers.inventory'
-            }
+          quantity: {
+            $sum: '$activeUsers.inventory'
           }
         }
-      },
-      {
-        $sort: {
-          'inventoryCount': -1
+      },{
+        $sort:{
+          quantity:-1
         }
-      },
-      {
-        $limit: 1
-      },
-      {
-        $unwind: '$users'
-      },
-      {
-        $sort: {
-          'users.inventory': -1
-        }
+      },{
+        $limit:1
       }
     ]).toArray(function (err, result) {
-      try {
         res.json(result);
-      } catch (err) {
-        console.log(err)
-      }
-      /*if (err)
-        res.send({
-          title: 'The highest rented Item Is: error',
-          status: err,
-          itemsList: []
-        });
-
-      let usersList = []
-      for (let index in result) {
-        let temp = result[index].users.email + ' - ' + result[index].users.inventory;
-        usersList.push(temp)
-      }
-
-      res.send({
-        title: 'The highest demand is for: ',
-        status: result[0]._id,
-        itemsList: usersList
-      });*/
     })
+  } catch (err) {
+    console.log(err)
+  }
   };
+
 });
 
 
