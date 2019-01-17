@@ -547,9 +547,9 @@ client.connect(function (err, db) {
       });
 
       await res.send({
-        itemsList: r.value,
-        title: name,
-        status: phone
+        'name': name,
+        'title': r.value,
+        'status': phone
       });
     } catch (err) {
       console.log(err.stack);
@@ -722,7 +722,7 @@ client.connect(function (err, db) {
           currentUserInventory(title, email, function (err, value) {
             title = 'The item: ' + title + ' wasnt returnd to stock!',
               status = 'The user: ' + email + ' cant return the amount of: ' + inventory + ' the current inventory for this user: ' + value;
-            inventoryStatus(title, status, '', res);
+            inventoryStatus(title, status, email, res);
           });
         }
         if (r.value !== null) {
@@ -730,7 +730,7 @@ client.connect(function (err, db) {
             title = 'The item: ' + title + ' was returnd to stock, the current stock is: ' + (r.value.inventory + inventory),
               status = 'The user: ' + email + ' returnd ' + inventory + ' his total inventory for now is: ' + value;
 
-            inventoryStatus(title, status, '', res);
+            inventoryStatus(title, status, email, res);
           });
         }
       }
@@ -870,8 +870,12 @@ client.connect(function (err, db) {
 
 
   function inventoryStatus(title, status, email, res) {
-
     try {
+    if(email ===''){
+      inventoryStatusList(res, function(err, r){
+        res.send(r);
+      });
+    }else{
       collection.aggregate([
         {
           $match: {
@@ -913,13 +917,16 @@ client.connect(function (err, db) {
           }
         }
       ]).toArray(function (err, r) {
+        console.log(r)
         res.send(r);
       });
+    }
       } catch (err) {
       console.log(err)
     }
     
   };
+  
 
   function inventoryStatusInLogin(title, status, userName, req, res) {
     collection.aggregate([{
@@ -1143,12 +1150,12 @@ client.connect(function (err, db) {
         $project:{
           _id:0,
           item:'$title',
-          quantity:'$quantity',
+          quantity:'$inventory',
         }
       }
     ]).toArray(function (err, r) {
+      cb(err, r);
     })
-        cb(err, r);
       } catch (err) {
         console.log(err)
       }

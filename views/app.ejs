@@ -4,9 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Skiers -
-    <%= userName%>
-  </title>
+  <title>Skiers -<%= userName%></title>
   <link rel='stylesheet' href='/stylesheets/admin.css' />
   <link rel='shortcut icon' href='/images/favicon.ico' />
 
@@ -33,9 +31,7 @@
         <h1>Skiers</h1>
       </div>
       <div id='userNameTitle'>
-        <h2 id='userName'>
-          <%= userName%>
-        </h2>
+        <h2 id='userName'><%= userName%></h2>
       </div>
       <div>
         <div class='navButtons'>
@@ -88,9 +84,7 @@
               <div class="menuBar3"></div>
             </div>
           </div>
-          <h2 class='userNameMenu'>
-            <%= userName %>
-          </h2>
+          <h2 class='userNameMenu'><%= userName %></h2>
         </div>
       </div>
 
@@ -129,9 +123,9 @@
             <div id='inventoryTabC' class='form tabBox inventoryTab hidden'>
               <h2>Return</h2>
               <form id='return' name='return' action='/submitreturn' onsubmit='return checkForm(id,2)'>
+                <input id='userEmail' type='text' placeholder='Customer Email' name='email' required>
                 <input id='itemTitle' type='text' placeholder='Item for rent' name='title' required>
                 <input id='titleInventory' type='number' placeholder='Number of Pairs' name='inventory' required>
-                <input id='userEmail' type='text' placeholder='Customer Email' name='email' required>
                 <button id='submitInventory' type='submit' class='submitButton'> Submit</button>
                 <span class='error'></span>
               </form>
@@ -473,6 +467,10 @@
         thisTab.reset();
         tabToggle(nextNum, 'inventoryTab');
         tabClassList[nextNum].querySelector('input[name="email"]').value = email;
+        if(tabClassList[nextNum].querySelector('input[name="email"]')){
+            let titleT = document.getElementById('title')
+            titleT.innerText = email;
+            }
       } else {
         thisTab.reset();
         tabToggle(nextNum, 'inventoryTab');
@@ -580,6 +578,10 @@
               let statusT = document.getElementById('status')
               statusT.innerText = obj.status
             }
+            if (obj.name) {
+              let statusT = document.getElementById('queryUl')
+              statusT.innerText = obj.name
+            }
 
             if (obj.itemsList) {
               let ul = document.getElementById('queryUl');
@@ -591,12 +593,17 @@
               }
             }
           } else {
-
+            if(title){
             let titleT = document.getElementById('title')
             titleT.innerText = title;
+            }
+            if (!status) {
+              let statusT = document.getElementById('status')
+              statusT.innerText =''
+            }
 
             columnHeadline = Object.getOwnPropertyNames(obj[0])
-            txt += "<table border='0'>"
+            txt += "<table >"
             txt += "<tr>"
             for (x in columnHeadline) {
               txt += "<th>" + columnHeadline[x] + "</th>";
@@ -619,7 +626,7 @@
     };
 
 
-    function includeThisHTML(page, back,title) {
+    function includeThisHTML(page, back, title) {
       let z, pagePath, file, xhttp;
       file = page;
       if (file) {
@@ -691,10 +698,8 @@
           }
           if (this.status == 404) {
             contentToView({
-              title: 'We have a little problem',
-              status: 'Server not responding',
-              queryUl: ''
-            }); //DEV
+              'title': 'We have a little problem'
+            }); 
           }
         }
       }
