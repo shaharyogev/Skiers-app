@@ -40,14 +40,32 @@ var io = require('socket.io')(server);
 
 
 
+let connectionsList = new Array;
+let chatOnlineUsersList = []
+
+chatOnlineUsersList = ['test1','test2','test3']
 
 io.on('connection', function(socket){
-  //console.log('a user connected');
+  connectionsList.push(socket);
+  console.log('conected: ', connectionsList.length);
+
+  socket.on('disconnect', function(d){
+    chatOnlineUsersList.splice(chatOnlineUsersList.indexOf(socket.userName), 1);
+    io.emit('onlineUsersList', chatOnlineUsersList);
+    connectionsList.splice( connectionsList.indexOf(socket), 1);
+  });
   
+
   socket.on('namedUserConnected',function(d){
-    console.log(d.userName + ' connected');
-        
-    io.emit('newUserConnected', d.userName);
+
+
+    socket.userName = d.userName;
+    chatOnlineUsersList.push(socket.userName)
+
+
+    io.emit('onlineUsersList', chatOnlineUsersList)
+
+    //io.emit('newUserConnected', d.userName);
   });
 
   
@@ -65,9 +83,7 @@ io.on('connection', function(socket){
     console.log('button submit:' + d )
   })
   
-  socket.on('disconnect', function(){
-    console.log('user disconnected');
-  });
+ 
 });
 
 
