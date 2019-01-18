@@ -135,7 +135,7 @@ client.connect(function (err, db) {
   router.post('/submitrent', formidableMiddleware(), function (req, res) {
     checkFormData(req.fields, res, function (err, r) {
       if (r)
-        updateRentedInventory(req.fields.title, req.fields.inventory, req.fields.email, res);
+        updateRentedInventory(req.fields, res);
 
       else
         sendJsonErr(err, res);
@@ -185,10 +185,23 @@ client.connect(function (err, db) {
     })
   });
 
+
   router.post('/userStatus', formidableMiddleware(), function (req, res) {
     checkFormData(req.fields, res, function (err, r) {
       if (r)
         userStatus(req.fields.email, res, function (err, r) {
+          res.json(r);
+        });
+
+      else
+        sendJsonErr(err, res);
+    });
+  });
+
+  router.post('/userEmailReturnListForDropDown', formidableMiddleware(), function (req, res) {
+    checkFormData(req.fields, res, function (err, r) {
+      if (r)
+      userEmailReturnListForDropDown( req.fields.email, res, function (err, r) {
           res.json(r);
         });
 
@@ -212,8 +225,24 @@ client.connect(function (err, db) {
   router.get('/topRentedItem', function (req, res) {
     topRentedItem(res);
   });
+
   router.get('/itemTitle', function (req, res) {
-    inventoryStatusListForDropDown(res, function (err, r) {
+    inventoryStatusListForDropDown(res, 1,  function (err, r) {
+      res.json(r);
+    });
+  });
+  router.get('/userEmailRent', function (req, res) {
+    usersReturnListForDropDown(res, 0, function (err, r) {
+      res.json(r);
+    });
+  });
+  router.get('/itemTitleReturn', function (req, res) {
+    inventoryStatusListForDropDown(res, 0,  function (err, r) {
+      res.json(r);
+    });
+  });
+  router.get('/userEmailReturn', function (req, res) {
+    usersReturnListForDropDown(res, 1, function (err, r) {
       res.json(r);
     });
   });
@@ -612,26 +641,37 @@ client.connect(function (err, db) {
   };
 
 
-  function updateRentedInventory(title, inventory, email, res) {
+  function updateRentedInventory(req, res) {
     let query = {};
     let status = '';
     let currentItemI = 0;
+    let inventory, title, days, email;
+    //console.log(req)
 
-    if (title)
-      query.title = title;
+    if (req.title)
+      title = req.title,
+      query.title = req.title;
 
-    if (inventory)
-      inventory = parseInt(inventory, 10)
+    if (req.inventory)
+      inventory = parseInt(req.inventory, 10),
     query.inventory = {
       $gte: inventory
     };
+  
 
-    if (email)
-      email = email.toLowerCase(),
-      query['activeUsers.email'] = email;
+    if (req.email)
+      email = req.email,
+      query['activeUsers.email'] = req.email.toLowerCase();
+    
 
+    if(req.days)
+      days = parseInt(req.days, 10);
+    
+    console.log(query)
     collection.findOneAndUpdate(query, {
         $inc: {
+          'activeUsers.$.days': days,
+
           'activeUsers.$.inventory': inventory,
           inventory: -inventory
         }
@@ -639,7 +679,9 @@ client.connect(function (err, db) {
         upsert: true
       },
       function (err, r) {
-        if (err) console.log(err);
+        if (err) console.error(err);
+
+        console.log(r);
 
         if (r === null)
           collection.findOneAndUpdate({
@@ -660,6 +702,7 @@ client.connect(function (err, db) {
             },
             function (err, r) {
               if (err) console.log(err)
+              console.log(r)
 
               if (r.value !== null)
                 title = title + ' inventory was updated to ' + inventory,
@@ -1162,12 +1205,12 @@ client.connect(function (err, db) {
     
   };
 
-  function inventoryStatusListForDropDown(res, cb) {
+  function inventoryStatusListForDropDown(res, n, cb) {
     try {
     collection.aggregate([{
         $match: {
           inventory: {
-            $gte: 1
+            $gte: n
           }
         }
       },
@@ -1184,7 +1227,8 @@ client.connect(function (err, db) {
       },
       {
         $project:{
-          item: {$concat:['$title',' ',{$toString:'$inventory'}]}
+          label:'$inventory',
+          item: '$title'
          
         }
       }
@@ -1195,8 +1239,90 @@ client.connect(function (err, db) {
       } catch (err) {
         console.log(err)
       }
-    
   };
+
+  function usersReturnListForDropDown(res,n, cb) {
+    try {
+    collection.aggregate([
+      {
+        $match: {
+          'activeUsers.inventory':{ $gte: n}
+        }
+      },
+      {
+        $unwind: '$activeUsers'
+      },
+      {
+        $match: {
+          'activeUsers.inventory':{ $gte: n}
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          e: '$activeUsers.email',
+          q:'$activeUsers.inventory'
+
+        }
+      },
+      
+      {
+        $group: {
+          _id: '$e', 
+          quantity:{$sum:'$q'}
+        }
+      },
+      {
+        $sort: {
+          _id: 1
+        }
+      },
+      {
+        $project:{
+          _id:0,
+          item:'$_id',
+          label:'$quantity',
+        }
+      }
+    ]).toArray(function (err, r) {
+      cb(err, r);
+    })
+      } catch (err) {
+        console.log(err)
+      }
+  };
+
+  function userEmailReturnListForDropDown(email, res,  cb) {
+    try {
+    collection.aggregate([
+      {
+        $match: {
+          'activeUsers.email':email
+        }
+      },
+      {
+        $unwind: '$activeUsers'
+      },
+      {
+        $match: {
+          'activeUsers.email':email
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          label:'$activeUsers.inventory',
+          item: '$title'
+        }
+      },
+    ]).toArray(function (err, r) {
+      cb(err, r);
+    })
+      } catch (err) {
+        console.log(err)
+      }
+  };
+
 
   function itemStatus(title, res, cb) {
     try {

@@ -111,8 +111,9 @@
             <div id='inventoryTabB' class='form tabBox inventoryTab hidden'>
               <h2>Rent</h2>
               <form id='rent' name='rent' action='/submitrent' onsubmit='return checkForm(id, 1)'>
-                <input id='userEmail' type='text' placeholder='Customer Email' name='email' onclick="dataListReq('itemTitle')" required>
-                <input id='itemTitleInput' type='text' placeholder='Item for rent' autocomplete=0 name='title' list='itemTitleDataList' required>
+                <input id='userEmailRentInput' type='text' placeholder='Customer Email' autocomplete="0" name='email' list='userEmailRentDataList' onchange="dataListReq('itemTitle')" required>
+                <datalist id='userEmailRentDataList'></datalist>
+                <input id='itemTitleInput' type='text' placeholder='Item Name' autocomplete="0" name='title' list='itemTitleDataList' required>
                 <datalist id='itemTitleDataList'></datalist>
                 <input id='titleInventory' type='number' placeholder='Number of Pairs' name='inventory' required>
                 <input id='days' type='number' placeholder='Number of Days' name='days' required>
@@ -124,9 +125,13 @@
             <div id='inventoryTabC' class='form tabBox inventoryTab hidden'>
               <h2>Return</h2>
               <form id='return' name='return' action='/submitreturn' onsubmit='return checkForm(id,2)'>
-                <input id='userEmail' type='text' placeholder='Customer Email' name='email' required>
-                <input id='itemTitle' type='text' placeholder='Item for rent' name='title' required>
-                <input id='titleInventory' type='number' placeholder='Number of Pairs' name='inventory' required>
+                <input id='userEmailReturnInput' type='text' placeholder='Customer Email' autocomplete="0" name='email' 
+                 list='userEmailReturnDataList' onchange="dataListReqEmail('userEmailReturnListForDropDown', value)" required>
+                <datalist id='userEmailReturnDataList'></datalist>
+                <input id='userEmailReturnListForDropDownInput' type='text' placeholder='Item Name' autocomplete="0" name='title'
+                 list='userEmailReturnListForDropDownDataList'  required>
+                <datalist id='userEmailReturnListForDropDownDataList'></datalist>
+                <input id='titleInventory' type='number' placeholder='Number of Pairs' autocomplete="0" name='inventory' onclick="dataListReq('itemTitleReturn')" required>
                 <button id='submitInventory' type='submit' class='submitButton'> Submit</button>
                 <span class='error'></span>
               </form>
@@ -137,18 +142,6 @@
               <form id='addInventory' name='addInventory' action='/additemtodb' onsubmit='return checkForm(id,3)'>
                 <input id='itemTitle' type='text' placeholder='Item Name' name='title' required>
                 <input id='titleInventory' type='number' placeholder='Number of Pairs' name='inventory' required>
-                <button id='submitInventory' type='submit' class='submitButton'> Submit</button>
-                <span class='error'></span>
-              </form>
-              <h2>Inventory status</h2>
-              <form id='inventoryStatus' name='inventoryStatus' action='/inventoryStatus' onsubmit='return checkForm(id,3)'>
-                <input id='itemTitle' type='text' placeholder='Item Name' name='title' required>
-                <button id='submitInventory' type='submit' class='submitButton'> Submit</button>
-                <span class='error'></span>
-              </form>
-              <h2>Customer Status</h2>
-              <form id='userStatus' name='userStatus' action='/userStatus' onsubmit='return checkForm(id,3)'>
-                <input id='userEmail' type='text' placeholder='Customer Email' name='email' required>
                 <button id='submitInventory' type='submit' class='submitButton'> Submit</button>
                 <span class='error'></span>
               </form>
@@ -232,517 +225,534 @@
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
-  <script>
+<script>
+  /*UX / UI Functions*/
 
-    /*UX / UI Functions*/
+  function tabToggle(num, className) {
+    let tabClassList = document.getElementsByClassName(className)
+    for (let i = 0; i < tabClassList.length; i++) {
+      if (i === num) {
+        tabClassList[i].style.display = 'flex';
 
-    function tabToggle(num, className) {
-      let tabClassList = document.getElementsByClassName(className)
-      for (let i = 0; i < tabClassList.length; i++) {
-        if (i === num) {
-          tabClassList[i].style.display = 'flex';
-        } else {
-          tabClassList[i].style.display = 'none';
-        }
-      }
-    };
-
-
-    //Chat Toggles
-    let chatClosed = 0;
-    let chatMini = 0;
-    let miniButton = document.getElementById('chatButtonToggle');
-    let chatBox = document.getElementById('chatLiveBox');
-    let chatLogoButton = document.getElementById('chatLogoButton');
-
-    function minimizeToggle(size, close) {
-      function minimizeChat() {
-        miniButton.innerText = '{ }';
-        chatBox.setAttribute('class', 'chatLiveBoxMini');
-        miniButton.setAttribute('class', 'chatEnlarge');
-        chatMini = 1;
-      }
-
-      function enlargeChat() {
-        miniButton.innerText = '_';
-        chatBox.setAttribute('class', 'chatLiveBox');
-        miniButton.setAttribute('class', 'chatMinimize');
-        chatMini = 0;
-      }
-
-      function maxChat() {
-        miniButton.innerText = '_';
-        chatBox.setAttribute('class', 'chatLiveBoxMax');
-        miniButton.setAttribute('class', 'chatMinimizeFromMax');
-        chatMini = 0;
-      }
-      if (size == 'max' && close !== 1) {
-        maxChat();
-        openFullscreen();
-
-      }
-      if (size == 'mini' && close !== 1) {
-        if (miniButton.innerText == '_') {
-          minimizeChat();
-          closeFullscreen();
-        } else {
-          enlargeChat();
-          closeFullscreen();
-        }
-      } else if (size == 'dot') {
-        if (chatClosed === 0) {
-          chatBox.setAttribute('class', 'chatLiveBoxDot');
-          chatLogoButton.classList.toggle('changeDot');
-          chatClosed = 1;
-        } else if (close != 1) {
-          if (chatMini != 1) {
-            enlargeChat()
-          } else {
-            minimizeChat()
-          }
-          chatLogoButton.classList.toggle('changeDot');
-          chatClosed = 0;
-        }
-      }
-    }
-
-
-    //menu X/E 
-    let menuOpen = 0;
-    let menuClass;
-    let navColumn = document.getElementById('mainPage');
-
-    function menuX(x, st) {
-      x.classList.toggle('change');
-      navColumn.classList.toggle('change');
-      minimizeToggle('dot', 1);
-      menuClass = x;
-      if (menuOpen === 0) {
-        st = setTimeout(function () {
-          menuOpen = 1;
-        }, 200);
       } else {
-        menuOpen = 0;
+        tabClassList[i].style.display = 'none';
       }
     }
-
-
-    //Close the menu if the user click anywhere else
-    function menuXX() {
-      if (menuOpen === 1) {
-        menuX(menuClass);
-      };
-    }
-    const style = document.documentElement.style;
-
-    function themeColors(is) {
-      let rootColors = [{
-          tc: ""
-        },
-        {
-          tb: ""
-        },
-        {
-          te: ""
-        },
-        {
-          tec: ""
-        },
-        {
-          tcc: ""
-        },
-        {
-          tbi: ""
-        },
-        {
-          tbc: ""
-        },
-        {
-          tbic: ""
-        }
-      ];
-      for (index in rootColors) {
-        let id = Object.getOwnPropertyNames(rootColors[index]);
-        let value = Object.values(rootColors[index]);
-        style.setProperty('--' + id, 'var(--' + id + is + ')');
-      }
-    }
-
-    //Dark theme
-
-    function themeToggle(id) {
-      let themeStateText = document.getElementById(id).innerText;
-      if (themeStateText == 'Dark-Side') {
-        themeColors('d');
-        document.getElementById(id).innerText = 'Light-Side';
-      } else {
-        themeColors('l');
-        document.getElementById(id).innerText = 'Dark-Side';
-      }
-    }
-    document.body.addEventListener("click", menuXX);
-
-    
-    /* Open fullscreen */
-    let elem = document.documentElement;
-    function openFullscreen() {
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-      } else if (elem.mozRequestFullScreen) { /* Firefox */
-        elem.mozRequestFullScreen();
-      } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
-        elem.webkitRequestFullscreen();
-      } else if (elem.msRequestFullscreen) { /* IE/Edge */
-        elem.msRequestFullscreen();
-      }
-    }
-
-    /* Close fullscreen */
-    function closeFullscreen() {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if (document.mozCancelFullScreen) { /* Firefox */
-        document.mozCancelFullScreen();
-      } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
-        document.webkitExitFullscreen();
-      } else if (document.msExitFullscreen) { /* IE/Edge */
-        document.msExitFullscreen();
-      }
-    }
-
-    /*Chat*/
-
-
-    let socket = io();
-    let chatSend = document.getElementById('chatSend');
-    let message = document.getElementById('chatInput');
-    let chatUl = document.getElementById('chatUl');
-    let chatUsersUl = document.getElementById('chatUsersUl');
-    let userName = document.getElementById('userName');
-
-    //Send user name to the server
-
-    if (userName) {
-      userName = userName.innerText;
-
-      socket.emit('namedUserConnected', {
-        userName: userName
-      });
-    };
-
-    let newUserChatCount = 0;
-    let newUserChatColorList = new Array;
-
-    function newUserOnline(d) {
-      newUserChatCount++;
-      let newUserChatLi = document.createElement('li');
-      let newChatH3 = document.createElement('h3');
-      newChatH3.appendChild(document.createTextNode(d));
-      newUserChatLi.appendChild(newChatH3);
-      let colorPickerVar = newUserChatCount % 8;
-      newChatH3.style.color = 'var(--c' + colorPickerVar + ')';
-      newUserChatLi.setAttribute('class', 'newUserLi');
-      newUserChatColorList[d] = 'var(--c' + colorPickerVar + ')';
-      chatUsersUl.insertBefore(newUserChatLi, chatUsersUl.firstElementChild);
-    }
-    
-    
-    let usersOnlineListLocal = new Array;
-    socket.on('newUserConnected', function (d) {
-      newUserOnline(d)
-
-    });
-
-
-    //Emit message + acknowledgement
-    function sendMessage() {
-      socket.emit('new message', {
-        user: userName,
-        message: message.value
-      }, function (d) {});
-      message.value = '';
-    };
-
-    //send message trigers
-    chatSend.addEventListener("click", sendMessage);
-    message.addEventListener("keydown", function (e) {
-      if (e.keyCode === 13) {
-        sendMessage();
-      }
-    });
-
-    //recive message and print to screen
-    socket.on('new message', function (d) {
-      let newChatLi = document.createElement('li');
-      let newChatH3 = document.createElement('h3');
-      let newChatP = document.createElement('p');
-      let newChatH3Color = newUserChatColorList[d.user];
-
-      newChatH3.appendChild(document.createTextNode(d.user));
-      newChatH3.style.color = newChatH3Color;
-      newChatP.appendChild(document.createTextNode(d.message));
-      newChatLi.appendChild(newChatH3);
-      newChatLi.appendChild(newChatP);
-      newChatLi.setAttribute('class', 'newMessageLi');
-      chatUl.appendChild(newChatLi);
-
-      let messages = chatUl.querySelectorAll('li');
-      let lastMessage = messages[messages.length - 1];
-      lastMessage.scrollIntoView();
-    });
+    if (num === 1) {
+      dataListReq('userEmailRent');
       
-
-    /*Forms and data*/
-
-    function goToRentTabWithEmail(id, nextNum) {
-      let thisTab = document.getElementById(id);
-
-      if (thisTab.querySelector('input[name="email"]')) {
-        let email = thisTab.querySelector('input[name="email"]').value
-        let tabClassList = document.getElementsByClassName("inventoryTab");
-        thisTab.reset();
-        tabToggle(nextNum, 'inventoryTab');
-        tabClassList[nextNum].querySelector('input[name="email"]').value = email;
-
-        if(tabClassList[nextNum].querySelector('input[name="email"]')){
-            let titleT = document.getElementById('title')
-            titleT.innerText = email;
-            }
-      } else {
-        thisTab.reset();
-        tabToggle(nextNum, 'inventoryTab');
-      }
     }
 
+    if (num === 2) {
+      //dataListReq('itemTitleReturn')
+      dataListReq('userEmailReturn')
+    }
+  };
 
-    //Forms validation
 
-    function checkForm(id, nextNum) {
-      event.preventDefault();
-      let formId = document.getElementById(id);
-      let formDataNode = formId.querySelectorAll('input');
-      let formAction = formId.action;
-      let nameTest = formId.querySelector('input[name="name"]');
-      let titleTest = formId.querySelector('input[name="title"]');
-      let emailTest = formId.querySelector('input[name="email"]');
-      let inventoryTest = formId.querySelector('input[name="inventory"]');
-      let phoneTest = formId.querySelector('input[name="phone"]');
-      let daysTest = formId.querySelector('input[name="days"]');
-      let test = 0;
+  //Chat Toggles
+  let chatClosed = 0;
+  let chatMini = 0;
+  let miniButton = document.getElementById('chatButtonToggle');
+  let chatBox = document.getElementById('chatLiveBox');
+  let chatLogoButton = document.getElementById('chatLogoButton');
 
-      if (emailTest != undefined) {
-        let re =
-          /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        let res = re.test(String(emailTest.value).toLowerCase());
-        if (!res) {
-          formId.querySelector('.error').innerHTML = 'Sorry but you can\'t use this email, try a real one';
-          test++;
-        }
-      };
+  function minimizeToggle(size, close) {
+    function minimizeChat() {
+      miniButton.innerText = '{ }';
+      chatBox.setAttribute('class', 'chatLiveBoxMini');
+      miniButton.setAttribute('class', 'chatEnlarge');
+      chatMini = 1;
+    }
 
-      if (titleTest != undefined) {
-        let re =
-          /^[\W \D \S ]{3,100}$/;
-        let res = re.test(String(titleTest.value));
-        if (!res) {
-          formId.querySelector('.error').innerHTML =
-            'The title is at least 3 character long ';
-          test++;
-        }
-      };
+    function enlargeChat() {
+      miniButton.innerText = '_';
+      chatBox.setAttribute('class', 'chatLiveBox');
+      miniButton.setAttribute('class', 'chatMinimize');
+      chatMini = 0;
+    }
 
-      if (nameTest != undefined) {
-        let re =
-          /^[\W \D \S ]{3,100}$/;
-        let res = re.test(String(nameTest.value));
-        if (!res) {
-          formId.querySelector('.error').innerHTML =
-            'The customer name must be at least 3 character long ';
-          test++;
-        }
-      };
+    function maxChat() {
+      miniButton.innerText = '_';
+      chatBox.setAttribute('class', 'chatLiveBoxMax');
+      miniButton.setAttribute('class', 'chatMinimizeFromMax');
+      chatMini = 0;
+    }
+    if (size == 'max' && close !== 1) {
+      maxChat();
+      openFullscreen();
 
-      if (phoneTest != undefined) {
-        let re =
-          /^[(]{0,1}[0-9]{1,3}[)]{0,1}[-\s\.]{0,1}[0-9]{3}[-\s\.]{0,1}[0-9]{1,6}$/;
-        let res = re.test(String(phoneTest.value));
-        if (!res) {
-          formId.querySelector('.error').innerHTML =
-            'Phone number ex: 000-000-000000). ';
-          test++;
-        }
-      };
-
-      if (inventoryTest != undefined) {
-        if (inventoryTest.value == 0) {
-          formId.querySelector('.error').innerHTML =
-            'The inventory cant be 0 ';
-          test++;
-        }
-      };
-
-      if (daysTest != undefined) {
-        if (daysTest.value <= 0) {
-          formId.querySelector('.error').innerHTML =
-            'The days must be more than 0 ';
-          test++;
-        }
-      };
-
-      if (test > 0) {
-        test = 0;
-        return false;
-
+    }
+    if (size == 'mini' && close !== 1) {
+      if (miniButton.innerText == '_') {
+        minimizeChat();
+        closeFullscreen();
       } else {
-        postForm(formAction, formDataNode, id, nextNum);
+        enlargeChat();
+        closeFullscreen();
+      }
+    } else if (size == 'dot') {
+      if (chatClosed === 0) {
+        chatBox.setAttribute('class', 'chatLiveBoxDot');
+        chatLogoButton.classList.toggle('changeDot');
+        chatClosed = 1;
+      } else if (close != 1) {
+        if (chatMini != 1) {
+          enlargeChat()
+        } else {
+          minimizeChat()
+        }
+        chatLogoButton.classList.toggle('changeDot');
+        chatClosed = 0;
+      }
+    }
+  }
+
+
+  //menu X/E 
+  let menuOpen = 0;
+  let menuClass;
+  let navColumn = document.getElementById('mainPage');
+
+  function menuX(x, st) {
+    x.classList.toggle('change');
+    navColumn.classList.toggle('change');
+    minimizeToggle('dot', 1);
+    menuClass = x;
+    if (menuOpen === 0) {
+      st = setTimeout(function () {
+        menuOpen = 1;
+      }, 200);
+    } else {
+      menuOpen = 0;
+    }
+  }
+
+
+  //Close the menu if the user click anywhere else
+  function menuXX() {
+    if (menuOpen === 1) {
+      menuX(menuClass);
+    };
+  }
+  const style = document.documentElement.style;
+
+  function themeColors(is) {
+    let rootColors = [{
+        tc: ""
+      },
+      {
+        tb: ""
+      },
+      {
+        te: ""
+      },
+      {
+        tec: ""
+      },
+      {
+        tcc: ""
+      },
+      {
+        tbi: ""
+      },
+      {
+        tbc: ""
+      },
+      {
+        tbic: ""
+      }
+    ];
+    for (index in rootColors) {
+      let id = Object.getOwnPropertyNames(rootColors[index]);
+      let value = Object.values(rootColors[index]);
+      style.setProperty('--' + id, 'var(--' + id + is + ')');
+    }
+  }
+
+  //Dark theme
+
+  function themeToggle(id) {
+    let themeStateText = document.getElementById(id).innerText;
+    if (themeStateText == 'Dark-Side') {
+      themeColors('d');
+      document.getElementById(id).innerText = 'Light-Side';
+    } else {
+      themeColors('l');
+      document.getElementById(id).innerText = 'Dark-Side';
+    }
+  }
+  document.body.addEventListener("click", menuXX);
+
+
+  /* Open fullscreen */
+  let elem = document.documentElement;
+
+  function openFullscreen() {
+    if (elem.requestFullscreen) {
+      elem.requestFullscreen();
+    } else if (elem.mozRequestFullScreen) { /* Firefox */
+      elem.mozRequestFullScreen();
+    } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+      elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) { /* IE/Edge */
+      elem.msRequestFullscreen();
+    }
+  }
+
+  /* Close fullscreen */
+  function closeFullscreen() {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.mozCancelFullScreen) { /* Firefox */
+      document.mozCancelFullScreen();
+    } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
+      document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) { /* IE/Edge */
+      document.msExitFullscreen();
+    }
+  }
+
+  /*Chat*/
+
+
+  let socket = io();
+  let chatSend = document.getElementById('chatSend');
+  let message = document.getElementById('chatInput');
+  let chatUl = document.getElementById('chatUl');
+  let chatUsersUl = document.getElementById('chatUsersUl');
+  let userName = document.getElementById('userName');
+
+  //Send user name to the server
+
+  if (userName) {
+    userName = userName.innerText;
+
+    socket.emit('namedUserConnected', {
+      userName: userName
+    });
+  };
+
+  let newUserChatCount = 0;
+  let newUserChatColorList = new Array;
+
+  function newUserOnline(d) {
+    newUserChatCount++;
+    let newUserChatLi = document.createElement('li');
+    let newChatH3 = document.createElement('h3');
+    newChatH3.appendChild(document.createTextNode(d));
+    newUserChatLi.appendChild(newChatH3);
+    let colorPickerVar = newUserChatCount % 8;
+    newChatH3.style.color = 'var(--c' + colorPickerVar + ')';
+    newUserChatLi.setAttribute('class', 'newUserLi');
+    newUserChatColorList[d] = 'var(--c' + colorPickerVar + ')';
+    chatUsersUl.insertBefore(newUserChatLi, chatUsersUl.firstElementChild);
+  }
+
+
+  let usersOnlineListLocal = new Array;
+  socket.on('newUserConnected', function (d) {
+    newUserOnline(d)
+
+  });
+
+
+  //Emit message + acknowledgement
+  function sendMessage() {
+    socket.emit('new message', {
+      user: userName,
+      message: message.value
+    }, function (d) {});
+    message.value = '';
+  };
+
+  //send message trigers
+  chatSend.addEventListener("click", sendMessage);
+  message.addEventListener("keydown", function (e) {
+    if (e.keyCode === 13) {
+      sendMessage();
+    }
+  });
+
+  //recive message and print to screen
+  socket.on('new message', function (d) {
+    let newChatLi = document.createElement('li');
+    let newChatH3 = document.createElement('h3');
+    let newChatP = document.createElement('p');
+    let newChatH3Color = newUserChatColorList[d.user];
+
+    newChatH3.appendChild(document.createTextNode(d.user));
+    newChatH3.style.color = newChatH3Color;
+    newChatP.appendChild(document.createTextNode(d.message));
+    newChatLi.appendChild(newChatH3);
+    newChatLi.appendChild(newChatP);
+    newChatLi.setAttribute('class', 'newMessageLi');
+    chatUl.appendChild(newChatLi);
+
+    let messages = chatUl.querySelectorAll('li');
+    let lastMessage = messages[messages.length - 1];
+    lastMessage.scrollIntoView();
+  });
+
+
+  /*Forms and data*/
+
+  function goToRentTabWithEmail(id, nextNum) {
+    let thisTab = document.getElementById(id);
+
+    if (thisTab.querySelector('input[name="email"]')) {
+      let email = thisTab.querySelector('input[name="email"]').value
+      let tabClassList = document.getElementsByClassName("inventoryTab");
+      thisTab.reset();
+      tabToggle(nextNum, 'inventoryTab');
+      tabClassList[nextNum].querySelector('input[name="email"]').value = email;
+
+      if (tabClassList[nextNum].querySelector('input[name="email"]')) {
+        let titleT = document.getElementById('title')
+        titleT.innerText = email;
+      }
+    } else {
+      thisTab.reset();
+      tabToggle(nextNum, 'inventoryTab');
+    }
+  }
+
+
+  //Forms validation
+
+  function checkForm(id, nextNum) {
+    event.preventDefault();
+    let formId = document.getElementById(id);
+    let formDataNode = formId.querySelectorAll('input');
+    let formAction = formId.action;
+    let nameTest = formId.querySelector('input[name="name"]');
+    let titleTest = formId.querySelector('input[name="title"]');
+    let emailTest = formId.querySelector('input[name="email"]');
+    let inventoryTest = formId.querySelector('input[name="inventory"]');
+    let phoneTest = formId.querySelector('input[name="phone"]');
+    let daysTest = formId.querySelector('input[name="days"]');
+    let test = 0;
+
+    if (emailTest != undefined) {
+      let re =
+        /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      let res = re.test(String(emailTest.value).toLowerCase());
+      if (!res) {
+        formId.querySelector('.error').innerHTML = 'Sorry but you can\'t use this email, try a real one';
+        test++;
       }
     };
 
-    //Rendering the response from the server
+    if (titleTest != undefined) {
+      let re =
+        /^[\W \D \S ]{3,100}$/;
+      let res = re.test(String(titleTest.value));
+      if (!res) {
+        formId.querySelector('.error').innerHTML =
+          'The title is at least 3 character long ';
+        test++;
+      }
+    };
 
-    function contentToView(json, title) {
-      let x, y, obj, objKey, txt, columnHeadline;
-      txt = '';
-      try {
-        console.log(json)
-        obj = JSON.parse(json);
+    if (nameTest != undefined) {
+      let re =
+        /^[\W \D \S ]{3,100}$/;
+      let res = re.test(String(nameTest.value));
+      if (!res) {
+        formId.querySelector('.error').innerHTML =
+          'The customer name must be at least 3 character long ';
+        test++;
+      }
+    };
 
-        if (obj.err) {
-          let coment = document.getElementById('error')
-          coment.innerText = obj.err;
+    if (phoneTest != undefined) {
+      let re =
+        /^[(]{0,1}[0-9]{1,3}[)]{0,1}[-\s\.]{0,1}[0-9]{3}[-\s\.]{0,1}[0-9]{1,6}$/;
+      let res = re.test(String(phoneTest.value));
+      if (!res) {
+        formId.querySelector('.error').innerHTML =
+          'Phone number ex: 000-000-000000). ';
+        test++;
+      }
+    };
+
+    if (inventoryTest != undefined) {
+      if (inventoryTest.value == 0) {
+        formId.querySelector('.error').innerHTML =
+          'The inventory cant be 0 ';
+        test++;
+      }
+    };
+
+    if (daysTest != undefined) {
+      if (daysTest.value <= 0) {
+        formId.querySelector('.error').innerHTML =
+          'The days must be more than 0 ';
+        test++;
+      }
+    };
+
+    if (test > 0) {
+      test = 0;
+      return false;
+
+    } else {
+      postForm(formAction, formDataNode, id, nextNum);
+    }
+  };
+
+  //Rendering the response from the server
+
+  function contentToView(json, title) {
+    let x, y, obj, objKey, txt, columnHeadline;
+    txt = '';
+    try {
+      console.log(json)
+      obj = JSON.parse(json);
+
+      if (obj.err) {
+        let coment = document.getElementById('error')
+        coment.innerText = obj.err;
+      } else {
+
+        if (obj.title) {
+          let titleT = document.getElementById('title')
+          titleT.innerText = obj.title;
+
+
+          if (obj.status) {
+            let statusT = document.getElementById('status')
+            statusT.innerText = obj.status
+          }
+          if (obj.name) {
+            let statusT = document.getElementById('queryUl')
+            statusT.innerText = obj.name
+          }
+
+          if (obj.itemsList) {
+            let ul = document.getElementById('queryUl');
+            ul.innerHTML = '';
+            for (i in obj.itemsList) {
+              let li = document.createElement('li');
+              li.appendChild(document.createTextNode(obj.itemsList[i]));
+              ul.appendChild(li);
+            }
+          }
         } else {
-
-          if (obj.title) {
-            let titleT = document.getElementById('title')
-            titleT.innerText = obj.title;
-
-
-            if (obj.status) {
-              let statusT = document.getElementById('status')
-              statusT.innerText = obj.status
-            }
-            if (obj.name) {
-              let statusT = document.getElementById('queryUl')
-              statusT.innerText = obj.name
-            }
-
-            if (obj.itemsList) {
-              let ul = document.getElementById('queryUl');
-              ul.innerHTML = '';
-              for (i in obj.itemsList) {
-                let li = document.createElement('li');
-                li.appendChild(document.createTextNode(obj.itemsList[i]));
-                ul.appendChild(li);
-              }
-            }
-          } else {
-            if(title){
+          if (title) {
             let titleT = document.getElementById('title')
             titleT.innerText = title;
-            }
-            if (!status) {
-              let statusT = document.getElementById('status')
-              statusT.innerText =''
-            }
-
-            columnHeadline = Object.getOwnPropertyNames(obj[0])
-            txt += "<table>"
-            txt += "<tr>"
-            for (x in columnHeadline) {
-              txt += "<th>" + columnHeadline[x] + "</th>";
-            }
-            txt += "</tr>"
-            for (x in obj) {
-              txt += "<tr>"
-              for (y in obj[x]) {
-                txt += "<td>" + obj[x][y] + "</td>"
-              }
-              txt += "</tr>";
-            }
-            txt += "</table>"
-            document.getElementById("queryUl").innerHTML = txt;
           }
-        }
-      } catch (err) {
-        console.log(err);
-      }
-    };
+          if (!status) {
+            let statusT = document.getElementById('status')
+            statusT.innerText = ''
+          }
 
-    function dataListReq(list){
-      let dataList = document.getElementById(list+'DataList');
-      let input = document.getElementById(list+'Input');
-      let xhttp, jsonData;
-      if (list) {
-        xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function () {
-          if (this.readyState == 4) {
-            if (this.status == 200) {
-              jsonData = JSON.parse(this.responseText)
-              console.log(Object.values(jsonData[0]))
-              for(let i in jsonData){
-                let option = document.createElement('option');
-                option.value = Object.values(jsonData[i]);
-                dataList.appendChild(option);
-              };
- 
-         }
+          columnHeadline = Object.getOwnPropertyNames(obj[0])
+          txt += "<table>"
+          txt += "<tr>"
+          for (x in columnHeadline) {
+            txt += "<th>" + columnHeadline[x] + "</th>";
+          }
+          txt += "</tr>"
+          for (x in obj) {
+            txt += "<tr>"
+            for (y in obj[x]) {
+              txt += "<td>" + obj[x][y] + "</td>"
+            }
+            txt += "</tr>";
+          }
+          txt += "</table>"
+          document.getElementById("queryUl").innerHTML = txt;
+        }
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  function dataListReq(list) {
+    let dataList = document.getElementById(list + 'DataList');
+    dataList.innerHTML = '';
+    let input = document.getElementById(list + 'Input');
+    let xhttp, jsonData;
+    if (list) {
+      xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4) {
+          if (this.status == 200) {
+            jsonData = JSON.parse(this.responseText)
+            //console.log(Object.values(jsonData[0]))
+            console.log(jsonData)
+            for (let i in jsonData) {
+              let option = document.createElement('option');
+              if (jsonData[i].item) {
+                option.value = jsonData[i].item;
+              }
+              if (jsonData[i].label) {
+                option.label = jsonData[i].label
+              }
+              dataList.appendChild(option);
+            };
+
+          }
           if (this.status == 404) {
             //DEV
           }
         }
       }
-      }
-      xhttp.open("GET", "/"+list, true);
-      xhttp.send();
-    };
+    }
+    xhttp.open("GET", "/" + list, true);
+    xhttp.send();
+  };
+  
 
-    // Sending requests to the server
+  function dataListReqEmail(list, email) {
+    console.log(email)
+    let dataList = document.getElementById(list + 'DataList');
+    dataList.innerHTML = '';
+    let input = document.getElementById(list + 'Input');
+    let xhttp, jsonData, formData;
 
-    function includeThisHTML(page, back, title) {
-      let pagePath, xhttp;
-      if (page) {
-        xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function () {
-          if (this.readyState == 4) {
-            if (this.status == 200) {
-              if (this.response.startsWith("<!DOCTYPE html>")) {
-                document.open();
-                document.write(this.responseText);
-                document.close();
-              } else {
-                contentToView(this.responseText, title);
-                if (!back) {
-                  if (page === '/app') {
-                    pagePath = '';
-                  } else {
-                    pagePath = '?' + page;
-                  }
-                  history.pushState(pagePath, pagePath, pagePath);
-                }
+    formData = new FormData();
+    formData.append("email", email);
+   
+    if (list) {
+      xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4) {
+          if (this.status == 200) {
+            jsonData = JSON.parse(this.responseText)
+            //console.log(Object.values(jsonData[0]))
+            console.log(jsonData)
+            for (let i in jsonData) {
+              let option = document.createElement('option');
+              if (jsonData[i].item) {
+                option.value = jsonData[i].item;
               }
-            }
+              if (jsonData[i].label) {
+                option.label = jsonData[i].label
+              }
+              dataList.appendChild(option);
+            };
+
           }
           if (this.status == 404) {
-            contentToView({
-              "title": 'We have a little problem'
-            });
+            //DEV
           }
         }
       }
-      xhttp.open("GET", page, true);
-      xhttp.send();
-    };
+    }
+    xhttp.open("POST", "/" + list, true);
+    xhttp.send(formData);
+  };
+  
 
+  // Sending requests to the server
 
-
-    function postForm(page, formDataNode, id, nextNum) {
-      let i, xhttp, formData;
-
-      formData = new FormData(); 
-      for (i in formDataNode) {
-        formData.append(formDataNode[i].name, formDataNode[i].value);
-      };
-
+  function includeThisHTML(page, back, title) {
+    let pagePath, xhttp;
+    if (page) {
       xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function () {
         if (this.readyState == 4) {
@@ -752,35 +762,76 @@
               document.write(this.responseText);
               document.close();
             } else {
-              contentToView(this.responseText);
-              goToRentTabWithEmail(id, nextNum);
+              contentToView(this.responseText, title);
+              if (!back) {
+                if (page === '/app') {
+                  pagePath = '';
+                } else {
+                  pagePath = '?' + page;
+                }
+                history.pushState(pagePath, pagePath, pagePath);
+              }
             }
           }
-          if (this.status == 404) {
-            contentToView({
-              'title': 'We have a little problem'
-            }); 
-          }
+        }
+        if (this.status == 404) {
+          contentToView({
+            "title": 'We have a little problem'
+          });
         }
       }
-      xhttp.open('POST', page, true);
-      xhttp.send(formData);
+    }
+    xhttp.open("GET", page, true);
+    xhttp.send();
+  };
+
+
+
+  function postForm(page, formDataNode, id, nextNum) {
+    let i, xhttp, formData;
+
+    formData = new FormData();
+    for (i in formDataNode) {
+      formData.append(formDataNode[i].name, formDataNode[i].value);
     };
 
-    //History manipulation
-
-    window.onpopstate = function (event) {
-      if (window.location.pathname === '/' && window.location.search) {
-        let newPage = window.location.search;
-        let newPageLen = newPage.length;
-        newPage = newPage.slice(1, newPageLen)
-        includeThisHTML(newPage, "1");
-      } else {
-        includeThisHTML('/app');
+    xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+      if (this.readyState == 4) {
+        if (this.status == 200) {
+          if (this.response.startsWith("<!DOCTYPE html>")) {
+            document.open();
+            document.write(this.responseText);
+            document.close();
+          } else {
+            contentToView(this.responseText);
+            goToRentTabWithEmail(id, nextNum);
+          }
+        }
+        if (this.status == 404) {
+          contentToView({
+            'title': 'We have a little problem'
+          });
+        }
       }
-    };
+    }
+    xhttp.open('POST', page, true);
+    xhttp.send(formData);
+  };
 
-  </script>
+  //History manipulation
+
+  window.onpopstate = function (event) {
+    if (window.location.pathname === '/' && window.location.search) {
+      let newPage = window.location.search;
+      let newPageLen = newPage.length;
+      newPage = newPage.slice(1, newPageLen)
+      includeThisHTML(newPage, "1");
+    } else {
+      includeThisHTML('/app');
+    }
+  };
+</script>
 </body>
 
 </html>
