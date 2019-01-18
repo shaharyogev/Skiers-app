@@ -111,9 +111,9 @@
             <div id='inventoryTabB' class='form tabBox inventoryTab hidden'>
               <h2>Rent</h2>
               <form id='rent' name='rent' action='/submitrent' onsubmit='return checkForm(id, 1)'>
-                <input id='userEmail' type='text' placeholder='Customer Email' name='email' required>
-                <input id='itemTitle' type='text' placeholder='Item for rent' name='title' required>
-                <datalist id='itemTitleList'></datalist>
+                <input id='userEmail' type='text' placeholder='Customer Email' name='email' onclick="dataListReq('itemTitle')" required>
+                <input id='itemTitleInput' type='text' placeholder='Item for rent' autocomplete=0 name='title' list='itemTitleDataList' required>
+                <datalist id='itemTitleDataList'></datalist>
                 <input id='titleInventory' type='number' placeholder='Number of Pairs' name='inventory' required>
                 <input id='days' type='number' placeholder='Number of Days' name='days' required>
                 <button id='submitInventory' type='submit' class='submitButton '> Submit</button>
@@ -666,6 +666,34 @@
       } catch (err) {
         console.log(err);
       }
+    };
+
+    function dataListReq(list){
+      let dataList = document.getElementById(list+'DataList');
+      let input = document.getElementById(list+'Input');
+      let xhttp, jsonData;
+      if (list) {
+        xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+          if (this.readyState == 4) {
+            if (this.status == 200) {
+              jsonData = JSON.parse(this.responseText)
+              console.log(Object.values(jsonData[0]))
+              for(let i in jsonData){
+                let option = document.createElement('option');
+                option.value = Object.values(jsonData[i]);
+                dataList.appendChild(option);
+              };
+ 
+         }
+          if (this.status == 404) {
+            //DEV
+          }
+        }
+      }
+      }
+      xhttp.open("GET", "/"+list, true);
+      xhttp.send();
     };
 
     // Sending requests to the server

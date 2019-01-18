@@ -212,8 +212,8 @@ client.connect(function (err, db) {
   router.get('/topRentedItem', function (req, res) {
     topRentedItem(res);
   });
-  router.get('/inventoryStatusList', function (req, res) {
-    inventoryStatusList(res, function (err, r) {
+  router.get('/itemTitle', function (req, res) {
+    inventoryStatusListForDropDown(res, function (err, r) {
       res.json(r);
     });
   });
@@ -766,7 +766,7 @@ client.connect(function (err, db) {
       cb(null, value);
     })
   }
-
+/*
   function currentUserGeneralStatus(email, cb) {
     collection.findOne({
         activeUsers: {
@@ -816,7 +816,7 @@ client.connect(function (err, db) {
         }
       })
   };
-
+*/
   function currentUserInventory(title, email, cb) {
     collection.findOne({
         title: title,
@@ -1162,6 +1162,41 @@ client.connect(function (err, db) {
     
   };
 
+  function inventoryStatusListForDropDown(res, cb) {
+    try {
+    collection.aggregate([{
+        $match: {
+          inventory: {
+            $gte: 1
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          title: 1,
+          inventory: 1
+        }
+      }, {
+        $sort: {
+          title: 1
+        }
+      },
+      {
+        $project:{
+          item: {$concat:['$title',' ',{$toString:'$inventory'}]}
+         
+        }
+      }
+    ]).toArray(function (err, r) {
+      console.log(r)
+      cb(err, r);
+    })
+      } catch (err) {
+        console.log(err)
+      }
+    
+  };
 
   function itemStatus(title, res, cb) {
     try {

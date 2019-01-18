@@ -41,6 +41,25 @@
       console.log('button was clicked');
       replaceString = stringTest2;
       console.log('replaceString' + replaceString)
+
+      let xhttp, jsonData;
+      if (list) {
+        xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+          if (this.readyState == 4) {
+            if (this.status == 200) {
+             JSON.parse( this.responseText)
+ 
+         }
+          if (this.status == 404) {
+            
+          }
+        }
+      }
+      }
+      xhttp.open("GET", list, true);
+      xhttp.send();
+    
     });
  
   </script>
