@@ -45,7 +45,7 @@ let inviteListForLogIn
 
 client.connect(function (err, db) {
   if (err)
-    console.log(err.stack);
+    console.log(err);
 
   const mydb = db.db('usersdb');
   const collection = mydb.collection('appData');
@@ -646,7 +646,6 @@ client.connect(function (err, db) {
     let status = '';
     let currentItemI = 0;
     let inventory, title, days, email;
-    //console.log(req)
 
     if (req.title)
       title = req.title,
@@ -660,14 +659,14 @@ client.connect(function (err, db) {
   
 
     if (req.email)
-      email = req.email,
-      query['activeUsers.email'] = req.email.toLowerCase();
+      email = req.email.toLowerCase(),
+      query['activeUsers.email'] = email;
     
 
     if(req.days)
       days = parseInt(req.days, 10);
     
-    console.log(query)
+
     collection.findOneAndUpdate(query, {
         $inc: {
           'activeUsers.$.days': days,
@@ -680,9 +679,7 @@ client.connect(function (err, db) {
       },
       function (err, r) {
         if (err) console.error(err);
-
-        console.log(r);
-
+        
         if (r === null)
           collection.findOneAndUpdate({
               title: title,
@@ -693,7 +690,8 @@ client.connect(function (err, db) {
               $addToSet: {
                 activeUsers: {
                   email: email,
-                  inventory: inventory
+                  inventory: inventory,
+                  days:days
                 }
               },
               $inc: {
@@ -702,7 +700,6 @@ client.connect(function (err, db) {
             },
             function (err, r) {
               if (err) console.log(err)
-              console.log(r)
 
               if (r.value !== null)
                 title = title + ' inventory was updated to ' + inventory,
@@ -960,7 +957,6 @@ client.connect(function (err, db) {
           }
         }
       ]).toArray(function (err, r) {
-        console.log(r)
         res.send(r);
       });
     }
@@ -1142,7 +1138,8 @@ client.connect(function (err, db) {
         rentedItems: {
           $push: {
             title: '$title',
-            inventory: '$activeUsers.inventory'
+            inventory: '$activeUsers.inventory',
+            days: '$activeUsers.days'
           }
         }
       }
@@ -1156,7 +1153,7 @@ client.connect(function (err, db) {
         user:'$_id',
         item:'$rentedItems.title',
         quantity:'$rentedItems.inventory',
-        totalQuantity:'$totalQuantityG'
+        days:'$rentedItems.days'
       }
     }
     
@@ -1166,7 +1163,6 @@ client.connect(function (err, db) {
       } catch (err) {
         console.log(err)
       }
-      //title: 'The highest inventory for singel user Is: ',
   };
 
   function inventoryStatusList(res, cb) {
@@ -1229,11 +1225,9 @@ client.connect(function (err, db) {
         $project:{
           label:'$inventory',
           item: '$title'
-         
         }
       }
     ]).toArray(function (err, r) {
-      console.log(r)
       cb(err, r);
     })
       } catch (err) {
@@ -1241,7 +1235,7 @@ client.connect(function (err, db) {
       }
   };
 
-  function usersReturnListForDropDown(res,n, cb) {
+  function usersReturnListForDropDown(res, n, cb) {
     try {
     collection.aggregate([
       {
@@ -1369,14 +1363,17 @@ client.connect(function (err, db) {
         $project: {
           _id: 0,
           title: 1,
-          'activeUsers.inventory': 1
+          'activeUsers.inventory': 1,
+          'activeUsers.days': 1
+
         }
       },
       
       {
         $group: {
           _id: '$title', 
-          quantity: {$sum: '$activeUsers.inventory'}
+          quantity: {$sum: '$activeUsers.inventory'},
+          days: {$sum: '$activeUsers.days'}
         }
       },
       {
@@ -1389,6 +1386,7 @@ client.connect(function (err, db) {
           _id:0,
           item:'$_id',
           quantity:'$quantity',
+          days:'$days'
         }
       }
     ]).toArray(function (err, r) {

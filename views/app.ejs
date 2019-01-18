@@ -607,7 +607,6 @@
     let x, y, obj, objKey, txt, columnHeadline;
     txt = '';
     try {
-      console.log(json)
       obj = JSON.parse(json);
 
       if (obj.err) {
@@ -682,8 +681,6 @@
         if (this.readyState == 4) {
           if (this.status == 200) {
             jsonData = JSON.parse(this.responseText)
-            //console.log(Object.values(jsonData[0]))
-            console.log(jsonData)
             for (let i in jsonData) {
               let option = document.createElement('option');
               if (jsonData[i].item) {
@@ -708,7 +705,6 @@
   
 
   function dataListReqEmail(list, email) {
-    console.log(email)
     let dataList = document.getElementById(list + 'DataList');
     dataList.innerHTML = '';
     let input = document.getElementById(list + 'Input');
@@ -723,8 +719,6 @@
         if (this.readyState == 4) {
           if (this.status == 200) {
             jsonData = JSON.parse(this.responseText)
-            //console.log(Object.values(jsonData[0]))
-            console.log(jsonData)
             for (let i in jsonData) {
               let option = document.createElement('option');
               if (jsonData[i].item) {
