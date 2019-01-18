@@ -113,6 +113,7 @@
               <form id='rent' name='rent' action='/submitrent' onsubmit='return checkForm(id, 1)'>
                 <input id='userEmail' type='text' placeholder='Customer Email' name='email' required>
                 <input id='itemTitle' type='text' placeholder='Item for rent' name='title' required>
+                <datalist id='itemTitleList'></datalist>
                 <input id='titleInventory' type='number' placeholder='Number of Pairs' name='inventory' required>
                 <input id='days' type='number' placeholder='Number of Days' name='days' required>
                 <button id='submitInventory' type='submit' class='submitButton '> Submit</button>
@@ -232,6 +233,9 @@
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
+
+    /*UX / UI Functions*/
+
     function tabToggle(num, className) {
       let tabClassList = document.getElementsByClassName(className)
       for (let i = 0; i < tabClassList.length; i++) {
@@ -303,7 +307,6 @@
     }
 
 
-
     //menu X/E 
     let menuOpen = 0;
     let menuClass;
@@ -324,7 +327,7 @@
     }
 
 
-    //close the menu if the user click anywhere else
+    //Close the menu if the user click anywhere else
     function menuXX() {
       if (menuOpen === 1) {
         menuX(menuClass);
@@ -365,6 +368,8 @@
       }
     }
 
+    //Dark theme
+
     function themeToggle(id) {
       let themeStateText = document.getElementById(id).innerText;
       if (themeStateText == 'Dark-Side') {
@@ -377,7 +382,37 @@
     }
     document.body.addEventListener("click", menuXX);
 
-    //Chat
+    
+    /* Open fullscreen */
+    let elem = document.documentElement;
+    function openFullscreen() {
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if (elem.mozRequestFullScreen) { /* Firefox */
+        elem.mozRequestFullScreen();
+      } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+        elem.webkitRequestFullscreen();
+      } else if (elem.msRequestFullscreen) { /* IE/Edge */
+        elem.msRequestFullscreen();
+      }
+    }
+
+    /* Close fullscreen */
+    function closeFullscreen() {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.mozCancelFullScreen) { /* Firefox */
+        document.mozCancelFullScreen();
+      } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
+        document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) { /* IE/Edge */
+        document.msExitFullscreen();
+      }
+    }
+
+    /*Chat*/
+
+
     let socket = io();
     let chatSend = document.getElementById('chatSend');
     let message = document.getElementById('chatInput');
@@ -410,11 +445,9 @@
       newUserChatColorList[d] = 'var(--c' + colorPickerVar + ')';
       chatUsersUl.insertBefore(newUserChatLi, chatUsersUl.firstElementChild);
     }
+    
+    
     let usersOnlineListLocal = new Array;
-
-
-
-
     socket.on('newUserConnected', function (d) {
       newUserOnline(d)
 
@@ -457,6 +490,9 @@
       let lastMessage = messages[messages.length - 1];
       lastMessage.scrollIntoView();
     });
+      
+
+    /*Forms and data*/
 
     function goToRentTabWithEmail(id, nextNum) {
       let thisTab = document.getElementById(id);
@@ -467,6 +503,7 @@
         thisTab.reset();
         tabToggle(nextNum, 'inventoryTab');
         tabClassList[nextNum].querySelector('input[name="email"]').value = email;
+
         if(tabClassList[nextNum].querySelector('input[name="email"]')){
             let titleT = document.getElementById('title')
             titleT.innerText = email;
@@ -474,9 +511,11 @@
       } else {
         thisTab.reset();
         tabToggle(nextNum, 'inventoryTab');
-
       }
     }
+
+
+    //Forms validation
 
     function checkForm(id, nextNum) {
       event.preventDefault();
@@ -490,6 +529,7 @@
       let phoneTest = formId.querySelector('input[name="phone"]');
       let daysTest = formId.querySelector('input[name="days"]');
       let test = 0;
+
       if (emailTest != undefined) {
         let re =
           /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -521,6 +561,7 @@
           test++;
         }
       };
+
       if (phoneTest != undefined) {
         let re =
           /^[(]{0,1}[0-9]{1,3}[)]{0,1}[-\s\.]{0,1}[0-9]{3}[-\s\.]{0,1}[0-9]{1,6}$/;
@@ -551,11 +592,13 @@
       if (test > 0) {
         test = 0;
         return false;
+
       } else {
         postForm(formAction, formDataNode, id, nextNum);
       }
-      //postForm(formAction, formDataNode, id, nextNum);
     };
+
+    //Rendering the response from the server
 
     function contentToView(json, title) {
       let x, y, obj, objKey, txt, columnHeadline;
@@ -603,7 +646,7 @@
             }
 
             columnHeadline = Object.getOwnPropertyNames(obj[0])
-            txt += "<table >"
+            txt += "<table>"
             txt += "<tr>"
             for (x in columnHeadline) {
               txt += "<th>" + columnHeadline[x] + "</th>";
@@ -625,11 +668,11 @@
       }
     };
 
+    // Sending requests to the server
 
     function includeThisHTML(page, back, title) {
-      let z, pagePath, file, xhttp;
-      file = page;
-      if (file) {
+      let pagePath, xhttp;
+      if (page) {
         xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
           if (this.readyState == 4) {
@@ -644,7 +687,7 @@
                   if (page === '/app') {
                     pagePath = '';
                   } else {
-                    pagePath = '?' + file;
+                    pagePath = '?' + page;
                   }
                   history.pushState(pagePath, pagePath, pagePath);
                 }
@@ -658,27 +701,16 @@
           }
         }
       }
-      xhttp.open("GET", file, true);
+      xhttp.open("GET", page, true);
       xhttp.send();
-
     };
 
-    window.onpopstate = function (event) {
-      if (window.location.pathname === '/' && window.location.search) {
-        let newPage = window.location.search;
-        let newPageLen = newPage.length;
-        newPage = newPage.slice(1, newPageLen)
-        includeThisHTML(newPage, "1");
-      } else {
-        includeThisHTML('/app');
-      }
-    };
 
-    function postForm(file, formDataNode, id, nextNum) {
 
-      let i, pagePath, xhttp, formData;
-      formData = new FormData();
-      pagePath = file;
+    function postForm(page, formDataNode, id, nextNum) {
+      let i, xhttp, formData;
+
+      formData = new FormData(); 
       for (i in formDataNode) {
         formData.append(formDataNode[i].name, formDataNode[i].value);
       };
@@ -703,37 +735,23 @@
           }
         }
       }
-      xhttp.open('POST', pagePath, true);
+      xhttp.open('POST', page, true);
       xhttp.send(formData);
     };
 
+    //History manipulation
 
-    let elem = document.documentElement;
-    /* View in fullscreen */
-    function openFullscreen() {
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-      } else if (elem.mozRequestFullScreen) { /* Firefox */
-        elem.mozRequestFullScreen();
-      } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
-        elem.webkitRequestFullscreen();
-      } else if (elem.msRequestFullscreen) { /* IE/Edge */
-        elem.msRequestFullscreen();
+    window.onpopstate = function (event) {
+      if (window.location.pathname === '/' && window.location.search) {
+        let newPage = window.location.search;
+        let newPageLen = newPage.length;
+        newPage = newPage.slice(1, newPageLen)
+        includeThisHTML(newPage, "1");
+      } else {
+        includeThisHTML('/app');
       }
-    }
+    };
 
-    /* Close fullscreen */
-    function closeFullscreen() {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if (document.mozCancelFullScreen) { /* Firefox */
-        document.mozCancelFullScreen();
-      } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
-        document.webkitExitFullscreen();
-      } else if (document.msExitFullscreen) { /* IE/Edge */
-        document.msExitFullscreen();
-      }
-    }
   </script>
 </body>
 
