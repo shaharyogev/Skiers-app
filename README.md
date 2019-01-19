@@ -1,5 +1,9 @@
 # Skiers
 Online ski rental shop management app
+link - https://skiers.appspot.com/
+
+demo - jango@skiers.com Jango123
+
 
 ## The app includes:
 * Login screen - for store employees + password hash. 
