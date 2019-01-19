@@ -7,14 +7,22 @@
   --c6: #fd88d5;
   --c7: #32a82b;
   --c8: #e74ca8;
-  --tc: var(--tcl);/*Text color*/
-  --tb: var(--tbl);/*Background color*/
-  --tbi: var(--tbil);/*Input background color*/
-  --te: var(--tel);/*Element background color*/
-  --tec: var(--tecl);/*Chat maseges element background color*/
-  --tcc: var(--tccl);/*Chat element text color*/
-  --tbc: var(--tbcl);/*Chat element background color*/
-  --tbic: var(--tbicl);/*Chat input element background color*/
+  --tc: var(--tcl);
+  /*Text color*/
+  --tb: var(--tbl);
+  /*Background color*/
+  --tbi: var(--tbil);
+  /*Input background color*/
+  --te: var(--tel);
+  /*Element background color*/
+  --tec: var(--tecl);
+  /*Chat maseges element background color*/
+  --tcc: var(--tccl);
+  /*Chat element text color*/
+  --tbc: var(--tbcl);
+  /*Chat element background color*/
+  --tbic: var(--tbicl);
+  /*Chat input element background color*/
   /*Light side*/
   --tcl: #3f362d;
   --tbl: #f7f7f7;
@@ -24,8 +32,6 @@
   --tccl: #7f868a;
   --tbcl: #efefef;
   --tbicl: white;
-
-
   /*Dark side*/
   --tcd: #f7f7f7;
   --tbd: #1e272f;
@@ -35,8 +41,6 @@
   --tccd: #cecdcd;
   --tbcd: #2a3f54;
   --tbicd: #1e272f;
-
-
 }
 
 body {
@@ -62,7 +66,8 @@ textarea:focus,
 button:focus {
   outline: none;
 }
-input::placeholder{
+
+input::placeholder {
   color: var(--tcc);
 }
 
@@ -142,7 +147,7 @@ input::placeholder{
 
 .logoImg {
   display: flex;
-  margin: 1% 6%;
+  margin: 3% 6%;
   width: 4vh;
 }
 
@@ -192,13 +197,11 @@ input::placeholder{
   justify-content: space-around;
   align-items: flex-start;
   margin-top: 3vmin;
- 
-
 }
 
 .resultsPanel {
   display: flex;
-  flex-flow:row wrap;
+  flex-flow: row wrap;
   overflow-x: auto;
   justify-content: center;
 }
@@ -256,34 +259,34 @@ input::placeholder{
   list-style: none;
   padding-left: 0;
 }
+
 table,
 table tr {
-  border-bottom:solid;
-  border-bottom-color:rgb(218, 220, 224);
-  border-bottom-width:1px;
+  border-bottom: solid;
+  border-bottom-color: rgb(218, 220, 224);
+  border-bottom-width: 1px;
   border-collapse: collapse;
   border-spacing: 1px;
-  box-sizing:border-box;
-  font-size:2ex;
-}
-table tr td:nth-child(1){
-  text-align:start;
-  overflow-wrap:break-word;
-}
-table tr td{
-  text-align:center;
-}
-table tr th{
-  text-transform:capitalize;
+  box-sizing: border-box;
+  font-size: 2ex;
 }
 
+table tr td:nth-child(1) {
+  text-align: start;
+  overflow-wrap: break-word;
+}
 
+table tr td {
+  text-align: center;
+}
 
+table tr th {
+  text-transform: capitalize;
+}
 
 .topten {
   padding: 2px 1px;
   width: fit-content;
-
 }
 
 @media(max-width:600px) {
@@ -309,17 +312,16 @@ table tr th{
   .resultsPanel {
     flex-basis: 85%;
   }
-  table{
-    font-size:3.2vw;
-
+  table {
+    font-size: 3.2vw;
   }
   .topten h3,
-  .topten h2{
-    font-size:1.3rem;
+  .topten h2 {
+    font-size: 1.3rem;
   }
-  #querysResults{
-    max-width:96vw;
-    margin:2vw;
+  #querysResults {
+    max-width: 96vw;
+    margin: 2vw;
   }
 }
 
@@ -412,6 +414,26 @@ table tr th{
   box-shadow: 0px 2px 12px rgba(0, 0, 0, 0.15);
   overflow-x: hidden;
   z-index: 2;
+}
+
+#chatMessagesBox::-webkit-scrollbar {
+  width: 4px;
+  background-color: #00000000;
+}
+
+#chatMessagesBox::-webkit-scrollbar-thumb {
+  -webkit-box-shadow: inset 0 0 4px var(--tcc);
+  border-radius: 2px;
+}
+
+.chatUsersOnline::-webkit-scrollbar {
+  width: 4px;
+  background-color: #00000000;
+}
+
+.chatUsersOnline::-webkit-scrollbar-thumb {
+  -webkit-box-shadow: inset 0 0 4px var(--tcc);
+  border-radius: 2px;
 }
 
 #chatFlex {
@@ -520,7 +542,6 @@ table tr th{
   flex-direction: row;
   justify-content: space-evenly;
   background-color: var(--tbc);
-  
 }
 
 #chatInput {
@@ -677,7 +698,7 @@ table tr th{
   flex-wrap: wrap;
   margin: 0.1rem;
   padding-left: 0;
-  text-transform:capitalize;
+  text-transform: capitalize;
 }
 
 .newMessageLi p {

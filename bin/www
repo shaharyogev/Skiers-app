@@ -25,15 +25,15 @@ var server = http.createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 
- 
+
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 
 
 /**
-* Socket IO listen 
-*/
+ * Socket IO listen 
+ */
 
 
 var io = require('socket.io')(server);
@@ -41,46 +41,98 @@ var io = require('socket.io')(server);
 
 
 let connectionsList = new Array;
-let chatOnlineUsersList = []
+let chatOnlineUsersList = new Array;
+let chatHistory = new Array;
 
-chatOnlineUsersList = ['test1','test2','test3']
+chatOnlineUsersList = ['leia organa', 'obi-wan kenobi', 'luke skywalker', 'darth vader', 'yoda', 'han solo'];
+chatHistory = [
 
-io.on('connection', function(socket){
+  {
+    userName: 'leia organa',
+    message: 'Help me, Obi-Wan Kenobi. You\'re my only hope.'
+  },
+  {
+    userName: 'obi-wan kenobi',
+    message: 'The Force will be with you. Always.'
+  },
+  {
+    userName: 'darth vader',
+    message: 'I find your lack of faith disturbing.'
+  },
+  {
+    userName: 'luke skywalker',
+    message: 'I\'ll never turn to the dark side. You\'ve failed, your highness. I am a Jedi, like my father before me.'
+  },
+  {
+    userName: 'darth vader',
+    message: 'No. I am your father.'
+  },
+  {
+    userName: 'yoda',
+    message: 'When gone am I, the last of the Jedi will you be. The Force runs strong in your family. Pass on what you have learned.'
+  },
+  {
+    userName: 'yoda',
+    message: 'Fear is the path to the dark side. Fear leads to anger; anger leads to hate; hate leads to suffering. I sense much fear in you.'
+  },
+  {
+    userName: 'yoda',
+    message: 'Do. Or do not. There is no try.'
+  },
+  {
+    userName: 'han solo',
+    message: 'Never tell me the odds!'
+  },
+  {
+    userName: 'yoda',
+    message: 'Do. Or do not. There is no try.'
+  },
+  {
+    userName: 'Obi-Wan Kenobi',
+    message: 'Well, if droids could think, there\'d be none of us here, would there?'
+  }
+]
+
+io.on('connection', function (socket) {
   connectionsList.push(socket);
-  console.log('conected: ', connectionsList.length);
 
-  socket.on('disconnect', function(d){
+
+  socket.on('disconnect', function () {
     chatOnlineUsersList.splice(chatOnlineUsersList.indexOf(socket.userName), 1);
     io.emit('onlineUsersList', chatOnlineUsersList);
-    connectionsList.splice( connectionsList.indexOf(socket), 1);
+    connectionsList.splice(connectionsList.indexOf(socket), 1);
   });
-  
-
-  socket.on('namedUserConnected',function(d){
 
 
+  socket.on('namedUserConnected', function (d) {
     socket.userName = d.userName;
-    chatOnlineUsersList.push(socket.userName)
-    let uniqueChatOnlineUsersList = [...new Set(chatOnlineUsersList)]
-    io.emit('updateOnlineUsersList', uniqueChatOnlineUsersList)
-    //io.emit('newUserConnected', d.userName);
+    chatOnlineUsersList.push(socket.userName);
+    let uniqueChatOnlineUsersList = [...new Set(chatOnlineUsersList)];
+    io.emit('updateOnlineUsersList', uniqueChatOnlineUsersList);
+    socket.emit('sendChatHistory', chatHistory);
   });
 
-  
-  socket.on('form data', function(d){
+
+  socket.on('form data', function (d) {
     io.emit('form data' + d)
   });
-  socket.on('new message', function(d, fn){
-    d.user
-    fn( + ' sent ' + d.message);
-    io.emit('new message', d)
-  console.log('user: ' + d.user + ' message: ' + d.message)
+
+
+  socket.on('new message', function (d, cb) {
+    if (!socket.userName) {
+      socket.emit('reload');
+    } else {
+      let lastMessage = {
+        userName: socket.userName,
+        message: d.message
+      }
+      chatHistory.push({
+        userName: socket.userName,
+        message: d.message
+      })
+      io.emit('new message', lastMessage)
+    }
   })
-  socket.on('submit', function(d){
-    console.log('button submit:' + d )
-  })
-  
- 
 });
 
 
@@ -114,9 +166,9 @@ function onError(error) {
     throw error;
   }
 
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
+  var bind = typeof port === 'string' ?
+    'Pipe ' + port :
+    'Port ' + port;
 
   // handle specific listen errors with friendly messages
   switch (error.code) {
@@ -139,9 +191,8 @@ function onError(error) {
 
 function onListening() {
   var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
+  var bind = typeof addr === 'string' ?
+    'pipe ' + addr :
+    'port ' + addr.port;
   debug('Listening on ' + bind);
 }
-

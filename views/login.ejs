@@ -65,26 +65,24 @@
       <span class='errorPassword'></span>
     </span>
 
-
     <div class='filer3'>
-
       <span></span>
-
-
-
     </div>
   </div>
 
   <script>
-    function clearPathname(path, x) {
+    function clearPath(path, x) {
       if (window.location.pathname === path) {
         window.location.pathname = '/';
         for (i = 0; i < x; i++) {
           history.pushState("", "", "/");
         };
       }
+      if (window.location.search) {
+        history.pushState("", "", "/");
+      }
     };
-    clearPathname('/logout', 30)
+    clearPath('/logout', 30);
 
     function loginToggle(b) {
       let loginTabA = document.getElementById('loginTabA');
@@ -131,7 +129,7 @@
       };
       if (nameTest != undefined) {
         let re =
-        /^[\W \D \S ]{3,100}$/;
+          /^[\W \D \S ]{3,100}$/;
         let res = re.test(String(nameTest.value));
         if (!res) {
           formId.querySelector('.error').innerHTML =
@@ -193,7 +191,6 @@
       xhttp.open('POST', pagePath, true);
       xhttp.send(formData);
     };
-
   </script>
 </body>
 

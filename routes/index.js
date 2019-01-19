@@ -85,7 +85,6 @@ client.connect(function (err, db) {
       })
     } else {
       res.render('login');
-
     }
   })
 
@@ -451,7 +450,7 @@ client.connect(function (err, db) {
         });
       }
     } catch (err) {
-      console.log(err.stack);
+      console.log(err);
     }
   };
 
@@ -581,7 +580,7 @@ client.connect(function (err, db) {
         'status': phone
       });
     } catch (err) {
-      console.log(err.stack);
+      console.log(err);
     }
   };
 
@@ -679,7 +678,7 @@ client.connect(function (err, db) {
       },
       function (err, r) {
         if (err) console.error(err);
-        
+
         if (r === null)
           collection.findOneAndUpdate({
               title: title,
@@ -778,9 +777,6 @@ client.connect(function (err, db) {
   };
 
 
-
-
-
   /* Databas queries: */
 
   function currentItemInventory(title, cb) {
@@ -806,57 +802,7 @@ client.connect(function (err, db) {
       cb(null, value);
     })
   }
-/*
-  function currentUserGeneralStatus(email, cb) {
-    collection.findOne({
-        activeUsers: {
-          $elemMatch: {
-            email: email
-          }
-        }
-      }, {
-        projection: {
-          _id: 0,
-          title: 1,
-          'activeUsers.$.email': 1,
-          'activeUsers.inventory': 1
-        }
-      },
-      function (err, result) {
-        if (err)
-          console.log(err);
 
-        let value = 0;
-
-        if (result === null) {
-          value = 0,
-            cb(null, value);
-
-        } else {
-          value = result.activeUsers[0].inventory;
-          if (result.activeUsers[0].inventory === 0) {
-            collection.updateOne({
-                title: title
-              }, {
-                $pull: {
-                  activeUsers: {
-                    email: email,
-                    inventory: 0
-                  }
-                }
-              },
-              function (err, r) {
-                if (err)
-                  console.log(err);
-
-                cb(null, value);
-              });
-          }
-          cb(null, value);
-        }
-      })
-  };
-*/
   function currentUserInventory(title, email, cb) {
     collection.findOne({
         title: title,
