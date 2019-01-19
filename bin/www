@@ -61,16 +61,13 @@ io.on('connection', function(socket){
 
     socket.userName = d.userName;
     chatOnlineUsersList.push(socket.userName)
-
-
-    io.emit('onlineUsersList', chatOnlineUsersList)
-
+    let uniqueChatOnlineUsersList = [...new Set(chatOnlineUsersList)]
+    io.emit('updateOnlineUsersList', uniqueChatOnlineUsersList)
     //io.emit('newUserConnected', d.userName);
   });
 
   
   socket.on('form data', function(d){
-    console.log('form data: ' + d);
     io.emit('form data' + d)
   });
   socket.on('new message', function(d, fn){

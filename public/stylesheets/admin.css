@@ -640,6 +640,7 @@ table tr th{
 .chatUsersOnline h3 {
   padding-left: 0.5rem;
   margin: 0.22rem 0;
+  text-transform: capitalize;
 }
 
 #chatUsersUl {
@@ -672,10 +673,11 @@ table tr th{
   width: fit-content;
 }
 
-.newMessageLi .newMessageLi h3 {
+.newMessageLi h3 {
   flex-wrap: wrap;
   margin: 0.1rem;
   padding-left: 0;
+  text-transform:capitalize;
 }
 
 .newMessageLi p {
