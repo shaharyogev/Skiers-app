@@ -63,27 +63,10 @@ userslist
     user name
     email
     pasword hash
-
-
 itemlist
     item name
     inventory status +-
-    users email + inventory 
-    
-    customer name
-    email
-    phone
-    iventory
-    days
-
-    dropdown bi - db querys
-        Most rented items
-        The items with the higest inventory
-        The items with the lowst inventory
-        The customer with the higest inventory
-        The customer with the higest movies veraity 
-        Top 10 items for rent
-        
+    user email + inventory 
         
 ## Socket.IO 
 
