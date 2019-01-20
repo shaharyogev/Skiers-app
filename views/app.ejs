@@ -36,14 +36,14 @@
       </div>
       <div>
         <div class='navButtons'>
-          <h2>BI Querys</h2>
+          <h2>BI Queries</h2>
           <ul>
             <li><a type='button' method='get' action='/app' onclick="includeThisHTML('/app',false,'Largest Inventory:')">
                 Largest Inventory </a></li>
-            <li><a type='button' method='get' action='/topTenItems' onclick="includeThisHTML('/topTenItems',false,'Most Popolar items:')">
-                Most Popolar items </a></li>
-            <li><a type='button' method='get' action='topRentedItem' onclick="includeThisHTML('/topRentedItem',false,'Most Popolar Item:')">
-                Most Popolar Item </a></li>
+            <li><a type='button' method='get' action='/topTenItems' onclick="includeThisHTML('/topTenItems',false,'Most Popular items:')">
+                Most Popular items </a></li>
+            <li><a type='button' method='get' action='topRentedItem' onclick="includeThisHTML('/topRentedItem',false,'Most Popular Item:')">
+                Most Popular Item </a></li>
             <li><a type='button' method='get' action='/topTenUsers' onclick="includeThisHTML('/topTenUsers',false,'Most Active Users:')">
                 Most Active Users </a></li>
             <li><a type='button' method='get' action='/mostActiveUser' onclick="includeThisHTML('/mostActiveUser',false,'Most Active User:')">
@@ -157,7 +157,7 @@
           </div>
         </div>
 
-        <div id='querysResults' class='querysResults'>
+        <div id='queryResults' class='queryResults'>
           <div id='topten' class='topten'>
             <span id='error'></span>
             <h2 class='title' id='title'> Welcome <%= userName %></h2>

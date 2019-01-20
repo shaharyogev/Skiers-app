@@ -3,8 +3,6 @@ const router = express.Router();
 const MongoClient = require('mongodb').MongoClient;
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-const myPlaintextPassword = 's0/\/\P4$$w0rD';
-const someOtherPlaintextPassword = 'not_bacon';
 const usersdbUrl = 'mongodb://127.0.0.1:27017/usersdb';
 const client = MongoClient(usersdbUrl, {
   useNewUrlParser: true
@@ -37,7 +35,7 @@ let inviteListForLogIn
 
 /* Databas queries: */
 
-/* BI Querys: */
+/* BI Queries: */
 
 
 
@@ -954,7 +952,7 @@ client.connect(function (err, db) {
 
 
 
-  /* BI Querys: */
+  /* BI Queries: */
 
 
   function topTenItems(res) {
