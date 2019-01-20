@@ -129,7 +129,8 @@ input::placeholder {
   background-color: rgb(42, 63, 84);
   box-sizing: border-box;
   transition: 300ms ease;
-  font-size: 1.8vh;
+  font-size: medium;
+  max-width:200px;
 }
 
 .navColumn a {
@@ -139,6 +140,8 @@ input::placeholder {
 
 .navLogo {
   flex-wrap: wrap;
+  background-color: #0802026b;
+
 }
 
 .navLogo h1 {
@@ -147,20 +150,29 @@ input::placeholder {
 
 .logoImg {
   display: flex;
-  margin: 3% 6%;
+  margin: 3% 1% 3% 0;
   width: 4vh;
 }
 
 #userNameTitle {
   justify-content: flex-start;
-  align-self: center;
-  margin: 0 2vh;
+  margin: 0;
   text-transform: capitalize;
+}
+#userNameTitle h2 {
+  justify-content: flex-start;
+  margin: 4% 5% ;
+
 }
 
 .navButtons {
   justify-content: flex-start;
-  margin: 3vw;
+  margin: 4% 5%;
+}
+
+.navButtons h2{
+  margin: 1% 0;
+  font-size:100%;
 }
 
 .navButtons ul {
@@ -197,6 +209,9 @@ input::placeholder {
   justify-content: space-around;
   align-items: flex-start;
   margin-top: 3vmin;
+  overflow-x: auto;
+
+  
 }
 
 .resultsPanel {
@@ -204,6 +219,8 @@ input::placeholder {
   flex-flow: row wrap;
   overflow-x: auto;
   justify-content: center;
+  align-items: start;
+
 }
 
 #queryResults {
@@ -230,17 +247,7 @@ input::placeholder {
   text-transform: capitalize;
 }
 
-@media(max-width:1050px) {
-  .mainContent {
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-  }
-  #queryResults {
-    margin: 5vw;
-    transition: 0.3s ease-in-out;
-  }
-}
+
 
 #inventoryTab {
   display: flex;
@@ -268,7 +275,7 @@ table tr {
   border-collapse: collapse;
   border-spacing: 1px;
   box-sizing: border-box;
-  font-size: 2ex;
+  font-size: smaller;
 }
 
 table tr td:nth-child(1) {
@@ -286,54 +293,10 @@ table tr th {
 
 .topten {
   padding: 2px 1px;
-  width: fit-content;
+  max-width: 96vw;
 }
 
-@media(max-width:600px) {
-  .mainContent {
-    margin-top: 0;
-  }
-  .navMenu {
-    display: flex;
-  }
-  .navColumn {
-    display: none;
-    flex-basis: 0%;
-    transition: 500ms ease;
-  }
-  .chage .mainContent {
-    flex-basis: 80%;
-  }
-  .change .navColumn {
-    display: flex;
-    flex-basis: 20%;
-    transition: 500ms ease;
-  }
-  .resultsPanel {
-    flex-basis: 85%;
-  }
-  table {
-    font-size: 3.2vw;
-  }
-  .topten h3,
-  .topten h2 {
-    font-size: 1.3rem;
-  }
-  #queryResults {
-    max-width: 96vw;
-    margin: 2vw;
-  }
-}
 
-@media(pointer:none),
-(pointer:coarse) {
-  .resultsPanel {
-    flex-basis: 90%;
-  }
-}
-
-@media (orientation:landscape) and (pointer:coarse),
-(pointer:none) {}
 
 #navTab {
   display: flex;
@@ -422,7 +385,7 @@ table tr th {
 }
 
 #chatMessagesBox::-webkit-scrollbar-thumb {
-  -webkit-box-shadow: inset 0 0 3px  #aeb5b9ab;
+  box-shadow: inset 0 0 3px  #aeb5b9ab;
   border-radius: 2px;
 }
 
@@ -432,7 +395,7 @@ table tr th {
 }
 
 .chatUsersOnline::-webkit-scrollbar-thumb {
-  -webkit-box-shadow: inset 0 0 3px #aeb5b9ab;
+  box-shadow: inset 0 0 3px #aeb5b9ab;
   border-radius: 2px;
 }
 
@@ -452,7 +415,7 @@ table tr th {
   width: 50vw;
   right: 6%;
   bottom: 5%;
-  transition: 500ms ease;
+  transition: 200ms ease;
 }
 
 .chatLiveBoxMini {
@@ -463,7 +426,7 @@ table tr th {
   width: 40vw;
   right: 6%;
   bottom: 5%;
-  transition: 500ms ease;
+  transition: 200ms ease;
   text-rendering: optimizeLegibility;
 }
 
@@ -475,7 +438,7 @@ table tr th {
   width: 100vw;
   right: 0%;
   bottom: 0%;
-  transition: 500ms ease;
+  transition: 200ms ease;
   text-rendering: optimizeLegibility;
 }
 
@@ -488,7 +451,7 @@ table tr th {
   position: fixed;
   right: 5%;
   bottom: 5%;
-  transition: 500ms ease;
+  transition: 200ms ease;
 }
 
 #chatLogoButton {
@@ -598,7 +561,7 @@ table tr th {
   color: white;
   cursor: pointer;
   background-color: rgba(0, 0, 0, 0.14);
-  transition: 500ms ease;
+  transition: 200ms ease;
 }
 
 .chatMinimize {
@@ -707,26 +670,7 @@ table tr th {
   flex-wrap: wrap;
 }
 
-@media(max-width:600px) {
-  .chatLiveBox {
-    max-height: 30vh;
-    min-height: 30vh;
-    width: 90vw;
-    font-size: 70%;
-  }
-  .chatLiveBoxMini {
-    width: 90vw;
-  }
-  #chatInput {
-    font-size: 0.8rem;
-  }
-  .newMessageLi h3 {
-    font-size: 80%;
-  }
-  .chatLiveBoxMax .chatUsersOnline {
-    display: none;
-  }
-}
+
 
 #menuLogo {
   z-index: 1;
@@ -770,4 +714,179 @@ table tr th {
 
 .hidden {
   display: none;
+}
+
+@media(max-width:1050px) {
+  .mainContent {
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+  }
+  #queryResults {
+    margin: 5vw;
+    transition: 0.3s ease-in-out;
+  }
+}
+
+@media(max-width:600px) {
+  .chatLiveBox {
+    max-height: 15rem;
+    min-height: 15rem;
+    width: 90vw;
+    font-size: 70%;
+  }
+  .chatLiveBoxMini {
+    max-height: 20vh;
+    min-height: 8rem;
+    width: 90vw;
+  }
+  #chatInput {
+    font-size: 0.8rem;
+  }
+  .newMessageLi h3 {
+    font-size: 80%;
+  }
+  .chatLiveBoxMax {
+    transition: none;
+  }
+  .chatLiveBoxMax .chatUsersOnline {
+    display: none;
+  }
+  .mainContent {
+    margin-top: 0;
+  }
+  .navMenu {
+    display: flex;
+  }
+  .navColumn {
+    display: none;
+    flex-basis: 0%;
+    transition: none;
+    text-align:ce
+  }
+  .navButtons {
+    margin: 0.5vw 2vw;
+  }
+  .navColumn h1 {
+    font-size: medium;
+  }
+  .navColumn h2 {
+    font-size: small;
+  }
+  .logoImg {
+    margin: 7% 0 0 0;
+    width: 9vw;
+  }
+  #userName{
+    display:none;
+  }
+  .chage .mainContent {
+    flex-basis: 80%;
+  }
+  .change .navColumn {
+    display: flex;
+    flex-basis: 20%;
+    transition: none;
+    font-size: small;
+  }
+  .resultsPanel {
+    flex-basis: 85%;
+    align-items: start;
+  }
+  
+  .topten h3,
+  .topten h2 {
+    font-size: 1.3rem;
+  }
+  #Results {
+    max-width: 96vw;
+    margin: 2vw;
+  }
+  .tabNavButton {
+  font-size: smaller;
+  }
+  #queryResults {
+    transition: none;
+  }
+  
+}
+
+@media(pointer:none),
+(pointer:coarse) {
+  .resultsPanel {
+    flex-basis: 90%;
+  }
+  #chatLiveBox{
+    transition:none;
+}
+   
+}
+
+@media (orientation:landscape) and (pointer:coarse),
+(pointer:none) {
+    #chatLiveBox{
+        transition:none;
+    }
+    .chatLiveBox {
+      max-height: 15rem;
+      min-height: 15rem;
+      width: 90vw;
+      font-size: 70%;
+    }
+    .chatLiveBoxMini {
+      max-height: 20vh;
+      min-height: 8rem;
+      width: 80vw;
+    }
+    #chatInput {
+      font-size: 0.8rem;
+    }
+    .mainContent {
+      margin-top: 0;
+    }
+    .navMenu {
+      display: flex;
+    }
+    .navColumn {
+      display: none;
+      flex-basis: 0%;
+      transition: none;
+    }
+    .navButtons {
+      margin: 0.5vh 2vh;
+    }
+    .navButtons li {
+      margin: 1.3vh 0;
+      font-size: smaller;
+
+    }
+    .navColumn h1 {
+      font-size: medium;
+    }
+    .navColumn h2 {
+      font-size: small;
+      margin: 2vh 0;
+
+    }
+    .logoImg {
+      margin: 13% 6%;
+      width: 9vh;
+    }
+    #userName{
+      display:none;
+    }
+    .chage .mainContent {
+      flex-basis: 80%;
+    }
+    .change .navColumn {
+      display: flex;
+      flex-basis: 20%;
+      transition: none;
+      font-size: small;
+    }
+    .resultsPanel {
+      flex-basis: 85%;
+      align-items: start;
+    }
+     
 }

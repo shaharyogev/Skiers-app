@@ -160,7 +160,7 @@
         <div id='queryResults' class='queryResults'>
           <div id='topten' class='topten'>
             <span id='error'></span>
-            <h2 class='title' id='title'> Welcome <%= userName %></h2>
+            <h2 class='title' id='title'></h2>
             <h3 class='subTitle' id='status'>
             </h3>
             <ul id='queryUl' class='flex-row'>
@@ -245,10 +245,11 @@
 
     if (userName) {
       userName = userName.innerText;
-
+      includeThisHTML('/app',false,'Current Inventory:');
       socket.emit('namedUserConnected', {
         userName: userName.toLowerCase()
       });
+
     };
 
     let newUserChatCount = 0;
@@ -395,16 +396,13 @@
       }
       if (size == 'max' && close !== 1) {
         maxChat();
-        openFullscreen();
 
       }
       if (size == 'mini' && close !== 1) {
         if (miniButton.innerText == '_') {
           minimizeChat();
-          closeFullscreen();
         } else {
           enlargeChat();
-          closeFullscreen();
         }
       } else if (size == 'dot') {
         if (chatClosed === 0) {
@@ -502,38 +500,7 @@
     document.body.addEventListener("click", menuXX);
 
 
-    /* Open fullscreen */
-
-    let elem = document.documentElement;
-
-    function openFullscreen() {
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-      } else if (elem.mozRequestFullScreen) { /* Firefox */
-        elem.mozRequestFullScreen();
-      } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
-        elem.webkitRequestFullscreen();
-      } else if (elem.msRequestFullscreen) { /* IE/Edge */
-        elem.msRequestFullscreen();
-      }
-    }
-
-    /* Close fullscreen */
-
-    function closeFullscreen() {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if (document.mozCancelFullScreen) { /* Firefox */
-        document.mozCancelFullScreen();
-      } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
-        document.webkitExitFullscreen();
-      } else if (document.msExitFullscreen) { /* IE/Edge */
-        document.msExitFullscreen();
-      }
-    }
-
-
-
+    
     /*Forms and data*/
 
     function goToRentTabWithEmail(id, nextNum) {
@@ -702,6 +669,7 @@
             }
             txt += "</table>"
             document.getElementById("queryUl").innerHTML = txt;
+            document.getElementById("queryUl").scrollIntoView();
           }
         }
       } catch (err) {

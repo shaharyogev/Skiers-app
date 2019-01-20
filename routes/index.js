@@ -427,7 +427,7 @@ client.connect(function (err, db) {
                   if (r !== null) {
                     if (r.result.n == 1) {;
                       // Callback if success 
-                      startUserSession(email, ' Highest inventory in stock: ', '', '', req, res);
+                      startUserSession(email, req, res);
                     }
                   } else {
                     res.json({
@@ -486,7 +486,7 @@ client.connect(function (err, db) {
               }, function (err, r) {
                 if (err) console.log(err);
                 if (r.result.n == 1)
-                  startUserSession(email, ' Highest inventory in stock: ', '', '', req, res);
+                  startUserSession(email, req, res);
 
               });
             } else {
@@ -518,7 +518,7 @@ client.connect(function (err, db) {
 
   //On login sucsess activat the user session
 
-  function startUserSession(email, title, status, userName, req, res) {
+  function startUserSession(email, req, res) {
     usersCollection.findOne({
       email: email
     }, {
@@ -536,8 +536,9 @@ client.connect(function (err, db) {
             userName: r.userName,
             originalMaxAge: 1000 * 60 * 60 * 24 * 7
           };
-
-        inventoryStatusInLogin(title, status, r.userName, req, res);
+          res.render('app', {
+            userName: r.userName
+          });
       }
     })
   }
