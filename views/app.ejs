@@ -93,10 +93,10 @@
 
         <div id='inventoryTab'>
           <div id='navTab'>
-            <a type='button' class='tabNavButton' onclick="tabToggle(0, 'inventoryTab')">New Customer</a>
-            <a type='button' class='tabNavButton' onclick="tabToggle(1, 'inventoryTab')">Rent</a>
-            <a type='button' class='tabNavButton' onclick="tabToggle(2, 'inventoryTab')">Return</a>
-            <a type='button' class='tabNavButton' onclick="tabToggle(3, 'inventoryTab')">Inventory</a>
+            <a type='button' class='tabNavButton' onclick="tabToggle(0, 'inventoryTab', event)">New Customer</a>
+            <a type='button' class='tabNavButton' onclick="tabToggle(1, 'inventoryTab', event)">Rent</a>
+            <a type='button' class='tabNavButton' onclick="tabToggle(2, 'inventoryTab', event)">Return</a>
+            <a type='button' class='tabNavButton' onclick="tabToggle(3, 'inventoryTab', event)">Inventory</a>
           </div>
           <div id='contentTab'>
             <div id='inventoryTabA' class='form tabBox inventoryTab flex-show'>
@@ -341,14 +341,19 @@
 
     /*UX / UI Functions*/
 
-    function tabToggle(num, className) {
-      let tabClassList = document.getElementsByClassName(className)
+    function tabToggle(num, className, event) {
+      let tabClassList = document.getElementsByClassName(className);
+      let tabButtonClassList = document.getElementsByClassName('tabNavButton');
+
       for (let i = 0; i < tabClassList.length; i++) {
         if (i === num) {
           tabClassList[i].style.display = 'flex';
+          tabButtonClassList[i].className = 'tabNavButton tabNavButtonActive';
 
         } else {
           tabClassList[i].style.display = 'none';
+          tabButtonClassList[i].className = 'tabNavButton';
+
         }
       }
       if (num === 1) {
@@ -647,6 +652,11 @@
             if (title) {
               let titleT = document.getElementById('title')
               titleT.innerText = title;
+              
+              if(title !== 'Current Inventory:'){
+                console.log('test');
+              document.getElementById("queryUl").scrollIntoView();
+            }
             }
             if (!status) {
               let statusT = document.getElementById('status')
@@ -669,7 +679,8 @@
             }
             txt += "</table>"
             document.getElementById("queryUl").innerHTML = txt;
-            document.getElementById("queryUl").scrollIntoView();
+
+            
           }
         }
       } catch (err) {
