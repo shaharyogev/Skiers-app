@@ -1,5 +1,5 @@
 # Skiers
-Online ski rental shop management app
+Online ski rental store management app
 Link - https://skiers.appspot.com/
 
 Demo - jango@skiers.com Jango123
