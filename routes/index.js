@@ -516,7 +516,7 @@ client.connect(function (err, db) {
       })
   };
 
-  //On sucsess login activate the user session
+  //On success login activate the user session
 
   function startUserSession(email, req, res) {
     usersCollection.findOne({

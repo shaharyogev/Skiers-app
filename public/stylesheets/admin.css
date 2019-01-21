@@ -112,15 +112,6 @@ input::placeholder {
 }
 
 
-
-.logoBackground {
-  position: relative;
-  z-index: 0;
-  display: none;
-  position: absolute;
-  z-index: 0;
-}
-
 .navColumn {
   display: flex;
   flex-direction: column;
@@ -146,7 +137,7 @@ input::placeholder {
   flex-direction: row-reverse;
 }
 
-}
+
 
 .navLogo h1 {
   margin: 4% 0%;
@@ -232,6 +223,11 @@ input::placeholder {
   justify-content: center;
   align-items: start;
   width: 100%;
+  height:100%;
+  backface-visibility: visible;
+  background-position: center;
+  background-size:50%;
+  background-repeat:no-repeat;
 
 }
 
@@ -460,6 +456,7 @@ table tr th {
   bottom: 0%;
   transition: 200ms ease;
   text-rendering: optimizeLegibility;
+  z-index:3;
 }
 
 .chatLiveBoxMax .chatUsersOnline {
@@ -588,6 +585,8 @@ table tr th {
   font-weight: 1200;
   right: 1%;
   top: 1%;
+  padding: 0 12px 0px 10px;
+
 }
 
 .chatEnlarge {
@@ -906,7 +905,7 @@ table tr th {
     font-size: small;
   }
   .resultsPanel {
-    align-items: start;
+    align-items: center;
   }
   table {
     font-size: 5vmin;
