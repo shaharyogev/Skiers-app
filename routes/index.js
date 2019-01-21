@@ -25,15 +25,15 @@ let inviteListForLogIn
 
 /* User login and creation: */
 //Creat New User - callback inventoryStatusInLogin
-// Login chack user email and password - callback getUserName
+// Login check user email and password - callback getUserName
 
 /* Database functions: */
 
 /* Router requests: */
 
-/* Qureys routes */
+/* Queries routes */
 
-/* Databas queries: */
+/* Database queries: */
 
 /* BI Queries: */
 
@@ -67,7 +67,7 @@ client.connect(function (err, db) {
   //clear cookie if session is over
 
   router.use(function (req, res, next) {
-    if (req.session.cookie && !req.session.succes) {
+    if (req.session.cookie && !req.session.success) {
       res.clearCookie('skiersAdmin');
     }
     next();
@@ -77,7 +77,7 @@ client.connect(function (err, db) {
 
   //First 
   router.get('/', function (req, res, next) {
-    if (req.session.succes) {
+    if (req.session.success) {
       res.render('app', {
         userName: req.session.userName
       })
@@ -90,7 +90,7 @@ client.connect(function (err, db) {
   //While the user in session the system will stay active.
 
   router.get('/:id', function (req, res, next) {
-    if (req.session.succes)
+    if (req.session.success)
       next();
 
     else
@@ -123,7 +123,7 @@ client.connect(function (err, db) {
 
 
 
-  /* Qureys routes for the database */
+  /* Queries routes for the database */
 
   router.get('/app', function (req, res, next) {
     inventoryStatus('Items In Stock', 'Sort by highest inventory: ', '', res);
@@ -339,7 +339,7 @@ client.connect(function (err, db) {
         /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\S+$).{5,}$/;
       let res = re.test(String(passwordTest));
       if (!res) {
-        errors += ' the assword is Minmum 5 character long + upper cases + lower cases + digits ';
+        errors += ' the password is Minimum 5 character long + upper cases + lower cases + digits ';
       }
     }
 
@@ -431,7 +431,7 @@ client.connect(function (err, db) {
                     }
                   } else {
                     res.json({
-                      err: 'User created, try login as registerd User'
+                      err: 'User created, try login as registered User'
                     });
                   }
                 })
@@ -453,7 +453,7 @@ client.connect(function (err, db) {
   };
 
 
-  // Login chack user email and password - callback getUserName
+  // Login check user email and password - callback getUserName
 
   function loginAttempt(email, password, req, res) {
     if (email)
@@ -510,13 +510,13 @@ client.connect(function (err, db) {
           });
         } else
           res.json({
-            err: 'The user is not registerd'
+            err: 'The user is not registered'
           });
 
       })
   };
 
-  //On login sucsess activat the user session
+  //On sucsess login activate the user session
 
   function startUserSession(email, req, res) {
     usersCollection.findOne({
@@ -529,7 +529,7 @@ client.connect(function (err, db) {
     }, function (err, r) {
       if (err) console.log(err)
       if (r !== null) {
-        req.session.succes = true,
+        req.session.success = true,
           req.session.userName = r.userName,
           req.session.cookie = {
             name: 'skiersAdmin',
@@ -608,7 +608,7 @@ client.connect(function (err, db) {
 
       if ((currentItemI + inventory) <= 0) {
         title = title + ' inventory was not update - inventory is too low',
-          status = 'The maximum inventory to raduse is: ' + currentItemI,
+          status = 'The maximum inventory to reduce is: ' + currentItemI,
           inventoryStatus(title, status, '', res);
       } else {
         collection.findOneAndUpdate(query, {
@@ -621,15 +621,15 @@ client.connect(function (err, db) {
           if (err) console.log(err);
 
           if (r == null)
-            title = 'The item: ' + title + ' wasnt add to the Inventory!',
+            title = 'The item: ' + title + ' wasn\'t add to the Inventory!',
             status = 'There was a problem'
 
           else if (r.value !== null)
-            title = title + ' inventory was updated successfuly',
+            title = title + ' inventory was updated successfully',
             status = 'The inventory is: ' + (currentItemI + inventory);
 
           else if (r.lastErrorObject.upserted !== null)
-            title = title + ' is new, inventory updated successfuly',
+            title = title + ' is new, inventory updated successfully',
             status = 'The inventory is: ' + (currentItemI + inventory);
 
           inventoryStatus(title, status, '', res);
@@ -707,7 +707,7 @@ client.connect(function (err, db) {
               else
                 currentItemInventory(title, function (err, value) {
                   currentItemI = value;
-                  title = title + ' inventory wasent updated, the current inventory is: ' + currentItemI,
+                  title = title + ' inventory wasn\'t updated, the current inventory is: ' + currentItemI,
                     status = email + ' can rent only: ' + currentItemI + ' new items',
                     inventoryStatus(title, status, email, res);
                 })
@@ -758,15 +758,15 @@ client.connect(function (err, db) {
 
         if (r.value === null) {
           currentUserInventory(title, email, function (err, value) {
-            title = 'The item: ' + title + ' wasnt returnd to stock!',
-              status = 'The user: ' + email + ' cant return the amount of: ' + inventory + ' the current inventory for this user: ' + value;
+            title = 'The item: ' + title + ' wasn\'t returned to stock!',
+              status = 'The user: ' + email + ' cant returdn the amount of: ' + inventory + ' the current inventory for this user: ' + value;
             inventoryStatus(title, status, email, res);
           });
         }
         if (r.value !== null) {
           currentUserInventory(title, email, function (err, value) {
-            title = 'The item: ' + title + ' was returnd to stock, the current stock is: ' + (r.value.inventory + inventory),
-              status = 'The user: ' + email + ' returnd ' + inventory + ' his total inventory for now is: ' + value;
+            title = 'The item: ' + title + ' was returned to stock, the current stock is: ' + (r.value.inventory + inventory),
+              status = 'The user: ' + email + ' returned ' + inventory + ' his total inventory for now is: ' + value;
 
             inventoryStatus(title, status, email, res);
           });
@@ -776,7 +776,7 @@ client.connect(function (err, db) {
   };
 
 
-  /* Databas queries: */
+  /* Database queries: */
 
   function currentItemInventory(title, cb) {
     collection.findOne({

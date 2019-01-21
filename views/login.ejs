@@ -11,8 +11,8 @@
 </head>
 
 <body>
-  <div id='loginPage'>
-    <div id='loginHeadlin'>
+  <div class='loginPage'>
+    <div class='loginHeadline'>
       <div class='logoStrip'>
 
         <h1>Skiers</h1>
@@ -33,7 +33,7 @@
         </div>
       </div>
     </div>
-    <div id='loginCenterBox'>
+    <div class='loginCenterBox'>
       <div id='loginTabA' class='tabBox'>
         <h2>Please Login</h2>
         <form id='singIn' method='post' action='/user' onsubmit='return checkForm(id, 0)'>
@@ -41,11 +41,11 @@
           <input id='userPassword' type='password' placeholder='Password' name='password' required>
           <div class='stripBox'>
             <button class='loginButton' id='submitUser' type='submit'> Submit</button>
-            <a type='button' onclick="loginToggle(0)" id='newUserButton'>New Account</a>
+            <a type='button' onclick="loginToggle(0)" class='newUserButton'>New Account</a>
           </div>
         </form>
       </div>
-      <div id='loginTabB' class='tabBox'>
+      <div id='loginTabB' class='tabBox hidden'>
         <h2>New User</h2>
         <form id='addUser' method='post' action='/adduser' onsubmit='return checkForm(id, 1)'>
           <input id='invite' type='password' placeholder='Invite Code' name='invite' required>
@@ -54,12 +54,12 @@
           <input id='newUserPassword' type='password' placeholder='Strong Password' name='password' required>
           <div class='stripBox'>
             <button class='loginButton' id='submitNewUser' type='submit'> Submit</button>
-            <a type='button' onclick="loginToggle(1)" id='newUserButton'>Registerd User</a>
+            <a type='button' onclick="loginToggle(1)" class='newUserButton'>Registered User</a>
           </div>
         </form>
       </div>
     </div>
-    <span id='error'>
+    <span id='error' class='error'>
       <span class='errorName'></span>
       <span class='errorEmail'></span>
       <span class='errorPassword'></span>
@@ -146,18 +146,18 @@
     };
 
     function contentToView(json, nextNum) {
-      let coment = document.getElementById('error')
+      let error = document.getElementById('error')
       obj = JSON.parse(json);
       if (obj.err) {
-        coment.innerText = obj.err;
+        error.innerText = obj.err;
       } else {
-        coment.innerText = "Your login attempt was not successful. Please try again.";
+        error.innerText = "Your login attempt was not successful. Please try again.";
       }
     };
 
     function postForm(file, formDataNode, id, nextNum) {
 
-      let i, pagePath, elmnt, xhttp, formData;
+      let i, pagePath, xhttp, formData;
       formData = new FormData();
       pagePath = file;
       for (i in formDataNode) {

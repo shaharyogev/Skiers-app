@@ -43,15 +43,21 @@
   --tbicd: #1e272f;
 }
 
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
   font-family: Poppins, sans-serif;
   font-size: 1em;
-  margin: 0;
   font-weight: 400;
   text-align: left;
   background-color: var(--tb);
   text-rendering: optimizeLegibility;
-  box-sizing: border-box;
+  height: auto;
+  width: auto;
 }
 
 .title,
@@ -75,7 +81,6 @@ input::placeholder {
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  box-sizing: border-box;
 }
 
 .flex-column {
@@ -83,7 +88,6 @@ input::placeholder {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  box-sizing: border-box;
 }
 
 .flex-space {
@@ -96,7 +100,7 @@ input::placeholder {
   margin: 0;
 }
 
-#mainPage {
+.mainPage {
   display: flex;
   flex-direction: row;
   transition: all .2s ease;
@@ -105,19 +109,15 @@ input::placeholder {
   color: var(--tc);
   height: 100vh;
   width: 100vw;
-
 }
 
 
-#logoBackground {
-  display: none;
-  position: absolute;
-  box-sizing: border-box;
-  z-index: 0;
-}
 
 .logoBackground {
   position: relative;
+  z-index: 0;
+  display: none;
+  position: absolute;
   z-index: 0;
 }
 
@@ -128,10 +128,9 @@ input::placeholder {
   flex: 1 1 15%;
   align-self: stretch;
   background-color: rgb(42, 63, 84);
-  box-sizing: border-box;
   transition: 300ms ease;
   font-size: medium;
-  max-width:200px;
+  max-width: 200px;
 }
 
 .navColumn a {
@@ -140,8 +139,12 @@ input::placeholder {
 }
 
 .navLogo {
-  flex-wrap: wrap;
+  margin: 0;
   background-color: #0802026b;
+  justify-content: space-between;
+  padding: 5%;
+  flex-direction: row-reverse;
+}
 
 }
 
@@ -151,19 +154,19 @@ input::placeholder {
 
 .logoImg {
   display: flex;
-  margin: 3% 1% 3% 0;
+  margin: 0;
   width: 4vh;
 }
 
-#userNameTitle {
+.userNameTitle {
   justify-content: flex-start;
   margin: 0;
   text-transform: capitalize;
 }
-#userNameTitle h2 {
-  justify-content: flex-start;
-  margin: 4% 5% ;
 
+.userNameTitle h2 {
+  justify-content: flex-start;
+  margin: 4% 5%;
 }
 
 .navButtons {
@@ -171,9 +174,9 @@ input::placeholder {
   margin: 4% 5%;
 }
 
-.navButtons h2{
+.navButtons h2 {
   margin: 10% 0;
-  font-size:100%;
+  font-size: 100%;
 }
 
 .navButtons ul {
@@ -210,8 +213,6 @@ input::placeholder {
   justify-content: space-around;
   align-items: flex-start;
   overflow-x: auto;
-
-  
 }
 
 .mainContent::-webkit-scrollbar {
@@ -224,27 +225,30 @@ input::placeholder {
   border-radius: 2px;
 }
 
-
 .resultsPanel {
   display: flex;
   flex-flow: row wrap;
   overflow-x: auto;
   justify-content: center;
   align-items: start;
+  width: 100%;
 
 }
 
-#queryResults {
+.queryResults {
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
   background-color: var(--te);
   flex-wrap: wrap;
-  margin: 2rem 2vw;
-  padding: 0.5vh 4vw;
+  margin: 2% 3%;
+  padding: 2% 3%;
   box-shadow: 0px 2px 12px rgba(0, 0, 0, 0.15);
   border-radius: 0.3rem;
   text-overflow: ellipsis;
+}
+
+.queryResults h2{
+  margin:5% 0;
 }
 
 .navMenu {
@@ -260,22 +264,20 @@ input::placeholder {
   text-transform: capitalize;
 }
 
-
-
-#inventoryTab {
+.inventoryTabBox {
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
   background-color: var(--te);
-  flex-wrap: wrap;
-  flex-shrink: initial;
-  padding: 2vh 4vw;
-  margin: 2rem 2vw 0.1rem 2vw;
+  padding: 2% 3%;
+  margin: 2% 3%;
   box-shadow: 0px 2px 12px rgba(0, 0, 0, 0.15);
   border-radius: 0.3rem;
 }
+.inventoryTabBox h2{
+  margin: 5% 0;
+}
 
-#queryResults ul {
+.queryResults ul {
   list-style: none;
   padding-left: 0;
 }
@@ -287,7 +289,6 @@ table tr {
   border-bottom-width: 1px;
   border-collapse: collapse;
   border-spacing: 1px;
-  box-sizing: border-box;
   font-size: medium;
 }
 
@@ -304,14 +305,12 @@ table tr th {
   text-transform: capitalize;
 }
 
-.topten {
+.topTen {
   padding: 2px 1px;
   max-width: 96vw;
 }
 
-
-
-#navTab {
+.navTab {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -321,12 +320,12 @@ table tr th {
   justify-self: center;
   align-self: center;
   text-overflow: clip;
-  box-sizing: border-box;
   border-bottom-style: solid;
   border-bottom-color: #adb2b5;
   cursor: pointer;
   margin: 0 0.3rem;
 }
+
 .tabNavButtonActive {
   border-bottom-color: #a525a5;
   transition: 0.1s linear;
@@ -335,7 +334,6 @@ table tr th {
 .tabNavButton:hover {
   border-bottom-color: #a525a5;
 }
-
 
 .tabNavButton::after {
   border-bottom-color: #0e7275;
@@ -350,23 +348,22 @@ table tr th {
   align-items: center;
 }
 
-#contentTab {
+.contentTab {
   display: flex;
 }
 
-#contentTab input,
-#contentTab button,
-#contentTab a {
+.contentTab input,
+.contentTab button,
+.contentTab a {
   display: flex;
   align-items: center;
   margin-bottom: 0.85rem;
   line-height: 1.5rem;
-  box-sizing: border-box;
   box-shadow: none;
   max-width: 100%;
 }
 
-#contentTab input {
+.contentTab input {
   width: 100%;
   max-width: 16rem;
   border-radius: 0.3rem;
@@ -378,7 +375,7 @@ table tr th {
   padding: 0.2rem 1rem;
 }
 
-#contentTab form {
+.contentTab form {
   max-width: 100%;
 }
 
@@ -398,21 +395,15 @@ table tr th {
   cursor: pointer;
 }
 
-#chatLiveBox {
-  align-content: stretch;
-  flex-direction: row;
-  box-shadow: 0px 2px 12px rgba(0, 0, 0, 0.15);
-  overflow-x: hidden;
-  z-index: 2;
-}
 
-#chatMessagesBox::-webkit-scrollbar {
+
+.chatMessagesBox::-webkit-scrollbar {
   width: 3px;
   background-color: #00000000;
 }
 
-#chatMessagesBox::-webkit-scrollbar-thumb {
-  box-shadow: inset 0 0 3px  #aeb5b9ab;
+.chatMessagesBox::-webkit-scrollbar-thumb {
+  box-shadow: inset 0 0 3px #aeb5b9ab;
   border-radius: 2px;
 }
 
@@ -426,12 +417,14 @@ table tr th {
   border-radius: 2px;
 }
 
-#chatFlex {
+.chatFlex {
   display: flex;
   flex-direction: column;
   align-content: stretch;
   flex-basis: 100%;
   background-color: var(--tbc);
+  box-shadow: 0px 2px 12px rgba(0, 0, 0, 0.15);
+  z-index: 2;
 }
 
 .chatLiveBox {
@@ -481,7 +474,7 @@ table tr th {
   transition: 200ms ease;
 }
 
-#chatLogoButton {
+.chatLogoButton {
   position: fixed;
   display: block;
   width: 6.5vw;
@@ -516,7 +509,7 @@ table tr th {
   display: none;
 }
 
-#minimize {
+.minimize {
   display: flex;
   flex-basis: 95%;
   flex-direction: row;
@@ -525,7 +518,7 @@ table tr th {
   overflow-x: hidden;
 }
 
-#chatInputDiv {
+.chatInputDiv {
   margin: 0.85rem 0rem;
   display: flex;
   flex-basis: auto;
@@ -534,7 +527,7 @@ table tr th {
   background-color: var(--tbc);
 }
 
-#chatInput {
+.chatInputTextBox {
   flex-basis: 85%;
   display: flex;
   border-style: solid;
@@ -545,21 +538,19 @@ table tr th {
   border-width: 1px;
   box-shadow: none;
   padding: 9px 12px 11px 12px;
-  box-sizing: border-box;
   font-size: 1rem;
   font-weight: normal;
   line-height: 20px;
   min-height: 20px;
 }
 
-#chatSend {
-  box-sizing: border-box;
+.chatSendBox {
   display: flex;
   flex-basis: 10%;
   border-style: none;
 }
 
-#chatSend:visited {
+.chatSendBox:visited {
   border-style: none;
   border-color: #efefef;
 }
@@ -571,37 +562,32 @@ table tr th {
   fill: #9da3a4;
 }
 
-#chatButtons {
+.chatButtons {
   z-index: 1;
-  position: relative;
-}
-
-#chatButtonToggle {
-  position: fixed;
-  transition: 10ms;
   font-weight: 800;
-  font-size: 1rem;
+  position: fixed;
   text-align: center;
   margin: auto;
-  box-sizing: border-box;
-  background-color: #9da3a4;
   color: white;
   cursor: pointer;
   background-color: rgba(0, 0, 0, 0.14);
+  right: 6%;
   transition: 200ms ease;
+  padding: 0 0 4px 0;
+
 }
+
 
 .chatMinimize {
   font-weight: 1200;
-  right: 6%;
-  padding: 0 12px 0px 12px;
+  padding: 0 12px 0px 10px;
+
 }
 
 .chatMinimizeFromMax {
   font-weight: 1200;
   right: 1%;
   top: 1%;
-  padding: 0 12px 0px 12px;
 }
 
 .chatEnlarge {
@@ -618,7 +604,7 @@ table tr th {
   flex-flow: row;
 }
 
-#chatMessagesBox {
+.chatMessagesBox {
   flex: 1 1 70%;
   display: flex;
   flex-direction: column;
@@ -626,7 +612,7 @@ table tr th {
   overflow-y: auto;
 }
 
-#chatUl {
+.chatUl {
   display: block;
   list-style: none;
   padding: 0;
@@ -639,7 +625,6 @@ table tr th {
   padding: 0;
   overflow-x: hidden;
   overflow-y: auto;
-  box-sizing: border-box;
 }
 
 .chatMessages h3 {
@@ -654,7 +639,7 @@ table tr th {
   text-transform: capitalize;
 }
 
-#chatUsersUl {
+.chatUsersUl {
   list-style: none;
   padding-left: 0;
 }
@@ -672,7 +657,6 @@ table tr th {
   line-height: 19px;
   color: var(--tc);
   padding: 2px 8px 3px 10px;
-  box-sizing: border-box;
   background-color: var(--te);
   margin: 0.4rem 1rem;
   border-radius: 0px 7.5px 7.5px 7.5px;
@@ -697,9 +681,7 @@ table tr th {
   flex-wrap: wrap;
 }
 
-
-
-#menuLogo {
+.menuLogo {
   z-index: 1;
 }
 
@@ -749,9 +731,8 @@ table tr th {
     justify-content: flex-start;
     align-items: center;
   }
-  #queryResults {
-    margin: 2rem 2vw 0.1rem 2vw;
-    ;
+  .queryResults {
+  
     transition: 0.3s ease-in-out;
   }
 }
@@ -768,7 +749,7 @@ table tr th {
     min-height: 8rem;
     width: 90vw;
   }
-  #chatInput {
+  .chatInputTextBox {
     font-size: 0.8rem;
   }
   .newMessageLi h3 {
@@ -790,7 +771,6 @@ table tr th {
     display: none;
     flex-basis: 0%;
     transition: none;
-    text-align:ce
   }
   .navButtons {
     margin: 0.5vw 2vw;
@@ -801,14 +781,18 @@ table tr th {
   .navColumn h2 {
     font-size: small;
   }
+  .navLogo{
+    padding:8% 5%;
+  }
   .logoImg {
-    margin: 7% 0 0 0;
     width: 9vw;
+    max-width: 1em;
+    max-height: 1em;
   }
-  #userName{
-    display:none;
+  .userName {
+    display: none;
   }
-  .chage .mainContent {
+  .change .mainContent {
     flex-basis: 80%;
   }
   .change .navColumn {
@@ -819,27 +803,29 @@ table tr th {
   }
   .resultsPanel {
     flex-basis: 85%;
-    align-items: start;
+    align-items: center;
+    justify-content:start;
+    flex-flow:column;
   }
-  
-  .topten h3,
-  .topten h2 {
+  .inventoryTabBox{
+    display:block;
+  }
+  .topTen h3,
+  .topTen h2 {
     font-size: 1.3rem;
   }
-  #Results {
+  .tabNavButton {
+    font-size: smaller;
+  }
+  .queryResults {
+    display:block;
+    transition: none;
     max-width: 96vw;
     margin: 2vw;
   }
-  .tabNavButton {
-  font-size: smaller;
+  table {
+    font-size: 3.5vmin;
   }
-  #queryResults {
-    transition: none;
-  }
-  table{
-    font-size:3.5vmin;
-  }
-  
 }
 
 @media(pointer:none),
@@ -847,88 +833,82 @@ table tr th {
   .resultsPanel {
     flex-basis: 90%;
   }
-  #chatLiveBox{
-    transition:none;
-}
-   
+  .chatLiveBox {
+    transition: none;
+  }
 }
 
 @media (orientation:landscape) and (pointer:coarse),
 (pointer:none) {
-    #chatLiveBox{
-        transition:none;
-    }
-    .chatLiveBox {
-      max-height: 15rem;
-      min-height: 15rem;
-      width: 90vw;
-      font-size: 70%;
-    }
-    .chatLiveBoxMini {
-      max-height: 20vh;
-      min-height: 8rem;
-      width: 80vw;
-    }
-    #chatInput {
-      font-size: 0.8rem;
-    }
-    #chatLogoButton{
-      right: 1%;
-      width: 10vh;
-      max-width: 40px;
-
-    }
-    #chatInputDiv{
-      margin: 0.25rem 0rem;
-
-    }
-    .mainContent {
-      margin-top: 0;
-    }
-    .navMenu {
-      display: flex;
-    }
-    .navColumn {
-      display: none;
-      flex-basis: 0%;
-      transition: none;
-    }
-    .navButtons {
-      margin: 2vh 2vh;
-    }
-    .navButtons li {
-      margin: 3.3vh 0;
-      font-size: smaller;
-
-    }
-    .navColumn h1 {
-      font-size: medium;
-    }
-    .navColumn h2 {
-      font-size: small;
-      margin: 2vh 0;
-
-    }
-    .logoImg {
-      margin: 13% 6%;
-      width: 9vh;
-    }
-    #userName{
-      display:none;
-    }
-    .chage .mainContent {
-      flex-basis: 80%;
-    }
-    .change .navColumn {
-      display: flex;
-      flex-basis: 20%;
-      transition: none;
-      font-size: small;
-    }
-    .resultsPanel {
-      align-items: start;
-    }
-     table{
-       font-size:5vmin;
-     }
+  
+  .chatLiveBox {
+    transition: none;
+    max-height: 15rem;
+    min-height: 15rem;
+    width: 90vw;
+    font-size: 70%;
+  }
+  .chatLiveBoxMini {
+    max-height: 20vh;
+    min-height: 8rem;
+    width: 80vw;
+  }
+  .chatInputTextBox {
+    font-size: 0.8rem;
+  }
+  .chatLogoButton {
+    right: 1%;
+    width: 10vh;
+    max-width: 40px;
+  }
+  .chatInputDiv {
+    margin: 0.25rem 0rem;
+  }
+  .mainContent {
+    margin-top: 0;
+  }
+  .navMenu {
+    display: flex;
+  }
+  .navColumn {
+    display: none;
+    flex-basis: 0%;
+    transition: none;
+  }
+  .navButtons {
+    margin: 2vh 2vh;
+  }
+  .navButtons li {
+    margin: 3.3vh 0;
+    font-size: smaller;
+  }
+  .navColumn h1 {
+    font-size: 1.5em;
+  }
+  .navColumn h2 {
+    font-size: small;
+    margin: 2vh 0;
+  }
+  .logoImg {
+    max-width:1.5em;
+    max-height:1.5em;
+  }
+  .userName {
+    display: none;
+  }
+  .change .mainContent {
+    flex-basis: 80%;
+  }
+  .change .navColumn {
+    display: flex;
+    flex-basis: 20%;
+    transition: none;
+    font-size: small;
+  }
+  .resultsPanel {
+    align-items: start;
+  }
+  table {
+    font-size: 5vmin;
+  }
 }

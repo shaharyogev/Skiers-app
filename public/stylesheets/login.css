@@ -5,7 +5,7 @@ body {
   font-family: Poppins, sans-serif;
 }
 
-#loginPage {
+.loginPage {
   margin: 0;
   display: flex;
   box-sizing: content-box;
@@ -22,7 +22,7 @@ body {
   margin: 0.5rem 0;
 }
 
-#loginHeadlin {
+.loginHeadline {
   flex: 2 1 0;
   display: flex;
   align-self: flex-start;
@@ -45,11 +45,11 @@ body {
   width: 400px;
 }
 
-#loginHeadlin h1 {
+.loginHeadline h1 {
   margin: 0 0.5rem ;
   text-align:center;
 }
-#loginHeadlin h2 {
+.loginHeadline h2 {
   margin: 0.5rem 0 ; 
   text-align:center;
 }
@@ -60,7 +60,7 @@ body {
   height: 50px;
 }
 
-#loginCenterBox {
+.loginCenterBox {
   flex: 1 1 0;
   flex-wrap: wrap;
   justify-self: center;
@@ -74,7 +74,7 @@ body {
 }
 
 
-#error{
+.error{
   display:flex;
   flex-wrap: wrap;
   flex-direction:column;
@@ -87,18 +87,12 @@ body {
     width: 100%;
     justify-content: center;
   }
-  #loginCenterBox {
+  .loginCenterBox {
     width: 90%;
   }
 }
 
-#loginTabA {
-  display: flex;
-}
 
-#loginTabB {
-  display: none;
-}
 
 .tabBox {
   display: flex;
@@ -108,9 +102,12 @@ body {
   align-items: center;
 }
 
-#loginCenterBox input,
-#loginCenterBox button,
-#loginCenterBox a {
+.hidden {
+  display: none;
+}
+.loginCenterBox input,
+.loginCenterBox button,
+.loginCenterBox a {
   display: flex;
   align-items: center;
   margin-bottom: 0.85rem;
@@ -120,7 +117,7 @@ body {
   max-width: 100%;
 }
 
-#loginCenterBox input {
+.loginCenterBox input {
   width: 16rem;
   border-radius: 0.3rem;
   border-style: solid;
@@ -129,7 +126,7 @@ body {
   padding: 0.2rem 1rem;
 }
 
-#loginCenterBox form {
+.loginCenterBox form {
   max-width: 100%;
 }
 
@@ -148,6 +145,6 @@ body {
   padding: 0.1rem 1.3rem;
 }
 
-#newUserButton {
+.newUserButton {
   cursor: pointer;
 }
