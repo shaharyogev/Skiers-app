@@ -1,16 +1,3 @@
-function clearPath(path, x) {
-  if (window.location.pathname === path) {
-    window.location.pathname = '/';
-    for (i = 0; i < x; i++) {
-      history.pushState("", "", "/");
-    };
-  }
-  if (window.location.search) {
-    history.pushState("", "", "/");
-  }
-};
-clearPath('/logout', 30);
-
 function loginToggle(b) {
   let loginTabA = document.getElementById('loginTabA');
   let loginTabB = document.getElementById('loginTabB');
@@ -31,7 +18,6 @@ function checkForm(id, nextNum) {
   let emailTest = formId.querySelector('input[name="email"]');
   let passwordTest = formId.querySelector('input[name="password"]');
   let nameTest = formId.querySelector('input[name="name"]');
-
   let test = 0
 
   if (emailTest != undefined) {
@@ -118,3 +104,16 @@ function postForm(file, formDataNode, id, nextNum) {
   xhttp.open('POST', pagePath, true);
   xhttp.send(formData);
 };
+
+function clearPath(path, x) {
+  if (window.location.pathname === path) {
+    window.location.pathname = '/';
+    for (i = 0; i < x; i++) {
+      history.pushState("", "", "/");
+    };
+  }
+  if (window.location.search) {
+    history.pushState("", "", "/");
+  }
+};
+clearPath('/logout', 30);
