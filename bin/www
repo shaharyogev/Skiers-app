@@ -98,8 +98,11 @@ io.on('connection', function (socket) {
 
 
   socket.on('disconnect', function () {
-    chatOnlineUsersList.splice(chatOnlineUsersList.indexOf(socket.userName), 1);
-    io.emit('onlineUsersList', chatOnlineUsersList);
+
+    if(chatOnlineUsersList.indexOf(socket.userName) >= 0 ){
+      chatOnlineUsersList.splice(chatOnlineUsersList.indexOf(socket.userName), 1);
+      io.emit('updateOnlineUsersList', chatOnlineUsersList);
+    }
     connectionsList.splice(connectionsList.indexOf(socket), 1);
   });
 
