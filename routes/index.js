@@ -8,9 +8,7 @@ const client = MongoClient(usersdbUrl, {
 	useNewUrlParser: true
 });
 const session = require('express-session');
-const expressValidator = require('express-validator');
 const formidableMiddleware = require('express-formidable');
-const async = require('async');
 let inviteListForLogIn;
 
 
@@ -113,7 +111,7 @@ client.connect(function(err, db) {
 
 	//Handle new user singUp
 
-	router.post('/addUser', formidableMiddleware(), function(req, res, next) {
+	router.post('/addUser', formidableMiddleware(), function(req, res) {
 		checkFormData(req.fields, res, function(err, r) {
 			if (r)
 				creatNewUser(req.fields.invite, req.fields.name, req.fields.email, req.fields.password, req, res);
@@ -250,7 +248,7 @@ client.connect(function(err, db) {
 		res.render('login');
 	});
 
-	router.get('/logout', function(req, res, next) {
+	router.get('/logout', function(req, res) {
 		req.session.destroy(function(err) {
 			if (err) console.log(err);
 		});
@@ -726,55 +724,62 @@ client.connect(function(err, db) {
 
 
 
-	function updateReturnedInventory(title, inventory, email, res) {
-		let query = {};
-		let status = '';
+	async function updateReturnedInventory(title, inventory, email, res) {
+		let queryResult;
+		try {
+			let query = {};
+			let status = '';
 
-		if (title)
-			query.title = title;
+			if (title)
+				query.title = title;
 
-		if (inventory)
-			inventory = parseInt(inventory, 10);
+			if (inventory)
+				inventory = parseInt(inventory, 10);
 
-		if (email)
-			email = email.toLowerCase(),
-			query.activeUsers = {
-				$elemMatch: {
-					email: email,
-					inventory: {
-						$gte: inventory
+			if (email)
+				email = email.toLowerCase(),
+				query.activeUsers = {
+					$elemMatch: {
+						email: email,
+						inventory: {
+							$gte: inventory
+						}
 					}
+				};
+
+			queryResult = await collection.findOneAndUpdate(query, {
+				$inc: {
+					'activeUsers.$.inventory': -inventory,
+					inventory: inventory
 				}
-			};
-		collection.findOneAndUpdate(query, {
-			$inc: {
-				'activeUsers.$.inventory': -inventory,
-				inventory: inventory
-			}
-		}, {
-			upsert: false,
-			returnNewDocument: true
-		},
-		function(err, r) {
-			if (err) console.log(err);
+			}, {
+				upsert: false,
+				returnNewDocument: true
+			},
+			function(err, r) {
+				if (r.value === null) {
+					title = 'The item: ' + title + ' wasn\'t returned to stock!';
+					status = 'The user: ' + email + ' cant returdn the amount of: ' + inventory;
+				}
+				if (r.value !== null) {
+					title = 'The item: ' + title + ' was returned to stock, the current stock is: ' + (r.value.inventory + inventory);
+					status = 'The user: ' + email + ' returned ' + inventory;
+				}
 
-			if (r.value === null) {
-				currentUserInventory(title, email, function(err, value) {
-					title = 'The item: ' + title + ' wasn\'t returned to stock!',
-					status = 'The user: ' + email + ' cant returdn the amount of: ' + inventory + ' the current inventory for this user: ' + value;
-					inventoryStatus(title, status, email, res);
-				});
-			}
-			if (r.value !== null) {
-				currentUserInventory(title, email, function(err, value) {
-					title = 'The item: ' + title + ' was returned to stock, the current stock is: ' + (r.value.inventory + inventory),
-					status = 'The user: ' + email + ' returned ' + inventory + ' his total inventory for now is: ' + value;
+				return (r);
+			});
 
-					inventoryStatus(title, status, email, res);
-				});
-			}
+
+
+		 let itemsList = await inventoryStatusAsync(email);
+			await console.log(itemsList);
+			await console.log(status);
+			await res.send({ status:status, itemsList:itemsList });
+
+		} catch (err) {
+			console.log(err);
 		}
-		);
+
 	}
 
 
@@ -905,6 +910,7 @@ client.connect(function(err, db) {
 					}
 				}
 				]).toArray(function(err, r) {
+					console.log(r.fields);
 					res.send(r);
 				});
 			}
@@ -912,6 +918,62 @@ client.connect(function(err, db) {
 			console.log(err);
 		}
 
+	}
+
+	function inventoryStatusAsync(email) {
+		return new Promise(resolve => {
+			try {
+				collection.aggregate([{
+					$match: {
+						'activeUsers.email': email
+					}
+				},
+				{
+					$unwind: '$activeUsers'
+				},
+				{
+					$match: {
+						'activeUsers.email': email
+					}
+				},
+				{
+					$project: {
+						_id: 0,
+						title: 1,
+						'activeUsers.inventory': 1
+					}
+				},
+
+				{
+					$group: {
+						_id: '$title',
+						quantity: {
+							$sum: '$activeUsers.inventory'
+						}
+					}
+				},
+				{
+					$sort: {
+						quantity: -1
+					}
+				},
+				{
+					$project: {
+						_id: 0,
+						item: '$_id',
+						quantity: '$quantity',
+					}
+				}
+				]).toArray(function(err, r) {
+					console.log(r);
+					resolve(r);
+				});
+
+			} catch (err) {
+				console.log(err);
+				resolve(err);
+			}
+		});
 	}
 
 

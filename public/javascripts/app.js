@@ -38,10 +38,10 @@ function newUserOnline(d) {
 //Update users list
 socket.on('updateOnlineUsersList', function(d) {
 	let chatOnlineUsersUl = document.getElementById('chatUsersUl');
-	chatOnlineUsersUl.innerHTML = "<li></li>";
+	chatOnlineUsersUl.innerHTML = '<li></li>';
 	newUserChatCount = 0;
 	for (let i in d) {
-		newUserOnline(d[i])
+		newUserOnline(d[i]);
 	}
 });
 
@@ -57,12 +57,12 @@ function sendMessage(newMessage) {
 }
 
 //send message 
-chatSend.addEventListener("click", function() {
+chatSend.addEventListener('click', function() {
 	if (message.value)
 		sendMessage(message.value);
 });
 
-message.addEventListener("keydown", function(e) {
+message.addEventListener('keydown', function(e) {
 	if (e.keyCode === 13) {
 		if (message.value)
 			sendMessage(message.value);
@@ -191,65 +191,91 @@ function contentToView(json, title) {
 	txt = '';
 	try {
 		obj = JSON.parse(json);
-
+		console.log(obj);
 		if (obj.err) {
-			let error = document.getElementById('error')
+			let error = document.getElementById('error');
 			error.innerText = obj.err;
 		} else {
 
 			if (obj.title) {
-				let titleT = document.getElementById('title')
+				let titleT = document.getElementById('title');
 				titleT.innerText = obj.title;
 
-
 				if (obj.status) {
-					let statusT = document.getElementById('status')
-					statusT.innerText = obj.status
+					let statusT = document.getElementById('status');
+					statusT.innerText = obj.status;
 				}
 				if (obj.name) {
-					let statusT = document.getElementById('queryUl')
-					statusT.innerText = obj.name
+					let statusT = document.getElementById('queryUl');
+					statusT.innerText = obj.name;
 				}
 
 				if (obj.itemsList) {
+					console.log(obj.itemsList[0]);
+
+					columnHeadline = Object.getOwnPropertyNames(obj.itemsList[0]);
+					console.log(obj.itemsList[0]);
+					txt += '<table>';
+					txt += '<tr>';
+					for (x in columnHeadline) {
+						txt += '<th>' + columnHeadline[x] + '</th>';
+					}
+					txt += '</tr>';
+					for (x in obj.itemsList) {
+						txt += '<tr>';
+						for (y in obj.itemsList[x]) {
+							txt += '<td>' + obj.itemsList[x][y] + '</td>';
+						}
+						txt += '</tr>';
+					}
+					txt += '</table>';
+					document.getElementById('queryUl').innerHTML = txt;
+
+
+
+					/*
 					let ul = document.getElementById('queryUl');
 					ul.innerHTML = '';
 					for (let i in obj.itemsList) {
 						let li = document.createElement('li');
 						li.appendChild(document.createTextNode(obj.itemsList[i]));
 						ul.appendChild(li);
-					}
+					}*/
 				}
 			} else {
-				if (title) {
-					let titleT = document.getElementById('title')
+
+				if (title || obj.titleTable) {
+					let titleT = document.getElementById('title');
 					titleT.innerText = title;
 
 					if (title !== 'Current Inventory:') {
-						document.getElementById("queryUl").scrollIntoView();
+						document.getElementById('queryUl').scrollIntoView();
 					}
 				}
-				if (!status) {
-					let statusT = document.getElementById('status')
-					statusT.innerText = ''
+				if (status || obj.statusTable) {
+					let statusT = document.getElementById('status');
+					statusT.innerText = status;
+				} else {
+					let statusT = document.getElementById('status');
+					statusT.innerText = '';
 				}
 
-				columnHeadline = Object.getOwnPropertyNames(obj[0])
-				txt += "<table>"
-				txt += "<tr>"
+				columnHeadline = Object.getOwnPropertyNames(obj[0]);
+				txt += '<table>';
+				txt += '<tr>';
 				for (x in columnHeadline) {
-					txt += "<th>" + columnHeadline[x] + "</th>";
+					txt += '<th>' + columnHeadline[x] + '</th>';
 				}
-				txt += "</tr>"
+				txt += '</tr>';
 				for (x in obj) {
-					txt += "<tr>"
+					txt += '<tr>';
 					for (y in obj[x]) {
-						txt += "<td>" + obj[x][y] + "</td>"
+						txt += '<td>' + obj[x][y] + '</td>';
 					}
-					txt += "</tr>";
+					txt += '</tr>';
 				}
-				txt += "</table>"
-				document.getElementById("queryUl").innerHTML = txt;
+				txt += '</table>';
+				document.getElementById('queryUl').innerHTML = txt;
 
 
 			}
@@ -269,14 +295,14 @@ function dataListReq(list) {
 		xhttp.onreadystatechange = function() {
 			if (this.readyState == 4) {
 				if (this.status == 200) {
-					jsonData = JSON.parse(this.responseText)
+					jsonData = JSON.parse(this.responseText);
 					for (let i in jsonData) {
 						let option = document.createElement('option');
 						if (jsonData[i].item) {
 							option.value = jsonData[i].item;
 						}
 						if (jsonData[i].label) {
-							option.label = jsonData[i].label
+							option.label = jsonData[i].label;
 						}
 						dataList.appendChild(option);
 					}
@@ -288,7 +314,7 @@ function dataListReq(list) {
 			}
 		};
 	}
-	xhttp.open("GET", "/" + list, true);
+	xhttp.open('GET', '/' + list, true);
 	xhttp.send();
 }
 
@@ -300,21 +326,21 @@ function dataListReqEmail(list, email) {
 	let xhttp, jsonData, formData;
 
 	formData = new FormData();
-	formData.append("email", email);
+	formData.append('email', email);
 
 	if (list) {
 		xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function() {
 			if (this.readyState == 4) {
 				if (this.status == 200) {
-					jsonData = JSON.parse(this.responseText)
+					jsonData = JSON.parse(this.responseText);
 					for (let i in jsonData) {
 						let option = document.createElement('option');
 						if (jsonData[i].item) {
 							option.value = jsonData[i].item;
 						}
 						if (jsonData[i].label) {
-							option.label = jsonData[i].label
+							option.label = jsonData[i].label;
 						}
 						dataList.appendChild(option);
 					}
@@ -326,7 +352,7 @@ function dataListReqEmail(list, email) {
 			}
 		};
 	}
-	xhttp.open("POST", "/" + list, true);
+	xhttp.open('POST', '/' + list, true);
 	xhttp.send(formData);
 }
 
@@ -340,7 +366,7 @@ function includeThisHTML(page, back, title) {
 		xhttp.onreadystatechange = function() {
 			if (this.readyState == 4) {
 				if (this.status == 200) {
-					if (this.response.startsWith("<!DOCTYPE html>")) {
+					if (this.response.startsWith('<!DOCTYPE html>')) {
 						document.open();
 						document.write(this.responseText);
 						document.close();
@@ -364,7 +390,7 @@ function includeThisHTML(page, back, title) {
 			}
 		};
 	}
-	xhttp.open("GET", page, true);
+	xhttp.open('GET', page, true);
 	xhttp.send();
 }
 
@@ -381,7 +407,7 @@ function postForm(page, formDataNode, id, nextNum) {
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4) {
 			if (this.status == 200) {
-				if (this.response.startsWith("<!DOCTYPE html>")) {
+				if (this.response.startsWith('<!DOCTYPE html>')) {
 					document.open();
 					document.write(this.responseText);
 					document.close();
@@ -409,7 +435,7 @@ window.onpopstate = function(event) {
 		let newPage = window.location.search;
 		let newPageLen = newPage.length;
 		newPage = newPage.slice(1, newPageLen);
-		includeThisHTML(newPage, "1");
+		includeThisHTML(newPage, '1');
 	} else {
 		includeThisHTML('/app');
 	}
@@ -448,7 +474,7 @@ function tabToggle(num, className, event) {
 	if (num === 3) {
 		dataListReq('itemTitleReturn');
 	}
-};
+}
 
 
 //Chat Toggles
@@ -493,9 +519,9 @@ function minimizeToggle(size, close) {
 			chatClosed = 1;
 		} else if (close != 1) {
 			if (chatMini != 1) {
-				enlargeChat()
+				enlargeChat();
 			} else {
-				minimizeChat()
+				minimizeChat();
 			}
 			chatLogoButton.classList.toggle('changeDot');
 			chatClosed = 0;
@@ -509,7 +535,7 @@ let backgroundSvg = '<svg height="100%" viewBox="0 0 512 512" width="100%" fill=
 let backgroundSvg64 = window.btoa(backgroundSvg);
 let resultsPanelBackground = document.getElementById('logoBackground');
 
-resultsPanelBackground.style.backgroundImage = "url('data:image/svg+xml;base64," + backgroundSvg64 + "')";
+resultsPanelBackground.style.backgroundImage = 'url(\'data:image/svg+xml;base64,' + backgroundSvg64 + '\')';
 let menuOpen = 0;
 let menuClass;
 
@@ -541,29 +567,29 @@ const style = document.documentElement.style;
 
 function themeColors(is) {
 	let rootColors = [{
-			tc: ""
-		},
-		{
-			tb: ""
-		},
-		{
-			te: ""
-		},
-		{
-			tec: ""
-		},
-		{
-			tcc: ""
-		},
-		{
-			tbi: ""
-		},
-		{
-			tbc: ""
-		},
-		{
-			tbic: ""
-		}
+		tc: ''
+	},
+	{
+		tb: ''
+	},
+	{
+		te: ''
+	},
+	{
+		tec: ''
+	},
+	{
+		tcc: ''
+	},
+	{
+		tbi: ''
+	},
+	{
+		tbc: ''
+	},
+	{
+		tbic: ''
+	}
 	];
 	for (index in rootColors) {
 		let id = Object.getOwnPropertyNames(rootColors[index]);
@@ -584,7 +610,7 @@ function themeToggle(id) {
 		document.getElementById(id).innerText = 'Dark-Side';
 	}
 }
-document.body.addEventListener("click", menuXX);
+document.body.addEventListener('click', menuXX);
 
 
 
@@ -594,8 +620,8 @@ function goToRentTabWithEmail(id, nextNum) {
 	let thisTab = document.getElementById(id);
 
 	if (thisTab.querySelector('input[name="email"]')) {
-		let email = thisTab.querySelector('input[name="email"]').value
-		let tabClassList = document.getElementsByClassName("inventoryTab");
+		let email = thisTab.querySelector('input[name="email"]').value;
+		let tabClassList = document.getElementsByClassName('inventoryTab');
 		thisTab.reset();
 		tabToggle(nextNum, 'inventoryTab');
 		tabClassList[nextNum].querySelector('input[name="email"]').value = email;
