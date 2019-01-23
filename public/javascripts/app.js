@@ -1,0 +1,10 @@
+export let chatSend = document.getElementById('chatSend');
+export let message = document.getElementById('chatInput');
+export let chatUl = document.getElementById('chatUl');
+export let chatUsersUl = document.getElementById('chatUsersUl');
+export let userName = document.getElementById('userName');
+export let miniButton = document.getElementById('chatButtonToggle');
+export let chatBox = document.getElementById('chatLiveBox');
+export let chatLogoButton = document.getElementById('chatLogoButton');
+export let navColumn = document.getElementById('mainPage');
+export let resultsPanelBackground = document.getElementById('logoBackground');
