@@ -154,20 +154,20 @@ client.connect(function(err, db) {
 
 	router.post('/submitNewCustomer', formidableMiddleware(), async (req, res) => {
 		const r = await forms.check(req.fields);
-		if (r)
-			await submitNewCustomer(req.fields.name, req.fields.email, req.fields.phone, res);
-
-		else
+		if (r) {
+			const result = await submitNewCustomer(req.fields.name, req.fields.email, req.fields.phone);
+			return res.send(result);
+		} else
 			sendJsonErr(err, res);
 	});
 
 
 	router.post('/submitRent', formidableMiddleware(), async (req, res) => {
 		const r = await forms.check(req.fields);
-		if (r)
-			await updateRentedInventory(req.fields, res);
-
-		else
+		if (r) {
+			const result = await updateRentedInventory(req.fields);
+			return res.send(result);
+		} else
 			sendJsonErr(err, res);
 	});
 
@@ -175,10 +175,10 @@ client.connect(function(err, db) {
 
 	router.post('/submitReturn', formidableMiddleware(), async (req, res) => {
 		const r = await forms.check(req.fields);
-		if (r)
-			await updateReturnedInventory(req.fields.title, req.fields.inventory, req.fields.email, res);
-
-		else
+		if (r){
+			const result = await updateReturnedInventory(req.fields.title, req.fields.inventory, req.fields.email);
+			return res.send(result);
+		} else
 			sendJsonErr(err, res);
 	});
 
@@ -526,7 +526,7 @@ client.connect(function(err, db) {
 
 	//On success login activate the user session
 
-	const startUserSession =  async (email, req, res)=> {
+	const startUserSession = async (email, req, res) => {
 		try {
 			const r = await usersCollection.findOne({
 				email: email
@@ -559,7 +559,7 @@ client.connect(function(err, db) {
 
 	/* New Database functions: */
 
-	async function submitNewCustomer(name, email, phone, res) {
+	const submitNewCustomer = async (name, email, phone) => {
 		try {
 			let query = {};
 
@@ -573,7 +573,7 @@ client.connect(function(err, db) {
 				email = email.toLowerCase(),
 				query.email = email;
 
-			let r = await collection.findOneAndUpdate({
+			const r = await collection.findOneAndUpdate({
 				'email': email
 			}, {
 				$set: query
@@ -586,15 +586,18 @@ client.connect(function(err, db) {
 				returnNewDocument: true
 			});
 
-			await res.send({
+			result({
 				'name': name,
 				'title': r.value,
 				'status': phone
 			});
 		} catch (err) {
+			result({
+				err: err
+			});
 			console.log(err);
 		}
-	}
+	};
 
 
 
@@ -668,7 +671,7 @@ client.connect(function(err, db) {
 
 
 
-	async function updateRentedInventory(req, res) {
+	const updateRentedInventory = async (req) => {
 
 		let query = {};
 		let status = '';
@@ -731,10 +734,10 @@ client.connect(function(err, db) {
 
 			const itemsList = await qdb.userStatusA(email);
 
-			return (res.send({
+			return ({
 				status: status,
 				itemsList: itemsList
-			}));
+			});
 
 		} catch (err) {
 			console.log(err);
@@ -742,21 +745,18 @@ client.connect(function(err, db) {
 			const itemsList = await qdb.userStatusA(email);
 			status = inventory + ' ' + title + ' cant be rented, check the inventory stock.';
 
-			return (
-				res.send({
-					status: status,
-					itemsList: itemsList
-				})
-			);
+			return ({
+				status: status,
+				itemsList: itemsList
+			});
 		}
-	}
+	};
 
 
 
-	async function updateReturnedInventory(title, inventory, email, res) {
+	const updateReturnedInventory = async (title, inventory, email) => {
 
 		try {
-			let queryResult;
 			let query = {};
 			let status = '';
 
@@ -777,7 +777,7 @@ client.connect(function(err, db) {
 					}
 				};
 
-			queryResult = await collection.findOneAndUpdate(query, {
+			const r = await collection.findOneAndUpdate(query, {
 				$inc: {
 					'activeUsers.$.inventory': -inventory,
 					inventory: inventory
@@ -785,31 +785,29 @@ client.connect(function(err, db) {
 			}, {
 				upsert: false,
 				returnNewDocument: true
-			},
-			function(err, r) {
-				if (r.value === null) {
-					status = title + ' wasn\'t returned to stock! The user cant return the amount of: ' + inventory;
-				}
-				if (r.value !== null) {
-					status = inventory + ' ' + title + ' returned to stock';
-				}
-
-				return (r);
 			});
+
+			if (r.value === null) {
+				status = title + ' wasn\'t returned to stock! The user cant return the amount of: ' + inventory;
+			}
+
+			if (r.value !== null) {
+				status = inventory + ' ' + title + ' returned to stock';
+			}
 
 			let itemsList = await inventoryStatusAsync(email);
 
-			await res.send({
+			return ({
 				status: status,
 				itemsList: itemsList
 			});
 		} catch (err) {
 			console.log(err);
-			res.send({
+			return ({
 				err: err
 			});
 		}
-	}
+	};
 
 
 	/* Database queries: */
