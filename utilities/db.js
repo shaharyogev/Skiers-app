@@ -7,7 +7,7 @@ module.exports.getCollection = async (c1, c2) => {
 };
 
 
-module.exports.userStatusA = async (email) => {
+const userStatusA = async (email) => {
 	try {
 		const r = await collection.aggregate([{
 			$match: {
@@ -60,6 +60,7 @@ module.exports.userStatusA = async (email) => {
 	}
 };
 
+exports = userStatusA;
 
 module.exports.userEmailReturnListForDropDownA = async (email) => {
 
@@ -225,60 +226,6 @@ module.exports.usersReturnListForDropDownA = async (n) => {
 };
 
 
-module.exports.inventoryStatusA = async(email)=> {
-	try {
-		const r = await collection.aggregate([{
-			$match: {
-				'activeUsers.email': email
-			}
-		},
-		{
-			$unwind: '$activeUsers'
-		},
-		{
-			$match: {
-				'activeUsers.email': email
-			}
-		},
-		{
-			$project: {
-				_id: 0,
-				title: 1,
-				'activeUsers.inventory': 1
-			}
-		},
-
-		{
-			$group: {
-				_id: '$title',
-				quantity: {
-					$sum: '$activeUsers.inventory'
-				}
-			}
-		},
-		{
-			$sort: {
-				quantity: -1
-			}
-		},
-		{
-			$project: {
-				_id: 0,
-				item: '$_id',
-				quantity: '$quantity',
-			}
-		}
-		]).toArray();
-
-		return (r);
-
-	} catch (err) {
-		console.log(err);
-		return (err);
-	}
-};
-	
-
 module.exports.submitNewCustomerA = async (name, email, phone) => {
 	try {
 		let query = {};
@@ -319,7 +266,8 @@ module.exports.submitNewCustomerA = async (name, email, phone) => {
 	}
 };
 
-module.exports.updateNewInventoryA = async (title, inventory)=> {
+
+module.exports.updateNewInventoryA = async (title, inventory) => {
 	let query = {};
 	let status = '';
 	try {
@@ -379,7 +327,7 @@ module.exports.updateNewInventoryA = async (title, inventory)=> {
 	}
 };
 
-const currentItemInventoryA = async(title)=> {
+const currentItemInventoryA = async (title) => {
 	try {
 		const value = await collection.findOne({
 			title: title
@@ -398,6 +346,7 @@ const currentItemInventoryA = async(title)=> {
 	}
 };
 
+exports = currentItemInventoryA;
 
 module.exports.updateRentedInventoryA = async (req) => {
 
@@ -460,7 +409,7 @@ module.exports.updateRentedInventoryA = async (req) => {
 		} else
 			status = 'Order updated by:  ' + inventory + ' ' + title;
 
-		const itemsList = await qdb.userStatusA(email);
+		const itemsList = await userStatusA(email);
 
 		return ({
 			status: status,
@@ -470,7 +419,7 @@ module.exports.updateRentedInventoryA = async (req) => {
 	} catch (err) {
 		console.log(err);
 
-		const itemsList = await qdb.userStatusA(email);
+		const itemsList = await userStatusA(email);
 		status = inventory + ' ' + title + ' cant be rented, check the inventory stock.';
 
 		return ({
@@ -479,7 +428,6 @@ module.exports.updateRentedInventoryA = async (req) => {
 		});
 	}
 };
-
 
 
 module.exports.updateReturnedInventoryA = async (title, inventory, email) => {
@@ -523,7 +471,7 @@ module.exports.updateReturnedInventoryA = async (title, inventory, email) => {
 			status = inventory + ' ' + title + ' returned to stock';
 		}
 
-		let itemsList = await qdb.inventoryStatusA(email);
+		let itemsList = await userStatusA(email);
 
 		return ({
 			status: status,
@@ -534,5 +482,211 @@ module.exports.updateReturnedInventoryA = async (title, inventory, email) => {
 		return ({
 			err: err
 		});
+	}
+};
+
+module.exports.topTenItemsA = async () => {
+	try {
+		const result = await collection.aggregate([{
+			$match: {
+				'activeUsers.inventory': {
+					$gte: 1
+				}
+			}
+		},
+		{
+			$project: {
+				_id: 0,
+				title: 1,
+				'activeUsers': 1
+			}
+		},
+		{
+			$unwind: '$activeUsers'
+		},
+		{
+			$group: {
+				_id: '$title',
+				rentedItemInventory: {
+					$sum: '$activeUsers.inventory'
+				}
+			}
+		},
+		{
+			$sort: {
+				rentedItemInventory: -1
+			}
+		},
+		{
+			$limit: 10
+		},
+		{
+			$project: {
+				_id: 0,
+				item: '$_id',
+				quantity: '$rentedItemInventory',
+			}
+		}
+		]).toArray();
+
+		return (result);
+	} catch (err) {
+		console.log(err);
+		return (err);
+	}
+};
+
+
+module.exports.topTenUsersA = async () => {
+	try {
+		const result = await collection.aggregate([{
+			$match: {
+				'activeUsers.inventory': {
+					$gte: 1
+				}
+			}
+		},
+		{
+			$project: {
+				_id: 0,
+				'activeUsers.email': 1,
+				'activeUsers.inventory': 1
+			}
+		},
+		{
+			$unwind: '$activeUsers'
+		},
+		{
+			$group: {
+				_id: '$activeUsers.email',
+				userInventorySum: {
+					$sum: '$activeUsers.inventory'
+				}
+			}
+		},
+		{
+			$sort: {
+				userInventorySum: -1
+			}
+		},
+		{
+			$limit: 10
+		},
+		{
+			$project: {
+				_id: 0,
+				user: '$_id',
+				quantity: '$userInventorySum',
+			}
+		}
+		]).toArray();
+
+		return (result);
+	} catch (err) {
+		console.log(err);
+		return (err);
+	}
+};
+
+
+module.exports.mostActiveUserA = async () => {
+
+
+	try {
+		const result = await collection.aggregate([
+
+			{
+				$match: {
+					'activeUsers.inventory': {
+						$gte: 1
+					}
+				}
+			},
+			{
+				$unwind: '$activeUsers'
+			},
+			{
+				$group: {
+					_id: '$activeUsers.email',
+					totalQuantityG: {
+						$sum: '$activeUsers.inventory'
+					},
+					rentedItems: {
+						$push: {
+							title: '$title',
+							inventory: '$activeUsers.inventory',
+							days: '$activeUsers.days'
+						}
+					}
+				}
+			}, {
+				$sort: {
+					totalQuantityG: -1
+				}
+			}, {
+				$limit: 1
+			}, {
+				$unwind: '$rentedItems'
+			}, {
+				$project: {
+					_id: 0,
+					user: '$_id',
+					item: '$rentedItems.title',
+					quantity: '$rentedItems.inventory',
+					days: '$rentedItems.days'
+				}
+			}
+
+		]).toArray();
+
+		return (result);
+
+	} catch (err) {
+		console.log(err);
+		return (err);
+	}
+};
+
+
+module.exports.topRentedItemA = async () => {
+	try {
+		const result = await collection.aggregate([{
+			$match: {
+				'activeUsers.inventory': {
+					$gte: 1
+				}
+			}
+		},
+		{
+			$unwind: '$activeUsers'
+		},
+		{
+			$group: {
+				_id: '$title',
+				quantity: {
+					$sum: '$activeUsers.inventory'
+				}
+			}
+		}, {
+			$sort: {
+				quantity: -1
+			}
+		}, {
+			$limit: 1
+		},
+		{
+			$project: {
+				_id: 0,
+				item: '$_id',
+				quantity: '$quantity',
+			}
+		}
+		]).toArray();
+
+		return (result);
+
+	} catch (err) {
+		console.log(err);
+		return (err);
 	}
 };
