@@ -160,14 +160,16 @@ client.connect(function(err, db) {
 		});
 	});
 
-	router.post('/addItemtodb', formidableMiddleware(), function(req, res) {
-		checkFormData(req.fields, res, function(err, r) {
-			if (r)
-				updateNewInventory(req.fields.title, req.fields.inventory, res);
-
-			else
-				sendJsonErr(err, res);
-		});
+	router.post('/addItemtodb', formidableMiddleware(), async function(req, res) {
+	
+		const r = await	checkFormData(req.fields, res);
+		if (r){
+				 const result =  await	updateNewInventory(req.fields.title, req.fields.inventory);
+				 res.send(result);
+		}
+		else
+			sendJsonErr(err, res);
+		
 	});
 
 
@@ -339,7 +341,7 @@ client.connect(function(err, db) {
 				/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\S+$).{5,}$/;
 			let res = re.test(String(passwordTest));
 			if (!res) {
-				errors += ' the password is Minimum 5 character long + upper cases + lower cases + digits ';
+				error += ' the password is Minimum 5 character long + upper cases + lower cases + digits ';
 			}
 		}
 
@@ -395,6 +397,88 @@ client.connect(function(err, db) {
 		}
 	}
 
+
+	function checkFormDataAsync(data, res, cb) {
+		let passwordTest = data.password;
+		let nameTest = data.name;
+		let titleTest = data.title;
+		let emailTest = data.email;
+		let inventoryTest = data.inventory;
+		let phoneTest = data.phone;
+		let daysTest = data.days;
+		let test = 0;
+		let error = '';
+
+		if (emailTest != undefined) {
+			let re =
+				/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+			let res = re.test(String(emailTest).toLowerCase());
+			if (!res) {
+				error += 'Sorry but you can\'t use this email, try a real one. ';
+				test++;
+			}
+		}
+
+		if (passwordTest != undefined) {
+			let re =
+				/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\S+$).{5,}$/;
+			let res = re.test(String(passwordTest));
+			if (!res) {
+				error += ' the password is Minimum 5 character long + upper cases + lower cases + digits ';
+			}
+		}
+
+		if (titleTest != undefined) {
+			let re =
+				/^[\W \D \S ]{3,100}$/;
+			let res = re.test(String(titleTest));
+			if (!res) {
+				error += 'The title is at least 3 character long. ';
+				test++;
+			}
+		}
+
+		if (nameTest != undefined) {
+			let re =
+				/^[\W \D \S ]{3,100}$/;
+			let res = re.test(String(nameTest));
+			if (!res) {
+				error += 'The customer name must be at least 3 character long. ';
+				test++;
+			}
+		}
+		if (phoneTest != undefined) {
+			let re =
+				/^[(]{0,1}[0-9]{1,3}[)]{0,1}[-\s\.]{0,1}[0-9]{3}[-\s\.]{0,1}[0-9]{1,6}$/;
+			let res = re.test(String(phoneTest));
+			if (!res) {
+				error += 'Phone number ex: 000-000-000000). ';
+				test++;
+			}
+		}
+
+		if (inventoryTest != undefined) {
+			if (inventoryTest == 0) {
+				error += 'The inventory cant be 0. ';
+				test++;
+			}
+		}
+
+		if (daysTest != undefined) {
+			if (daysTest <= 0) {
+				error += 'The days must be more than 0.';
+				test++;
+			}
+		}
+
+		if (test > 0) {
+			test = 0;
+			cb(error, false);
+
+		} else {
+			cb('', true);
+		}
+	}
 
 	/* User login and creation: */
 
@@ -592,94 +676,108 @@ client.connect(function(err, db) {
 
 	/* Database functions: */
 
-	function updateNewInventory(title, inventory, res) {
+	async function updateNewInventory(title, inventory) {
 		let query = {};
 		let status = '';
-		let currentItemI = 0;
+		try {
 
-		if (title)
-			query.title = title;
+			if (title)
+				query.title = title;
 
-		if (inventory)
-			inventory = parseInt(inventory, 10);
+			if (inventory)
+				inventory = parseInt(inventory, 10);
 
-		currentItemInventory(title, function(err, value) {
-			currentItemI = value;
+			const currentItemI = await currentItemInventory(title);
+
 
 			if ((currentItemI + inventory) <= 0) {
-				title = title + ' inventory was not update - inventory is too low',
-				status = 'The maximum inventory to reduce is: ' + currentItemI,
-				inventoryStatus(title, status, '', res);
+
+				title = title + ' inventory was not update - inventory is too low';
+				status = 'The maximum inventory to reduce is: ' + currentItemI;
+
+				return ({
+					title,
+					status
+				});
+
+
 			} else {
-				collection.findOneAndUpdate(query, {
+				const r = await collection.findOneAndUpdate(query, {
 					$inc: {
 						inventory: inventory
 					}
 				}, {
 					upsert: true
-				}, function(err, r) {
-					if (err) console.log(err);
+				});
 
-					if (r == null)
-						title = 'The item: ' + title + ' wasn\'t add to the Inventory!',
-						status = 'There was a problem';
+				if (r == null)
+					title = 'The item: ' + title + ' wasn\'t add to the Inventory!',
+					status = 'There was a problem';
 
-					else if (r.value !== null)
-						title = title + ' inventory was updated successfully',
-						status = 'The inventory is: ' + (currentItemI + inventory);
+				else if (r.value !== null)
+					title = title + ' inventory was updated successfully',
+					status = 'The inventory is: ' + (currentItemI + inventory);
 
-					else if (r.lastErrorObject.upserted !== null)
-						title = title + ' is new, inventory updated successfully',
-						status = 'The inventory is: ' + (currentItemI + inventory);
+				else if (r.lastErrorObject.upserted !== null)
+					title = title + ' is new, inventory updated successfully',
+					status = 'The inventory is: ' + (currentItemI + inventory);
 
-					inventoryStatus(title, status, '', res);
+				return ({
+					title,
+					status
 				});
 			}
-		});
+		} catch (err){
+			console.trace(err);
+			return ({
+				title : 'Error',
+				status : err
+			});
+
+		}
 	}
 
 
-	function updateRentedInventory(req, res) {
+
+
+	async function updateRentedInventory(req, res) {
+
 		let query = {};
 		let status = '';
-		let currentItemI = 0;
 		let inventory, title, days, email;
 
-		if (req.title)
-			title = req.title,
-			query.title = req.title;
+		try {
+			if (req.title)
+				title = req.title,
+				query.title = req.title;
 
-		if (req.inventory)
-			inventory = parseInt(req.inventory, 10),
-			query.inventory = {
-				$gte: inventory
-			};
-
-
-		if (req.email)
-			email = req.email.toLowerCase(),
-			query['activeUsers.email'] = email;
+			if (req.inventory)
+				inventory = parseInt(req.inventory, 10),
+				query.inventory = {
+					$gte: inventory
+				};
 
 
-		if (req.days)
-			days = parseInt(req.days, 10);
+			if (req.email)
+				email = req.email.toLowerCase(),
+				query['activeUsers.email'] = email;
 
 
-		collection.findOneAndUpdate(query, {
-			$inc: {
-				'activeUsers.$.days': days,
+			if (req.days)
+				days = parseInt(req.days, 10);
 
-				'activeUsers.$.inventory': inventory,
-				inventory: -inventory
-			}
-		}, {
-			upsert: true
-		},
-		function(err, r) {
-			if (err) console.error(err);
+			const r = await collection.findOneAndUpdate(query, {
+				$inc: {
+					'activeUsers.$.days': days,
+					'activeUsers.$.inventory': inventory,
+					inventory: -inventory
+				}
+			}, {
+				upsert: true
+			});
 
-			if (r === null)
-				collection.findOneAndUpdate({
+			if (r === null) {
+				const r2 = await collection.findOneAndUpdate({
 					title: title,
 					inventory: {
 						$gte: inventory
@@ -695,38 +793,42 @@ client.connect(function(err, db) {
 					$inc: {
 						inventory: -inventory
 					}
-				},
-				function(err, r) {
-					if (err) console.log(err);
-
-					if (r.value !== null)
-						title = title + ' inventory was updated to ' + inventory,
-						status = email + ' have ' + inventory + ' new items',
-						inventoryStatus(title, status, email, res);
-
-					else
-						currentItemInventory(title, function(err, value) {
-							currentItemI = value;
-							title = title + ' inventory wasn\'t updated, the current inventory is: ' + currentItemI,
-							status = email + ' can rent only: ' + currentItemI + ' new items',
-							inventoryStatus(title, status, email, res);
-						});
 				});
 
-			else
-				currentUserInventory(title, email, function(err, value) {
-					title = title + ' inventory was updated to' + (r.value.inventory - inventory),
-					status = 'The user: ' + email + ' have ' + value + ' items include the ' + inventory + ' new items',
-					inventoryStatus(title, status, email, res);
-				});
-		});
+				if (r2.value !== null)
+					status = 'Order updated by: ' + inventory + ' ' + title;
+
+			} else
+				status = 'Order updated by:  ' + inventory + ' ' + title;
+
+			const itemsList = await inventoryStatusAsync(email);
+
+			return (res.send({
+				status: status,
+				itemsList: itemsList
+			}));
+
+		} catch (err) {
+			console.log(err);
+
+			const itemsList = await inventoryStatusAsync(email);
+			status = inventory + ' ' + title + ' cant be rented, check the inventory stock.';
+
+			return (
+				res.send({
+					status: status,
+					itemsList: itemsList
+				})
+			);
+		}
 	}
 
 
 
 	async function updateReturnedInventory(title, inventory, email, res) {
-		let queryResult;
+
 		try {
+			let queryResult;
 			let query = {};
 			let status = '';
 
@@ -758,56 +860,51 @@ client.connect(function(err, db) {
 			},
 			function(err, r) {
 				if (r.value === null) {
-					title = 'The item: ' + title + ' wasn\'t returned to stock!';
-					status = 'The user: ' + email + ' cant returdn the amount of: ' + inventory;
+					status = title + ' wasn\'t returned to stock! The user cant return the amount of: ' + inventory;
 				}
 				if (r.value !== null) {
-					title = 'The item: ' + title + ' was returned to stock, the current stock is: ' + (r.value.inventory + inventory);
-					status = 'The user: ' + email + ' returned ' + inventory;
+					status = inventory + ' ' + title + ' returned to stock';
 				}
 
 				return (r);
 			});
 
+			let itemsList = await inventoryStatusAsync(email);
 
-
-		 let itemsList = await inventoryStatusAsync(email);
-			await console.log(itemsList);
-			await console.log(status);
-			await res.send({ status:status, itemsList:itemsList });
-
+			await res.send({
+				status: status,
+				itemsList: itemsList
+			});
 		} catch (err) {
 			console.log(err);
+			res.send({
+				err: err
+			});
 		}
-
 	}
 
 
 	/* Database queries: */
 
-	function currentItemInventory(title, cb) {
-		collection.findOne({
-			title: title
-		}, {
-			projection: {
-				_id: 0,
-				inventory: 1
-			}
-		}, function(err, r) {
-			if (err)
-				console.log(err);
+	async function currentItemInventory(title) {
+		try {
+			const value = await collection.findOne({
+				title: title
+			}, {
+				projection: {
+					_id: 0,
+					inventory: 1
+				}
+			});
 
-			let value = 0;
+			return (value.inventory);
 
-			if (r === null)
-				value = 0;
-
-			else
-				value = r.inventory;
-
-			cb(null, value);
-		});
+		} catch (err) {
+			console.trace(err);
+			return (0);
+		}
 	}
+
 
 	function currentUserInventory(title, email, cb) {
 		collection.findOne({
@@ -965,7 +1062,7 @@ client.connect(function(err, db) {
 					}
 				}
 				]).toArray(function(err, r) {
-					console.log(r);
+					console.trace(r);
 					resolve(r);
 				});
 

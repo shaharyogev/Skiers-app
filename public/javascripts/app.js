@@ -197,7 +197,7 @@ function contentToView(json, title) {
 			error.innerText = obj.err;
 		} else {
 
-			if (obj.title) {
+			if (obj.title || obj.itemsList) {
 				let titleT = document.getElementById('title');
 				titleT.innerText = obj.title;
 
@@ -211,10 +211,8 @@ function contentToView(json, title) {
 				}
 
 				if (obj.itemsList) {
-					console.log(obj.itemsList[0]);
 
 					columnHeadline = Object.getOwnPropertyNames(obj.itemsList[0]);
-					console.log(obj.itemsList[0]);
 					txt += '<table>';
 					txt += '<tr>';
 					for (x in columnHeadline) {
@@ -231,16 +229,6 @@ function contentToView(json, title) {
 					txt += '</table>';
 					document.getElementById('queryUl').innerHTML = txt;
 
-
-
-					/*
-					let ul = document.getElementById('queryUl');
-					ul.innerHTML = '';
-					for (let i in obj.itemsList) {
-						let li = document.createElement('li');
-						li.appendChild(document.createTextNode(obj.itemsList[i]));
-						ul.appendChild(li);
-					}*/
 				}
 			} else {
 
