@@ -11,6 +11,9 @@ const session = require('express-session');
 const formidableMiddleware = require('express-formidable');
 let inviteListForLogIn;
 
+const forms = require('../utilities/forms');
+const qdb = require('../utilities/db');
+
 
 
 
@@ -36,7 +39,6 @@ let inviteListForLogIn;
 /* BI Queries: */
 
 
-
 /*Start the Database connection: */
 
 client.connect(function(err, db) {
@@ -45,9 +47,10 @@ client.connect(function(err, db) {
 
 	const mydb = db.db('usersdb');
 	const collection = mydb.collection('appData');
+	//exports.collection = collection;
 	const usersCollection = mydb.collection('usersList');
-
-
+	exports.usersCollection = usersCollection;
+	qdb.getCollection(collection);
 
 	/* Session & cookies */
 
@@ -64,7 +67,7 @@ client.connect(function(err, db) {
 
 	//clear cookie if session is over
 
-	router.use(function(req, res, next) {
+	router.use((req, res, next) => {
 		if (req.session.cookie && !req.session.success) {
 			res.clearCookie('skiersAdmin');
 		}
@@ -74,7 +77,7 @@ client.connect(function(err, db) {
 	/* Router requests: */
 
 	//First 
-	router.get('/', function(req, res) {
+	router.get('/', (req, res) => {
 
 		if (req.session.success)
 			res.render('app', {
@@ -86,10 +89,13 @@ client.connect(function(err, db) {
 
 	});
 
+	router.get('/login', (req, res) => {
+		res.render('login');
+	});
 
 	//While the user in session the system will stay active.
 
-	router.get('/:id', function(req, res, next) {
+	router.get('/:id', (req, res, next) => {
 		if (req.session.success)
 			next();
 
@@ -99,7 +105,7 @@ client.connect(function(err, db) {
 
 	//Handle user login request
 
-	router.post('/user', formidableMiddleware(), function(req, res) {
+	router.post('/user', formidableMiddleware(), (req, res) => {
 		checkFormData(req.fields, res, function(err, r) {
 			if (r)
 				loginAttempt(req.fields.email, req.fields.password, req, res);
@@ -111,7 +117,7 @@ client.connect(function(err, db) {
 
 	//Handle new user singUp
 
-	router.post('/addUser', formidableMiddleware(), function(req, res) {
+	router.post('/addUser', formidableMiddleware(), (req, res) => {
 		checkFormData(req.fields, res, function(err, r) {
 			if (r)
 				creatNewUser(req.fields.invite, req.fields.name, req.fields.email, req.fields.password, req, res);
@@ -125,89 +131,101 @@ client.connect(function(err, db) {
 
 	/* Queries routes for the database */
 
-	router.get('/app', function(req, res) {
-		inventoryStatus('Items In Stock', 'Sort by highest inventory: ', '', res);
+	router.get('/app', async (req, res) => {
+		const result = await qdb.inventoryStatusListA();
+		return (res.send(result));
 	});
 
-	router.post('/submitrent', formidableMiddleware(), function(req, res) {
-		checkFormData(req.fields, res, function(err, r) {
-			if (r)
-				updateRentedInventory(req.fields, res);
 
-			else
-				sendJsonErr(err, res);
-		});
-	});
 
-	router.post('/submitNewCustomer', formidableMiddleware(), function(req, res) {
-		checkFormData(req.fields, res, function(err, r) {
-			if (r)
-				submitNewCustomer(req.fields.name, req.fields.email, req.fields.phone, res);
 
-			else
-				sendJsonErr(err, res);
-		});
+	router.post('/submitNewCustomer', formidableMiddleware(), async (req, res) => {
+		const r = await forms.check(req.fields);
+		if (r)
+			await submitNewCustomer(req.fields.name, req.fields.email, req.fields.phone, res);
 
-	});
-
-	router.post('/submitreturn', formidableMiddleware(), function(req, res) {
-		checkFormData(req.fields, res, function(err, r) {
-			if (r)
-				updateReturnedInventory(req.fields.title, req.fields.inventory, req.fields.email, res);
-
-			else
-				sendJsonErr(err, res);
-		});
-	});
-
-	router.post('/addItemtodb', formidableMiddleware(), async function(req, res) {
-	
-		const r = await	checkFormData(req.fields, res);
-		if (r){
-				 const result =  await	updateNewInventory(req.fields.title, req.fields.inventory);
-				 res.send(result);
-		}
 		else
 			sendJsonErr(err, res);
-		
 	});
 
 
-	router.post('/inventoryStatus', formidableMiddleware(), function(req, res) {
-		checkFormData(req.fields, res, function(err, r) {
-			if (r)
-				itemStatus(req.fields.title, res, function(err, r) {
-					res.json(r);
-				});
-			else
-				sendJsonErr(err, res);
-		});
+	router.post('/submitRent', formidableMiddleware(), async (req, res) => {
+		const r = await forms.check(req.fields);
+		if (r)
+			await updateRentedInventory(req.fields, res);
+
+		else
+			sendJsonErr(err, res);
 	});
 
 
-	router.post('/userStatus', formidableMiddleware(), function(req, res) {
-		checkFormData(req.fields, res, function(err, r) {
-			if (r)
-				userStatus(req.fields.email, res, function(err, r) {
-					res.json(r);
-				});
 
-			else
-				sendJsonErr(err, res);
-		});
+	router.post('/submitReturn', formidableMiddleware(), async (req, res) => {
+		const r = await forms.check(req.fields);
+		if (r)
+			await updateReturnedInventory(req.fields.title, req.fields.inventory, req.fields.email, res);
+
+		else
+			sendJsonErr(err, res);
 	});
 
-	router.post('/userEmailReturnListForDropDown', formidableMiddleware(), function(req, res) {
-		checkFormData(req.fields, res, function(err, r) {
-			if (r)
-				userEmailReturnListForDropDown(req.fields.email, res, function(err, r) {
-					res.json(r);
-				});
 
-			else
-				sendJsonErr(err, res);
-		});
+	router.post('/addItemtodb', formidableMiddleware(), async (req, res) => {
+		const r = await forms.check(req.fields);
+		if (r) {
+			const result = await updateNewInventory(req.fields.title, req.fields.inventory);
+			return (res.send(result));
+
+		} else
+			sendJsonErr(err, res);
 	});
+
+
+
+
+	router.post('/userStatus', formidableMiddleware(), async (req, res) => {
+		const r = await forms.check(req.fields);
+		if (r) {
+			const result = await qdb.userStatusA(req.fields.email);
+			return (res.send(result));
+		} else
+			sendJsonErr(err, res);
+
+	});
+
+	router.post('/userEmailReturnListForDropDown', formidableMiddleware(), async (req, res) => {
+		const r = await forms.check(req.fields);
+		if (r) {
+			const result = await qdb.userEmailReturnListForDropDownA(req.fields.email);
+			return (res.send(result));
+		} else
+			sendJsonErr(err, res);
+
+	});
+
+
+
+	router.get('/itemTitle', async (req, res) => {
+		const result = await qdb.inventoryStatusListForDropDownA(1);
+		return (res.send(result));
+	});
+
+	router.get('/itemTitleReturn', async (req, res) => {
+		const result = await qdb.inventoryStatusListForDropDownA(0);
+		return (res.send(result));
+	});
+
+	router.get('/userEmailRent', async (req, res) => {
+		const result = await qdb.usersReturnListForDropDownA(0);
+		return (res.send(result));
+	});
+
+
+	router.get('/userEmailReturn', async (req, res) => {
+		const result = await qdb.usersReturnListForDropDownA(1);
+		return (res.send(result));
+	});
+
 
 	router.get('/topTenItems', function(req, res) {
 		topTenItems(res);
@@ -225,38 +243,24 @@ client.connect(function(err, db) {
 		topRentedItem(res);
 	});
 
-	router.get('/itemTitle', function(req, res) {
-		inventoryStatusListForDropDown(res, 1, function(err, r) {
-			res.json(r);
-		});
-	});
-	router.get('/userEmailRent', function(req, res) {
-		usersReturnListForDropDown(res, 0, function(err, r) {
-			res.json(r);
-		});
-	});
-	router.get('/itemTitleReturn', function(req, res) {
-		inventoryStatusListForDropDown(res, 0, function(err, r) {
-			res.json(r);
-		});
-	});
-	router.get('/userEmailReturn', function(req, res) {
-		usersReturnListForDropDown(res, 1, function(err, r) {
-			res.json(r);
-		});
-	});
 
-	router.get('/login', function(req, res) {
-		res.render('login');
-	});
 
-	router.get('/logout', function(req, res) {
-		req.session.destroy(function(err) {
-			if (err) console.log(err);
-		});
-		res.clearCookie('skiersAdmin');
-		res.render('login');
 
+
+
+
+
+	router.get('/logout', async (req, res) => {
+		try {
+
+			await req.session.destroy();
+			await res.clearCookie('skiersAdmin');
+			await res.render('login');
+
+		} catch (err){
+			console.trace(err);
+			return (res.render('login'));
+		}
 	});
 
 
@@ -397,7 +401,7 @@ client.connect(function(err, db) {
 		}
 	}
 
-
+	/*
 	function checkFormDataAsync(data, res, cb) {
 		let passwordTest = data.password;
 		let nameTest = data.name;
@@ -478,7 +482,7 @@ client.connect(function(err, db) {
 		} else {
 			cb('', true);
 		}
-	}
+	}*/
 
 	/* User login and creation: */
 
@@ -727,13 +731,12 @@ client.connect(function(err, db) {
 					status
 				});
 			}
-		} catch (err){
+		} catch (err) {
 			console.trace(err);
 			return ({
-				title : 'Error',
-				status : err
+				title: 'Error',
+				status: err
 			});
-
 		}
 	}
 
@@ -801,7 +804,7 @@ client.connect(function(err, db) {
 			} else
 				status = 'Order updated by:  ' + inventory + ' ' + title;
 
-			const itemsList = await inventoryStatusAsync(email);
+			const itemsList = await qdb.userStatusA(email);
 
 			return (res.send({
 				status: status,
@@ -811,7 +814,7 @@ client.connect(function(err, db) {
 		} catch (err) {
 			console.log(err);
 
-			const itemsList = await inventoryStatusAsync(email);
+			const itemsList = await qdb.userStatusA(email);
 			status = inventory + ' ' + title + ' cant be rented, check the inventory stock.';
 
 			return (
@@ -958,119 +961,58 @@ client.connect(function(err, db) {
 	}
 
 
-	function inventoryStatus(title, status, email, res) {
+	async function inventoryStatusAsync(email) {
 		try {
-			if (email === '') {
-				inventoryStatusList(res, function(err, r) {
-					res.send(r);
-				});
-			} else {
-				collection.aggregate([{
-					$match: {
-						'activeUsers.email': email
-					}
-				},
-				{
-					$unwind: '$activeUsers'
-				},
-				{
-					$match: {
-						'activeUsers.email': email
-					}
-				},
-				{
-					$project: {
-						_id: 0,
-						title: 1,
-						'activeUsers.inventory': 1
-					}
-				},
+			collection.aggregate([{
+				$match: {
+					'activeUsers.email': email
+				}
+			},
+			{
+				$unwind: '$activeUsers'
+			},
+			{
+				$match: {
+					'activeUsers.email': email
+				}
+			},
+			{
+				$project: {
+					_id: 0,
+					title: 1,
+					'activeUsers.inventory': 1
+				}
+			},
 
-				{
-					$group: {
-						_id: '$title',
-						quantity: {
-							$sum: '$activeUsers.inventory'
-						}
-					}
-				},
-				{
-					$sort: {
-						quantity: -1
-					}
-				},
-				{
-					$project: {
-						_id: 0,
-						item: '$_id',
-						quantity: '$quantity',
+			{
+				$group: {
+					_id: '$title',
+					quantity: {
+						$sum: '$activeUsers.inventory'
 					}
 				}
-				]).toArray(function(err, r) {
-					console.log(r.fields);
-					res.send(r);
-				});
+			},
+			{
+				$sort: {
+					quantity: -1
+				}
+			},
+			{
+				$project: {
+					_id: 0,
+					item: '$_id',
+					quantity: '$quantity',
+				}
 			}
+			]).toArray(function(err, r) {
+				console.trace(r);
+				return (r);
+			});
+
 		} catch (err) {
 			console.log(err);
+			return (err);
 		}
-
-	}
-
-	function inventoryStatusAsync(email) {
-		return new Promise(resolve => {
-			try {
-				collection.aggregate([{
-					$match: {
-						'activeUsers.email': email
-					}
-				},
-				{
-					$unwind: '$activeUsers'
-				},
-				{
-					$match: {
-						'activeUsers.email': email
-					}
-				},
-				{
-					$project: {
-						_id: 0,
-						title: 1,
-						'activeUsers.inventory': 1
-					}
-				},
-
-				{
-					$group: {
-						_id: '$title',
-						quantity: {
-							$sum: '$activeUsers.inventory'
-						}
-					}
-				},
-				{
-					$sort: {
-						quantity: -1
-					}
-				},
-				{
-					$project: {
-						_id: 0,
-						item: '$_id',
-						quantity: '$quantity',
-					}
-				}
-				]).toArray(function(err, r) {
-					console.trace(r);
-					resolve(r);
-				});
-
-			} catch (err) {
-				console.log(err);
-				resolve(err);
-			}
-		});
 	}
 
 
@@ -1279,244 +1221,12 @@ client.connect(function(err, db) {
 		}
 	}
 
-	function inventoryStatusList(res, cb) {
-		try {
-			collection.aggregate([{
-				$match: {
-					inventory: {
-						$gte: 1
-					}
-				}
-			},
-			{
-				$project: {
-					_id: 0,
-					title: 1,
-					inventory: 1
-				}
-			}, {
-				$sort: {
-					title: 1
-				}
-			},
-			{
-				$project: {
-					_id: 0,
-					item: '$title',
-					quantity: '$inventory',
-				}
-			}
-			]).toArray(function(err, r) {
-				cb(err, r);
-			});
-		} catch (err) {
-			console.log(err);
-		}
-
-	}
-
-	function inventoryStatusListForDropDown(res, n, cb) {
-		try {
-			collection.aggregate([{
-				$match: {
-					inventory: {
-						$gte: n
-					}
-				}
-			},
-			{
-				$project: {
-					_id: 0,
-					title: 1,
-					inventory: 1
-				}
-			}, {
-				$sort: {
-					title: 1
-				}
-			},
-			{
-				$project: {
-					label: '$inventory',
-					item: '$title'
-				}
-			}
-			]).toArray(function(err, r) {
-				cb(err, r);
-			});
-		} catch (err) {
-			console.log(err);
-		}
-	}
-
-	function usersReturnListForDropDown(res, n, cb) {
-		try {
-			collection.aggregate([{
-				$match: {
-					'activeUsers.inventory': {
-						$gte: n
-					}
-				}
-			},
-			{
-				$unwind: '$activeUsers'
-			},
-			{
-				$match: {
-					'activeUsers.inventory': {
-						$gte: n
-					}
-				}
-			},
-			{
-				$project: {
-					_id: 0,
-					e: '$activeUsers.email',
-					q: '$activeUsers.inventory'
-
-				}
-			},
-
-			{
-				$group: {
-					_id: '$e',
-					quantity: {
-						$sum: '$q'
-					}
-				}
-			},
-			{
-				$sort: {
-					_id: 1
-				}
-			},
-			{
-				$project: {
-					_id: 0,
-					item: '$_id',
-					label: '$quantity',
-				}
-			}
-			]).toArray(function(err, r) {
-				cb(err, r);
-			});
-		} catch (err) {
-			console.log(err);
-		}
-	}
-
-	function userEmailReturnListForDropDown(email, res, cb) {
-		try {
-			collection.aggregate([{
-				$match: {
-					'activeUsers.email': email
-				}
-			},
-			{
-				$unwind: '$activeUsers'
-			},
-			{
-				$match: {
-					'activeUsers.email': email
-				}
-			},
-			{
-				$project: {
-					_id: 0,
-					label: '$activeUsers.inventory',
-					item: '$title'
-				}
-			},
-			]).toArray(function(err, r) {
-				cb(err, r);
-			});
-		} catch (err) {
-			console.log(err);
-		}
-	}
 
 
-	function itemStatus(title, res, cb) {
-		try {
-			collection.aggregate([{
-				$match: {
-					title: title
-				}
-			},
-			{
-				$project: {
-					_id: 0,
-					item: '$title',
-					quantity: '$inventory'
-				}
-			}
-
-			]).toArray(function(err, r) {
-				cb(err, r);
-			});
-		} catch (err) {
-			console.log(err);
-		}
-
-	}
 
 
-	function userStatus(email, res, cb) {
-		try {
-			collection.aggregate([{
-				$match: {
-					'activeUsers.email': email
-				}
-			},
-			{
-				$unwind: '$activeUsers'
-			},
-			{
-				$match: {
-					'activeUsers.email': email
-				}
-			},
-			{
-				$project: {
-					_id: 0,
-					title: 1,
-					'activeUsers.inventory': 1,
-					'activeUsers.days': 1
 
-				}
-			},
 
-			{
-				$group: {
-					_id: '$title',
-					quantity: {
-						$sum: '$activeUsers.inventory'
-					},
-					days: {
-						$sum: '$activeUsers.days'
-					}
-				}
-			},
-			{
-				$sort: {
-					quantity: -1
-				}
-			},
-			{
-				$project: {
-					_id: 0,
-					item: '$_id',
-					quantity: '$quantity',
-					days: '$days'
-				}
-			}
-			]).toArray(function(err, r) {
-				cb(err, r);
-			});
-		} catch (err) {
-			console.log(err);
-		}
-	}
 
 	function topRentedItem(res) {
 		try {
@@ -1560,6 +1270,5 @@ client.connect(function(err, db) {
 	}
 
 });
-
 
 module.exports = router;

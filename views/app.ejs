@@ -95,7 +95,7 @@
             </div>
             <div id='inventoryTabB' class='form tabBox inventoryTab hidden'>
               <h2>Rent</h2>
-              <form id='rent' name='rent' action='/submitrent' onsubmit='return checkForm(id, 1)'>
+              <form id='rent' name='rent' action='/submitRent' onsubmit='return checkForm(id, 1)'>
                 <input id='userEmailRentInput' type='text' placeholder='Customer Email' autocomplete="0" name='email'
                   list='userEmailRentDataList' onchange="dataListReq('itemTitle')" required>
                 <datalist id='userEmailRentDataList'></datalist>
@@ -111,7 +111,7 @@
 
             <div id='inventoryTabC' class='form tabBox inventoryTab hidden'>
               <h2>Return</h2>
-              <form id='return' name='return' action='/submitreturn' onsubmit='return checkForm(id,2)'>
+              <form id='return' name='return' action='/submitReturn' onsubmit='return checkForm(id,2)'>
                 <input id='userEmailReturnInput' type='text' placeholder='Customer Email' autocomplete="0" name='email'
                   list='userEmailReturnDataList' onchange="dataListReqEmail('userEmailReturnListForDropDown', value)"
                   required>
