@@ -1,8 +1,9 @@
 //const index = require('../routes/index');
-let collection;
+let collection, usersCollection;
 
-module.exports.getCollection = async (obj) => {
-	collection = obj;
+module.exports.getCollection = async (c1, c2) => {
+	collection = c1;
+	usersCollection = c2;
 };
 
 
@@ -222,3 +223,7 @@ module.exports.usersReturnListForDropDownA = async (n) => {
 
 	}
 };
+
+
+
+	

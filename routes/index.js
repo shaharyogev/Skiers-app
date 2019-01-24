@@ -93,6 +93,19 @@ client.connect(function(err, db) {
 		res.render('login');
 	});
 
+	router.get('/logout', async (req, res) => {
+		try {
+
+			await req.session.destroy();
+			await res.clearCookie('skiersAdmin');
+			await res.render('login');
+
+		} catch (err) {
+			console.trace(err);
+			return (res.render('login'));
+		}
+	});
+
 	//While the user in session the system will stay active.
 
 	router.get('/:id', (req, res, next) => {
@@ -243,81 +256,21 @@ client.connect(function(err, db) {
 		topRentedItem(res);
 	});
 
-
-
-
-
-
-
-
-	router.get('/logout', async (req, res) => {
-		try {
-
-			await req.session.destroy();
-			await res.clearCookie('skiersAdmin');
-			await res.render('login');
-
-		} catch (err){
-			console.trace(err);
-			return (res.render('login'));
-		}
-	});
-
-
-
-	function testInviteListForLogin(invite) {
-		return new Promise(resolve => {
-			usersCollection.findOne({
-				inviteHash: 'tempInvite'
-			}, {
-				projection: {
-					_id: 0,
-					key: 1,
-				}
-			}, function(err, r) {
-				if (err) console.log(err);
-
-				if (r !== null) {
-					bcrypt.compare(invite, r.key, function(err, bcRes) {
-						if (err) console.log(err);
-						if (bcRes) {
-							resolve(true);
-						} else {
-							resolve(false);
-						}
-					});
-				}
-			});
-		});
-	}
-
-	function inviteListForLogin(invite) {
-		return new Promise(resolve => {
-			bcrypt.hash(invite, saltRounds, function(err, hash) {
-
-				usersCollection.findOneAndUpdate({
-					inviteHash: 'tempInvite'
-				}, {
-					$set: {
-						key: hash
-					}
-				}, function(err, r) {
-					if (err) console.log(err);
-					if (r !== null) {
-						resolve(true);
-					} else {
-						resolve(false);
-					}
-				});
-			});
-		});
-	}
-
 	function sendJsonErr(err, res) {
 		res.json({
 			err: err
 		});
 	}
+
+
+
+
+
+
+
+
+
+
 
 	function checkFormData(data, res, cb) {
 		let passwordTest = data.password;
@@ -401,222 +354,191 @@ client.connect(function(err, db) {
 		}
 	}
 
-	/*
-	function checkFormDataAsync(data, res, cb) {
-		let passwordTest = data.password;
-		let nameTest = data.name;
-		let titleTest = data.title;
-		let emailTest = data.email;
-		let inventoryTest = data.inventory;
-		let phoneTest = data.phone;
-		let daysTest = data.days;
-		let test = 0;
-		let error = '';
 
-		if (emailTest != undefined) {
-			let re =
-				/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-			let res = re.test(String(emailTest).toLowerCase());
-			if (!res) {
-				error += 'Sorry but you can\'t use this email, try a real one. ';
-				test++;
-			}
-		}
-
-		if (passwordTest != undefined) {
-			let re =
-				/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\S+$).{5,}$/;
-			let res = re.test(String(passwordTest));
-			if (!res) {
-				error += ' the password is Minimum 5 character long + upper cases + lower cases + digits ';
-			}
-		}
-
-		if (titleTest != undefined) {
-			let re =
-				/^[\W \D \S ]{3,100}$/;
-			let res = re.test(String(titleTest));
-			if (!res) {
-				error += 'The title is at least 3 character long. ';
-				test++;
-			}
-		}
-
-		if (nameTest != undefined) {
-			let re =
-				/^[\W \D \S ]{3,100}$/;
-			let res = re.test(String(nameTest));
-			if (!res) {
-				error += 'The customer name must be at least 3 character long. ';
-				test++;
-			}
-		}
-		if (phoneTest != undefined) {
-			let re =
-				/^[(]{0,1}[0-9]{1,3}[)]{0,1}[-\s\.]{0,1}[0-9]{3}[-\s\.]{0,1}[0-9]{1,6}$/;
-			let res = re.test(String(phoneTest));
-			if (!res) {
-				error += 'Phone number ex: 000-000-000000). ';
-				test++;
-			}
-		}
-
-		if (inventoryTest != undefined) {
-			if (inventoryTest == 0) {
-				error += 'The inventory cant be 0. ';
-				test++;
-			}
-		}
-
-		if (daysTest != undefined) {
-			if (daysTest <= 0) {
-				error += 'The days must be more than 0.';
-				test++;
-			}
-		}
-
-		if (test > 0) {
-			test = 0;
-			cb(error, false);
-
-		} else {
-			cb('', true);
-		}
-	}*/
-
-	/* User login and creation: */
-
-	//Creat New User - callback inventoryStatusInLogin
-
-	async function creatNewUser(invite, name, email, password, req, res) {
+	const testInviteListForLoginA = async (invite) => {
 		try {
-			const testInvite = await testInviteListForLogin(invite);
+			const r = await usersCollection.findOne({
+				inviteHash: 'tempInvite'
+			}, {
+				projection: {
+					_id: 0,
+					key: 1,
+				}
+			});
+			await console.log(r);
+			if (r !== null) {
+				const bcRes = await bcrypt.compare(invite, r.key);
+
+				await console.log(bcRes);
+				if (bcRes)
+					return (true);
+
+				else
+					return (false);
+			} else
+				return (false);
+
+		} catch (err) {
+			console.trace(err);
+		}
+	};
+
+	const inviteListForLoginA = async (invite) => {
+		try {
+			const hash = await bcrypt.hash(invite, saltRounds);
+
+			const r = await usersCollection.findOneAndUpdate({
+				inviteHash: 'tempInvite'
+			}, {
+				$set: {
+					key: hash
+				}
+			});
+
+			if (r !== null)
+				return (true);
+			else
+				return (false);
+
+		} catch (err) {
+			console.trace(err);
+		}
+	};
+
+
+
+	const creatNewUser = async (invite, name, email, password, req, res) => {
+
+		try {
+
+			const testInvite = await testInviteListForLoginA(invite);
+
 			if (testInvite) {
+
 				if (name)
 					name = name.toLowerCase();
 
 				if (email)
 					email = email.toLowerCase();
 
-				if (password)
-					bcrypt.hash(password, saltRounds, function(err, hash) {
+				if (password) {
+					const hash = await bcrypt.hash(password, saltRounds);
+				}
 
-						usersCollection.findOne({
-							email: email
-						}, function(err, r) {
-							if (err) console.log(err);
-							if (r == null) {
-								usersCollection.insertOne({
-									userName: name,
-									email: email,
-									key: hash
-								}, function(err, r) {
-									if (err) console.log(err);
-									if (r !== null) {
-										if (r.result.n == 1) {
-											// Callback if success 
-											startUserSession(email, req, res);
-										}
-									} else {
-										res.json({
-											err: 'User created, try login as registered User'
-										});
-									}
-								});
-							} else {
-								res.json({
-									err: 'The User is already created'
-								});
-							}
-						});
+				const r = await usersCollection.findOne({
+					email: email
+				});
+
+				if (r == null) {
+
+					const r2 = await usersCollection.insertOne({
+						userName: name,
+						email: email,
+						key: hash
 					});
-			} else {
+
+					if (r2 !== null) {
+						if (r2.result.n == 1)
+							startUserSession(email, req, res);
+
+						else
+							res.json({
+								err: 'User created, try login as registered User'
+							});
+
+					}
+				} else
+					res.json({
+						err: 'The User is already created'
+					});
+
+
+			} else
 				res.json({
 					err: 'The invite is not valid! for a valid invite go to: https://shahary.com'
 				});
-			}
+
 		} catch (err) {
-			console.log(err);
+			console.trace(err);
 		}
-	}
+	};
 
 
 	// Login check user email and password - callback getUserName
+	const loginAttempt = async (email, password, req, res) => {
+		try {
 
-	function loginAttempt(email, password, req, res) {
-		if (email)
-			email = email.toLowerCase();
+			if (email)
+				email = email.toLowerCase();
 
-		if (password)
-			usersCollection.findOne({
-				email: email
-			}, {
-				projection: {
-					_id: 0,
-					key: 1,
-					userName: 1
-				}
-			}, function(err, findRes) {
-				if (err) console.log(err);
+			if (password) {
+				const findRes = await usersCollection.findOne({
+					email: email
+				}, {
+					projection: {
+						_id: 0,
+						key: 1,
+						userName: 1
+					}
+				});
 
 				if (findRes !== null) {
-					bcrypt.compare(password, findRes.key, function(err, bcRes) {
-						if (err) console.log(err);
-						if (bcRes) {
-							usersCollection.updateOne({
-								email: email
-							}, {
-								$inc: {
-									loginSuccessfully: +1
-								}
-							}, {
-								upsert: true
-							}, function(err, r) {
-								if (err) console.log(err);
-								if (r.result.n == 1)
-									startUserSession(email, req, res);
+					const bcRes = await bcrypt.compare(password, findRes.key);
 
-							});
-						} else {
-							usersCollection.updateOne({
-								email: email
-							}, {
-								$inc: {
-									loginUnsuccessfully: +1
-								}
-							}, {
-								upsert: true
-							}, function(err, r) {
-								if (err) console.log(err);
-								if (r.result.n == 1)
-									res.json({
-										err: 'Incorrect password '
-									});
+					if (bcRes) {
+						const r = await usersCollection.updateOne({
+							email: email
+						}, {
+							$inc: {
+								loginSuccessfully: +1
+							}
+						}, {
+							upsert: true
+						});
 
+						if (r.result.n == 1)
+							startUserSession(email, req, res);
+
+					} else {
+						const r = await usersCollection.updateOne({
+							email: email
+						}, {
+							$inc: {
+								loginUnsuccessfully: +1
+							}
+						}, {
+							upsert: true
+						});
+						if (r.result.n == 1)
+							res.json({
+								err: 'Incorrect password '
 							});
-						}
-					});
+					}
 				} else
 					res.json({
 						err: 'The user is not registered'
 					});
-
-			});
-	}
+			}
+		} catch (err) {
+			console.trace(err);
+		}
+	};
 
 	//On success login activate the user session
 
-	function startUserSession(email, req, res) {
-		usersCollection.findOne({
-			email: email
-		}, {
-			projection: {
-				_id: 0,
-				userName: 1
-			}
-		}, function(err, r) {
-			if (err) console.log(err);
+	const startUserSession =  async (email, req, res)=> {
+		try {
+			const r = await usersCollection.findOne({
+				email: email
+			}, {
+				projection: {
+					_id: 0,
+					userName: 1
+				}
+			});
+
 			if (r !== null) {
+
 				req.session.success = true,
 				req.session.userName = r.userName,
 				req.session.cookie = {
@@ -624,12 +546,15 @@ client.connect(function(err, db) {
 					userName: r.userName,
 					originalMaxAge: 1000 * 60 * 60 * 24 * 7
 				};
+
 				res.render('app', {
 					userName: r.userName
 				});
 			}
-		});
-	}
+		} catch (err) {
+			console.trace(err);
+		}
+	};
 
 
 	/* New Database functions: */
