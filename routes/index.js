@@ -118,26 +118,24 @@ client.connect(function(err, db) {
 
 	//Handle user login request
 
-	router.post('/user', formidableMiddleware(), (req, res) => {
-		checkFormData(req.fields, res, function(err, r) {
-			if (r)
-				loginAttempt(req.fields.email, req.fields.password, req, res);
+	router.post('/user', formidableMiddleware(), async (req, res) => {
+		const r = await forms.check(req.fields);
+		if (r) 
+			loginAttempt(req.fields.email, req.fields.password, req, res);
 
-			else
-				sendJsonErr(err, res);
-		});
+		else
+			sendJsonErr(err, res);
 	});
 
 	//Handle new user singUp
 
-	router.post('/addUser', formidableMiddleware(), (req, res) => {
-		checkFormData(req.fields, res, function(err, r) {
-			if (r)
-				creatNewUser(req.fields.invite, req.fields.name, req.fields.email, req.fields.password, req, res);
+	router.post('/addUser', formidableMiddleware(), async (req, res) => {
+		const r = await forms.check(req.fields);
+		if (r) 
+			creatNewUser(req.fields.invite, req.fields.name, req.fields.email, req.fields.password, req, res);
 
-			else
-				sendJsonErr(err, res);
-		});
+		else
+			sendJsonErr(err, res);
 	});
 
 
@@ -155,7 +153,7 @@ client.connect(function(err, db) {
 	router.post('/submitNewCustomer', formidableMiddleware(), async (req, res) => {
 		const r = await forms.check(req.fields);
 		if (r) {
-			const result = await submitNewCustomer(req.fields.name, req.fields.email, req.fields.phone);
+			const result = await qdb.submitNewCustomerA(req.fields.name, req.fields.email, req.fields.phone);
 			return res.send(result);
 		} else
 			sendJsonErr(err, res);
@@ -165,7 +163,7 @@ client.connect(function(err, db) {
 	router.post('/submitRent', formidableMiddleware(), async (req, res) => {
 		const r = await forms.check(req.fields);
 		if (r) {
-			const result = await updateRentedInventory(req.fields);
+			const result = await qdb.updateRentedInventoryA(req.fields);
 			return res.send(result);
 		} else
 			sendJsonErr(err, res);
@@ -175,8 +173,8 @@ client.connect(function(err, db) {
 
 	router.post('/submitReturn', formidableMiddleware(), async (req, res) => {
 		const r = await forms.check(req.fields);
-		if (r){
-			const result = await updateReturnedInventory(req.fields.title, req.fields.inventory, req.fields.email);
+		if (r) {
+			const result = await qdb.updateReturnedInventoryA(req.fields.title, req.fields.inventory, req.fields.email);
 			return res.send(result);
 		} else
 			sendJsonErr(err, res);
@@ -186,7 +184,7 @@ client.connect(function(err, db) {
 	router.post('/addItemtodb', formidableMiddleware(), async (req, res) => {
 		const r = await forms.check(req.fields);
 		if (r) {
-			const result = await updateNewInventory(req.fields.title, req.fields.inventory);
+			const result = await qdb.updateNewInventoryA(req.fields.title, req.fields.inventory);
 			return (res.send(result));
 
 		} else
@@ -256,102 +254,12 @@ client.connect(function(err, db) {
 		topRentedItem(res);
 	});
 
+
+
 	function sendJsonErr(err, res) {
 		res.json({
 			err: err
 		});
-	}
-
-
-
-
-
-
-
-
-
-
-
-	function checkFormData(data, res, cb) {
-		let passwordTest = data.password;
-		let nameTest = data.name;
-		let titleTest = data.title;
-		let emailTest = data.email;
-		let inventoryTest = data.inventory;
-		let phoneTest = data.phone;
-		let daysTest = data.days;
-		let test = 0;
-		let error = '';
-
-		if (emailTest != undefined) {
-			let re =
-				/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-			let res = re.test(String(emailTest).toLowerCase());
-			if (!res) {
-				error += 'Sorry but you can\'t use this email, try a real one. ';
-				test++;
-			}
-		}
-
-		if (passwordTest != undefined) {
-			let re =
-				/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\S+$).{5,}$/;
-			let res = re.test(String(passwordTest));
-			if (!res) {
-				error += ' the password is Minimum 5 character long + upper cases + lower cases + digits ';
-			}
-		}
-
-		if (titleTest != undefined) {
-			let re =
-				/^[\W \D \S ]{3,100}$/;
-			let res = re.test(String(titleTest));
-			if (!res) {
-				error += 'The title is at least 3 character long. ';
-				test++;
-			}
-		}
-
-		if (nameTest != undefined) {
-			let re =
-				/^[\W \D \S ]{3,100}$/;
-			let res = re.test(String(nameTest));
-			if (!res) {
-				error += 'The customer name must be at least 3 character long. ';
-				test++;
-			}
-		}
-		if (phoneTest != undefined) {
-			let re =
-				/^[(]{0,1}[0-9]{1,3}[)]{0,1}[-\s\.]{0,1}[0-9]{3}[-\s\.]{0,1}[0-9]{1,6}$/;
-			let res = re.test(String(phoneTest));
-			if (!res) {
-				error += 'Phone number ex: 000-000-000000). ';
-				test++;
-			}
-		}
-
-		if (inventoryTest != undefined) {
-			if (inventoryTest == 0) {
-				error += 'The inventory cant be 0. ';
-				test++;
-			}
-		}
-
-		if (daysTest != undefined) {
-			if (daysTest <= 0) {
-				error += 'The days must be more than 0.';
-				test++;
-			}
-		}
-
-		if (test > 0) {
-			test = 0;
-			cb(error, false);
-
-		} else {
-			cb('', true);
-		}
 	}
 
 
@@ -557,426 +465,18 @@ client.connect(function(err, db) {
 	};
 
 
-	/* New Database functions: */
-
-	const submitNewCustomer = async (name, email, phone) => {
-		try {
-			let query = {};
-
-			if (name)
-				query.name = name;
-
-			if (phone)
-				query.phone = phone;
-
-			if (email)
-				email = email.toLowerCase(),
-				query.email = email;
-
-			const r = await collection.findOneAndUpdate({
-				'email': email
-			}, {
-				$set: query
-			}, {
-				upsert: true,
-				projection: {
-					'_id': 0,
-					'email': 1
-				},
-				returnNewDocument: true
-			});
-
-			result({
-				'name': name,
-				'title': r.value,
-				'status': phone
-			});
-		} catch (err) {
-			result({
-				err: err
-			});
-			console.log(err);
-		}
-	};
 
 
 
 
 
-
-
-
-	/* Database functions: */
-
-	async function updateNewInventory(title, inventory) {
-		let query = {};
-		let status = '';
-		try {
-
-			if (title)
-				query.title = title;
-
-			if (inventory)
-				inventory = parseInt(inventory, 10);
-
-			const currentItemI = await currentItemInventory(title);
-
-
-			if ((currentItemI + inventory) <= 0) {
-
-				title = title + ' inventory was not update - inventory is too low';
-				status = 'The maximum inventory to reduce is: ' + currentItemI;
-
-				return ({
-					title,
-					status
-				});
-
-
-			} else {
-				const r = await collection.findOneAndUpdate(query, {
-					$inc: {
-						inventory: inventory
-					}
-				}, {
-					upsert: true
-				});
-
-				if (r == null)
-					title = 'The item: ' + title + ' wasn\'t add to the Inventory!',
-					status = 'There was a problem';
-
-				else if (r.value !== null)
-					title = title + ' inventory was updated successfully',
-					status = 'The inventory is: ' + (currentItemI + inventory);
-
-				else if (r.lastErrorObject.upserted !== null)
-					title = title + ' is new, inventory updated successfully',
-					status = 'The inventory is: ' + (currentItemI + inventory);
-
-				return ({
-					title,
-					status
-				});
-			}
-		} catch (err) {
-			console.trace(err);
-			return ({
-				title: 'Error',
-				status: err
-			});
-		}
-	}
-
-
-
-
-	const updateRentedInventory = async (req) => {
-
-		let query = {};
-		let status = '';
-		let inventory, title, days, email;
-
-		try {
-			if (req.title)
-				title = req.title,
-				query.title = req.title;
-
-			if (req.inventory)
-				inventory = parseInt(req.inventory, 10),
-				query.inventory = {
-					$gte: inventory
-				};
-
-
-			if (req.email)
-				email = req.email.toLowerCase(),
-				query['activeUsers.email'] = email;
-
-
-			if (req.days)
-				days = parseInt(req.days, 10);
-
-			const r = await collection.findOneAndUpdate(query, {
-				$inc: {
-					'activeUsers.$.days': days,
-					'activeUsers.$.inventory': inventory,
-					inventory: -inventory
-				}
-			}, {
-				upsert: true
-			});
-
-			if (r === null) {
-				const r2 = await collection.findOneAndUpdate({
-					title: title,
-					inventory: {
-						$gte: inventory
-					}
-				}, {
-					$addToSet: {
-						activeUsers: {
-							email: email,
-							inventory: inventory,
-							days: days
-						}
-					},
-					$inc: {
-						inventory: -inventory
-					}
-				});
-
-				if (r2.value !== null)
-					status = 'Order updated by: ' + inventory + ' ' + title;
-
-			} else
-				status = 'Order updated by:  ' + inventory + ' ' + title;
-
-			const itemsList = await qdb.userStatusA(email);
-
-			return ({
-				status: status,
-				itemsList: itemsList
-			});
-
-		} catch (err) {
-			console.log(err);
-
-			const itemsList = await qdb.userStatusA(email);
-			status = inventory + ' ' + title + ' cant be rented, check the inventory stock.';
-
-			return ({
-				status: status,
-				itemsList: itemsList
-			});
-		}
-	};
-
-
-
-	const updateReturnedInventory = async (title, inventory, email) => {
-
-		try {
-			let query = {};
-			let status = '';
-
-			if (title)
-				query.title = title;
-
-			if (inventory)
-				inventory = parseInt(inventory, 10);
-
-			if (email)
-				email = email.toLowerCase(),
-				query.activeUsers = {
-					$elemMatch: {
-						email: email,
-						inventory: {
-							$gte: inventory
-						}
-					}
-				};
-
-			const r = await collection.findOneAndUpdate(query, {
-				$inc: {
-					'activeUsers.$.inventory': -inventory,
-					inventory: inventory
-				}
-			}, {
-				upsert: false,
-				returnNewDocument: true
-			});
-
-			if (r.value === null) {
-				status = title + ' wasn\'t returned to stock! The user cant return the amount of: ' + inventory;
-			}
-
-			if (r.value !== null) {
-				status = inventory + ' ' + title + ' returned to stock';
-			}
-
-			let itemsList = await inventoryStatusAsync(email);
-
-			return ({
-				status: status,
-				itemsList: itemsList
-			});
-		} catch (err) {
-			console.log(err);
-			return ({
-				err: err
-			});
-		}
-	};
 
 
 	/* Database queries: */
 
-	async function currentItemInventory(title) {
-		try {
-			const value = await collection.findOne({
-				title: title
-			}, {
-				projection: {
-					_id: 0,
-					inventory: 1
-				}
-			});
-
-			return (value.inventory);
-
-		} catch (err) {
-			console.trace(err);
-			return (0);
-		}
-	}
 
 
-	function currentUserInventory(title, email, cb) {
-		collection.findOne({
-			title: title,
-			activeUsers: {
-				$elemMatch: {
-					email: email
-				}
-			}
-		}, {
-			projection: {
-				_id: 0,
-				title: 1,
-				'activeUsers.$.email': 1,
-				'activeUsers.inventory': 1
-			}
-		},
-		function(err, result) {
-			if (err)
-				console.log(err);
-
-			let value = 0;
-
-			if (result === null) {
-				value = 0,
-				cb(null, value);
-
-			} else {
-				value = result.activeUsers[0].inventory;
-				if (result.activeUsers[0].inventory === 0) {
-					collection.updateOne({
-						title: title
-					}, {
-						$pull: {
-							activeUsers: {
-								email: email,
-								inventory: 0
-							}
-						}
-					},
-					function(err, r) {
-						if (err)
-							console.log(err);
-
-						cb(null, value);
-					});
-				}
-				cb(null, value);
-			}
-		});
-	}
-
-
-	async function inventoryStatusAsync(email) {
-		try {
-			collection.aggregate([{
-				$match: {
-					'activeUsers.email': email
-				}
-			},
-			{
-				$unwind: '$activeUsers'
-			},
-			{
-				$match: {
-					'activeUsers.email': email
-				}
-			},
-			{
-				$project: {
-					_id: 0,
-					title: 1,
-					'activeUsers.inventory': 1
-				}
-			},
-
-			{
-				$group: {
-					_id: '$title',
-					quantity: {
-						$sum: '$activeUsers.inventory'
-					}
-				}
-			},
-			{
-				$sort: {
-					quantity: -1
-				}
-			},
-			{
-				$project: {
-					_id: 0,
-					item: '$_id',
-					quantity: '$quantity',
-				}
-			}
-			]).toArray(function(err, r) {
-				console.trace(r);
-				return (r);
-			});
-
-		} catch (err) {
-			console.log(err);
-			return (err);
-		}
-	}
-
-
-	function inventoryStatusInLogin(title, status, userName, req, res) {
-		collection.aggregate([{
-			$project: {
-				_id: 0,
-				title: 1,
-				inventory: 1
-			}
-		},
-		{
-			$sort: {
-				inventory: -1
-			}
-		},
-		{
-			$limit: 10
-		},
-		]).toArray(function(err, result) {
-			if (err)
-				res.render('app', {
-					itemsList: [],
-					title: 'No inventory in stock',
-					status: err
-				});
-
-			let itemsList = [];
-			for (let index in result) {
-				let temp = result[index].title + ' - ' + result[index].inventory;
-				itemsList.push(temp);
-			}
-
-			res.render('app', {
-				itemsList: itemsList,
-				title: title,
-				status: status,
-				userName: userName
-			});
-		});
-	}
+	
 
 
 
