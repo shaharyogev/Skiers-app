@@ -1,18 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const MongoClient = require('mongodb').MongoClient;
-const bcrypt = require('bcrypt');
-const saltRounds = 10;
 const usersdbUrl = 'mongodb://127.0.0.1:27017/usersdb';
 const client = MongoClient(usersdbUrl, {
 	useNewUrlParser: true
 });
 const session = require('express-session');
 const formidableMiddleware = require('express-formidable');
-let inviteListForLogIn;
 
 const forms = require('../utilities/forms');
 const qdb = require('../utilities/db');
+const login = require('../utilities/login');
 
 
 
@@ -22,35 +20,29 @@ const qdb = require('../utilities/db');
 /*Start the Database connection: */
 
 /* Session & cookies */
-// Log user session to the cookie
-
-/* User login and creation: */
-//Creat New User - callback inventoryStatusInLogin
-// Login check user email and password - callback getUserName
-
-/* Database functions: */
 
 /* Router requests: */
 
+/* User login and creation: login module*/
+
 /* Queries routes */
 
-/* Database queries: */
+/* Database queries: qdb module */
 
-/* BI Queries: */
+/* BI Queries: qdb module */
 
 
 /*Start the Database connection: */
 
-client.connect((err, db)=> {
+client.connect((err, db) => {
 	try {
 
 
 		const mydb = db.db('usersdb');
 		const collection = mydb.collection('appData');
-		//exports.collection = collection;
 		const usersCollection = mydb.collection('usersList');
-		exports.usersCollection = usersCollection;
 		qdb.getCollection(collection);
+		login.getUsersCollection(usersCollection);
 
 		/* Session & cookies */
 
@@ -93,17 +85,10 @@ client.connect((err, db)=> {
 			res.render('login');
 		});
 
-		router.get('/logout', async (req, res) => {
-			try {
-
-				await req.session.destroy();
-				await res.clearCookie('skiersAdmin');
-				await res.render('login');
-
-			} catch (err) {
-				console.trace(err);
-				return (res.render('login'));
-			}
+		router.get('/logout', (req, res) => {
+			req.session.destroy();
+			res.clearCookie('skiersAdmin');
+			res.render('login');
 		});
 
 		//While the user in session the system will stay active.
@@ -120,8 +105,8 @@ client.connect((err, db)=> {
 
 		router.post('/user', formidableMiddleware(), async (req, res) => {
 			const r = await forms.check(req.fields);
-			if (r) 
-				loginAttempt(req.fields.email, req.fields.password, req, res);
+			if (r)
+				login.loginAttempt(req.fields.email, req.fields.password, req, res);
 
 			else
 				sendJsonErr(err, res);
@@ -131,13 +116,12 @@ client.connect((err, db)=> {
 
 		router.post('/addUser', formidableMiddleware(), async (req, res) => {
 			const r = await forms.check(req.fields);
-			if (r) 
-				creatNewUser(req.fields.invite, req.fields.name, req.fields.email, req.fields.password, req, res);
+			if (r)
+				login.creatNewUser(req.fields.invite, req.fields.name, req.fields.email, req.fields.password, req, res);
 
 			else
 				sendJsonErr(err, res);
 		});
-
 
 
 		/* Queries routes for the database */
@@ -174,7 +158,7 @@ client.connect((err, db)=> {
 				sendJsonErr(err, res);
 		});
 
-		router.post('/addItemtodb', formidableMiddleware(), async (req, res) => {
+		router.post('/addItemToDb', formidableMiddleware(), async (req, res) => {
 			const r = await forms.check(req.fields);
 			if (r) {
 				const result = await qdb.updateNewInventoryA(req.fields.title, req.fields.inventory);
@@ -222,13 +206,13 @@ client.connect((err, db)=> {
 			return (res.send(result));
 		});
 
-		router.get('/topTenItems',  async (req, res) => {
+		router.get('/topTenItems', async (req, res) => {
 			const result = await qdb.topTenItemsA();
 			return (res.send(result));
 
 		});
 
-		router.get('/topTenUsers',  async (req, res) => {
+		router.get('/topTenUsers', async (req, res) => {
 			const result = await qdb.topTenUsersA();
 			return (res.send(result));
 
@@ -240,220 +224,22 @@ client.connect((err, db)=> {
 
 		});
 
-		router.get('/topRentedItem',  async (req, res) => {
+		router.get('/topRentedItem', async (req, res) => {
 			const result = await qdb.topRentedItemA();
 			return (res.send(result));
 
 		});
 
 
-		const sendJsonErr = (err, res)=> {
+		const sendJsonErr = (err, res) => {
 			res.json({
 				err: err
 			});
 		};
 
-
-		const testInviteListForLoginA = async (invite) => {
-			try {
-				const r = await usersCollection.findOne({
-					inviteHash: 'tempInvite'
-				}, {
-					projection: {
-						_id: 0,
-						key: 1,
-					}
-				});
-				await console.log(r);
-				if (r !== null) {
-					const bcRes = await bcrypt.compare(invite, r.key);
-
-					await console.log(bcRes);
-					if (bcRes)
-						return (true);
-
-					else
-						return (false);
-
-				} else
-					return (false);
-
-			} catch (err) {
-				console.trace(err);
-			}
-		};
-
-		const inviteListForLoginA = async (invite) => {
-			try {
-				const hash = await bcrypt.hash(invite, saltRounds);
-
-				const r = await usersCollection.findOneAndUpdate({
-					inviteHash: 'tempInvite'
-				}, {
-					$set: {
-						key: hash
-					}
-				});
-
-				if (r !== null)
-					return (true);
-				else
-					return (false);
-
-			} catch (err) {
-				console.trace(err);
-			}
-		};
-
-
-		const creatNewUser = async (invite, name, email, password, req, res) => {
-			try {
-				const testInvite = await testInviteListForLoginA(invite);
-				if (testInvite) {
-
-					if (name)
-						name = name.toLowerCase();
-
-					if (email)
-						email = email.toLowerCase();
-
-					if (password){
-						const hash = await bcrypt.hash(password, saltRounds);
-				
-						const r = await usersCollection.findOne({
-							email: email
-						});
-
-						if (r == null) {
-							const r2 = await usersCollection.insertOne({
-								userName: name,
-								email: email,
-								key: hash
-							});
-
-							if (r2 !== null) {
-								if (r2.result.n == 1)
-									startUserSession(email, req, res);
-
-								else
-									res.json({
-										err: 'User created, try login as registered User'
-									});
-							}
-						} else
-							res.json({
-								err: 'The User is already created'
-							});
-					}
-				} else
-					res.json({
-						err: 'The invite is not valid! for a valid invite go to: https://shahary.com'
-					});
-
-			} catch (err) {
-				console.trace(err);
-			}
-		};
-
-
-		// Login check user email and password - callback getUserName
-		const loginAttempt = async (email, password, req, res) => {
-			try {
-
-				if (email)
-					email = email.toLowerCase();
-
-				if (password) {
-					const findRes = await usersCollection.findOne({
-						email: email
-					}, {
-						projection: {
-							_id: 0,
-							key: 1,
-							userName: 1
-						}
-					});
-
-					if (findRes !== null) {
-						const bcRes = await bcrypt.compare(password, findRes.key);
-
-						if (bcRes) {
-							const r = await usersCollection.updateOne({
-								email: email
-							}, {
-								$inc: {
-									loginSuccessfully: +1
-								}
-							}, {
-								upsert: true
-							});
-
-							if (r.result.n == 1)
-								startUserSession(email, req, res);
-
-						} else {
-							const r = await usersCollection.updateOne({
-								email: email
-							}, {
-								$inc: {
-									loginUnsuccessfully: +1
-								}
-							}, {
-								upsert: true
-							});
-							if (r.result.n == 1)
-								res.json({
-									err: 'Incorrect password '
-								});
-						}
-					} else
-						res.json({
-							err: 'The user is not registered'
-						});
-				}
-			} catch (err) {
-				console.trace(err);
-			}
-		};
-
-		//On success login activate the user session
-
-		const startUserSession = async (email, req, res) => {
-			try {
-				const r = await usersCollection.findOne({
-					email: email
-				}, {
-					projection: {
-						_id: 0,
-						userName: 1
-					}
-				});
-
-				if (r !== null) {
-					req.session.success = true,
-					req.session.userName = r.userName,
-					req.session.cookie = {
-						name: 'skiersAdmin',
-						userName: r.userName,
-						originalMaxAge: 1000 * 60 * 60 * 24 * 7
-					};
-
-					res.render('app', {
-						userName: r.userName
-					});
-				}
-			} catch (err) {
-				console.trace(err);
-			}
-		};
-
-	} catch (err){
+	} catch (err) {
 		console.trace(err);
 	}
 });
-
-
-
-
 
 module.exports = router;

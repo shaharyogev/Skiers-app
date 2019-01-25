@@ -1,9 +1,7 @@
 //const index = require('../routes/index');
-let collection, usersCollection;
-
-module.exports.getCollection = async (c1, c2) => {
+let collection;
+module.exports.getCollection = async (c1) => {
 	collection = c1;
-	usersCollection = c2;
 };
 
 
@@ -262,7 +260,7 @@ module.exports.submitNewCustomerA = async (name, email, phone) => {
 		result({
 			err: err
 		});
-		console.log(err);
+		console.trace(err);
 	}
 };
 
@@ -417,7 +415,7 @@ module.exports.updateRentedInventoryA = async (req) => {
 		});
 
 	} catch (err) {
-		console.log(err);
+		console.trace(err);
 
 		const itemsList = await userStatusA(email);
 		status = inventory + ' ' + title + ' cant be rented, check the inventory stock.';
@@ -478,7 +476,7 @@ module.exports.updateReturnedInventoryA = async (title, inventory, email) => {
 			itemsList: itemsList
 		});
 	} catch (err) {
-		console.log(err);
+		console.trace(err);
 		return ({
 			err: err
 		});
@@ -531,7 +529,7 @@ module.exports.topTenItemsA = async () => {
 
 		return (result);
 	} catch (err) {
-		console.log(err);
+		console.trace(err);
 		return (err);
 	}
 };
@@ -583,7 +581,7 @@ module.exports.topTenUsersA = async () => {
 
 		return (result);
 	} catch (err) {
-		console.log(err);
+		console.trace(err);
 		return (err);
 	}
 };
@@ -642,7 +640,7 @@ module.exports.mostActiveUserA = async () => {
 		return (result);
 
 	} catch (err) {
-		console.log(err);
+		console.trace(err);
 		return (err);
 	}
 };
@@ -686,7 +684,7 @@ module.exports.topRentedItemA = async () => {
 		return (result);
 
 	} catch (err) {
-		console.log(err);
+		console.trace(err);
 		return (err);
 	}
 };
