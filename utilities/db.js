@@ -1,10 +1,14 @@
-//const index = require('../routes/index');
+
+/*This module handle most of the database updates and queries */
+//
+// Get active collection object after successful database connection
 let collection;
 module.exports.getCollection = async (c1) => {
 	collection = c1;
 };
 
-
+//
+// Get active orders for a customer
 const userStatusA = async (email) => {
 	try {
 		const r = await collection.aggregate([{
@@ -60,6 +64,8 @@ const userStatusA = async (email) => {
 
 exports = userStatusA;
 
+//
+// Post customer active orders for input drop down list
 module.exports.userEmailReturnListForDropDownA = async (email) => {
 
 	try {
@@ -92,6 +98,8 @@ module.exports.userEmailReturnListForDropDownA = async (email) => {
 	}
 };
 
+//
+// Get available inventory to rent
 module.exports.inventoryStatusListA = async () => {
 
 	try {
@@ -129,6 +137,8 @@ module.exports.inventoryStatusListA = async () => {
 	}
 };
 
+//
+// Get available inventory to rent for input drop down list
 module.exports.inventoryStatusListForDropDownA = async (n) => {
 
 	try {
@@ -165,6 +175,8 @@ module.exports.inventoryStatusListForDropDownA = async (n) => {
 	}
 };
 
+//
+// Get available inventory to rent for input drop down list
 module.exports.usersReturnListForDropDownA = async (n) => {
 
 	try {
@@ -223,7 +235,8 @@ module.exports.usersReturnListForDropDownA = async (n) => {
 	}
 };
 
-
+//
+// Creat new customer
 module.exports.submitNewCustomerA = async (name, email, phone) => {
 	try {
 		let query = {};
@@ -264,7 +277,8 @@ module.exports.submitNewCustomerA = async (name, email, phone) => {
 	}
 };
 
-
+//
+// Creat new inventory
 module.exports.updateNewInventoryA = async (title, inventory) => {
 	let query = {};
 	let status = '';
@@ -325,6 +339,8 @@ module.exports.updateNewInventoryA = async (title, inventory) => {
 	}
 };
 
+//
+// Get available inventory for this item
 const currentItemInventoryA = async (title) => {
 	try {
 		const value = await collection.findOne({
@@ -346,6 +362,8 @@ const currentItemInventoryA = async (title) => {
 
 exports = currentItemInventoryA;
 
+//
+// Submit new order
 module.exports.updateRentedInventoryA = async (req) => {
 
 	let query = {};
@@ -427,7 +445,8 @@ module.exports.updateRentedInventoryA = async (req) => {
 	}
 };
 
-
+//
+// Submit returned items
 module.exports.updateReturnedInventoryA = async (title, inventory, email) => {
 
 	try {
@@ -483,6 +502,8 @@ module.exports.updateReturnedInventoryA = async (title, inventory, email) => {
 	}
 };
 
+//
+// Get the top ten items by demand
 module.exports.topTenItemsA = async () => {
 	try {
 		const result = await collection.aggregate([{
@@ -534,7 +555,8 @@ module.exports.topTenItemsA = async () => {
 	}
 };
 
-
+//
+// Get the top ten active customers by demand
 module.exports.topTenUsersA = async () => {
 	try {
 		const result = await collection.aggregate([{
@@ -586,7 +608,8 @@ module.exports.topTenUsersA = async () => {
 	}
 };
 
-
+//
+// Get most active customers by demand
 module.exports.mostActiveUserA = async () => {
 
 
@@ -645,7 +668,8 @@ module.exports.mostActiveUserA = async () => {
 	}
 };
 
-
+//
+// Get the top ten items by demand
 module.exports.topRentedItemA = async () => {
 	try {
 		const result = await collection.aggregate([{
