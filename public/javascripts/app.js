@@ -1,3 +1,5 @@
+import io from 'socket.io-client';
+
 //Send user name to the server
 
 const chatUsersUl = document.getElementById('chatUsersUl');
@@ -145,27 +147,27 @@ const submitRent = document.getElementById('submitRent');
 const submitNewCustomer = document.getElementById('submitNewCustomer');
 
 
-submitReturn.onsubmit  = function() {
-	 event.preventDefault();
-	checkForm(id,2);
-};
-addInventory.onsubmit  = function() {
+submitReturn.onsubmit = function() {
 	event.preventDefault();
- checkForm(id,3);
+	checkForm(submitReturn, 2);
 };
-submitRent.onsubmit  = function() {
+addInventory.onsubmit = function() {
 	event.preventDefault();
- checkForm(id,1);
+	checkForm(addInventory, 3);
+};
+submitRent.onsubmit = function() {
+	event.preventDefault();
+	checkForm(submitRent, 1);
 };
 
-submitNewCustomer.onsubmit  = function() {
+submitNewCustomer.onsubmit = function() {
 	event.preventDefault();
- checkForm(id,1);
+	checkForm(submitNewCustomer, 1);
 };
 
 function checkForm(id, nextNum) {
 	event.preventDefault();
-	let formId = document.getElementById(id);
+	let formId = id;
 	let formDataNode = formId.querySelectorAll('input');
 	let formAction = formId.action;
 	let nameTest = formId.querySelector('input[name="name"]');
@@ -246,27 +248,31 @@ function checkForm(id, nextNum) {
 
 //Rendering the response from the server
 
+let titleT = document.getElementById('title');
+let errorT = document.getElementById('error');
+let statusT = document.getElementById('status');
+let queryUl = document.getElementById('queryUl');
+
+
+
 function contentToView(json, title) {
 	let x, y, obj, objKey, txt, columnHeadline;
 	txt = '';
 	try {
 		obj = JSON.parse(json);
 		if (obj.err) {
-			let error = document.getElementById('error');
-			error.innerText = obj.err;
+
+			errorT.innerText = obj.err;
 		} else {
 
 			if (obj.title || obj.itemsList) {
-				let titleT = document.getElementById('title');
 				titleT.innerText = obj.title;
 
 				if (obj.status) {
-					let statusT = document.getElementById('status');
 					statusT.innerText = obj.status;
 				}
 				if (obj.name) {
-					let statusT = document.getElementById('queryUl');
-					statusT.innerText = obj.name;
+					queryUl.innerText = obj.name;
 				}
 
 				if (obj.itemsList) {
@@ -286,24 +292,21 @@ function contentToView(json, title) {
 						txt += '</tr>';
 					}
 					txt += '</table>';
-					document.getElementById('queryUl').innerHTML = txt;
+					queryUl.innerHTML = txt;
 
 				}
 			} else {
 
 				if (title || obj.titleTable) {
-					let titleT = document.getElementById('title');
 					titleT.innerText = title;
 
 					if (title !== 'Current Inventory:') {
-						document.getElementById('queryUl').scrollIntoView();
+						queryUl.scrollIntoView();
 					}
 				}
 				if (status || obj.statusTable) {
-					let statusT = document.getElementById('status');
 					statusT.innerText = status;
 				} else {
-					let statusT = document.getElementById('status');
 					statusT.innerText = '';
 				}
 
@@ -322,7 +325,7 @@ function contentToView(json, title) {
 					txt += '</tr>';
 				}
 				txt += '</table>';
-				document.getElementById('queryUl').innerHTML = txt;
+				queryUl.innerHTML = txt;
 
 			}
 		}
@@ -334,17 +337,16 @@ function contentToView(json, title) {
 
 const userEmailRentInput = document.getElementById('userEmailRentInput');
 const userEmailReturnInput = document.getElementById('userEmailReturnInput');
-
 const titleInventory = document.getElementById('titleInventory');
 
-userEmailRentInput.onchange  = function() {
+userEmailRentInput.onchange = function() {
 	dataListReq('itemTitle');
 };
-userEmailReturnInput.onchange  = function() {
+userEmailReturnInput.onchange = function() {
 	dataListReqEmail('userEmailReturnListForDropDown', value);
 };
 
-titleInventory.onchange  = function() {
+titleInventory.onchange = function() {
 	dataListReq('itemTitleReturn');
 };
 
@@ -385,7 +387,6 @@ function dataListReq(list) {
 function dataListReqEmail(list, email) {
 	let dataList = document.getElementById(list + 'DataList');
 	dataList.innerHTML = '';
-	//let input = document.getElementById(list + 'Input');
 	let xhttp, jsonData, formData;
 
 	formData = new FormData();
@@ -637,6 +638,7 @@ let menuClass;
 
 
 const menuContainer = document.getElementById('menuContainer');
+
 function menuX(x, st) {
 	x.classList.toggle('change');
 	navColumn.classList.toggle('change');
@@ -651,7 +653,9 @@ function menuX(x, st) {
 	}
 }
 //onclick event 
-menuContainer.onclick = function(){menuX(menuContainer);};
+menuContainer.onclick = function() {
+	menuX(menuContainer);
+};
 
 
 
@@ -669,7 +673,7 @@ document.body.onclick = function() {
 
 
 const style = document.documentElement.style;
-const rootColors =['tc', 'tb', 'te', 'tec', 'tcc', 'tbi', 'tbc', 'tbic'];//list of all root colors to change
+const rootColors = ['tc', 'tb', 'te', 'tec', 'tcc', 'tbi', 'tbc', 'tbic']; //list of all root colors to change
 function themeColors(is) {
 	for (let id in rootColors) {
 		style.setProperty('--' + rootColors[id], 'var(--' + rootColors[id] + is + ')');
@@ -678,6 +682,7 @@ function themeColors(is) {
 
 //Dark theme
 const themeToggleB = document.getElementById('themeToggle');
+
 function themeToggle() {
 	let themeStateText = themeToggleB.innerText;
 	if (themeStateText == 'Dark-Side') {
@@ -700,7 +705,7 @@ themeToggleB.onclick = function() {
 
 
 function goToRentTabWithEmail(id, nextNum) {
-	let thisTab = document.getElementById(id);
+	let thisTab = id;
 
 	if (thisTab.querySelector('input[name="email"]')) {
 		let email = thisTab.querySelector('input[name="email"]').value;
@@ -710,7 +715,7 @@ function goToRentTabWithEmail(id, nextNum) {
 		tabClassList[nextNum].querySelector('input[name="email"]').value = email;
 
 		if (tabClassList[nextNum].querySelector('input[name="email"]')) {
-			let titleT = document.getElementById('title');
+
 			titleT.innerText = email;
 		}
 	} else {

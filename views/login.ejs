@@ -36,25 +36,25 @@
 		<div class='loginCenterBox'>
 			<div id='loginTabA' class='tabBox'>
 				<h2>Please Login</h2>
-				<form id='singIn' method='post' action='/user' onsubmit='return checkForm(id, 0)'>
+				<form id='singIn' method='post' action='/user'>
 					<input id='userEmail' type='email' placeholder='Email' name='email' required>
 					<input id='userPassword' type='password' placeholder='Password' name='password' required>
 					<div class='stripBox'>
 						<button class='loginButton' id='submitUser' type='submit'> Submit</button>
-						<a type='button' onclick="loginToggle(0)" class='newUserButton'>New Account</a>
+						<a id='tabToggle1' type='button' class='newUserButton'>New Account</a>
 					</div>
 				</form>
 			</div>
 			<div id='loginTabB' class='tabBox hidden'>
 				<h2>New User</h2>
-				<form id='addUser' method='post' action='/adduser' onsubmit='return checkForm(id, 1)'>
+				<form id='addUser' method='post' action='/adduser'>
 					<input id='invite' type='password' placeholder='Invite Code' name='invite' required>
 					<input id='userName' type='text' placeholder='User name' name='name' required>
 					<input id='newUserEmail' type='email' placeholder='Valid email' name='email' required>
 					<input id='newUserPassword' type='password' placeholder='Strong Password' name='password' required>
 					<div class='stripBox'>
 						<button class='loginButton' id='submitNewUser' type='submit'> Submit</button>
-						<a type='button' onclick="loginToggle(1)" class='newUserButton'>Registered User</a>
+						<a id='tabToggle2' type='button'  class='newUserButton'>Registered User</a>
 					</div>
 				</form>
 			</div>
@@ -69,7 +69,7 @@
 			<span></span>
 		</div>
 	</div>
-	<script src='/javascripts/login.js'></script>
+	<script src='/javascripts/login-bundle.js'></script>
 
 </body>
 

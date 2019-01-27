@@ -247,7 +247,8 @@ input::placeholder {
   margin:5% 0;
 }
 .queryResults h3{
-  font-size:medium;
+	font-size:medium;
+	  margin:2% 0;
 }
 
 .navMenu {

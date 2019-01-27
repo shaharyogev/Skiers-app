@@ -1,6 +1,31 @@
+
+//Function triggers
+const singIn = document.getElementById('singIn');
+const addUser = document.getElementById('addUser');
+const tabToggle1 = document.getElementById('tabToggle1');
+const tabToggle2 = document.getElementById('tabToggle2');
+const loginTabA = document.getElementById('loginTabA');
+const loginTabB = document.getElementById('loginTabB');
+
+singIn.onsubmit = function() {
+	event.preventDefault;	
+	checkForm(singIn, 0);
+};
+addUser.onsubmit = function() {
+	event.preventDefault;
+	checkForm(addUser, 1);
+};
+
+tabToggle1.onclick = function(){
+	loginToggle();
+};
+tabToggle2.onclick = function() {
+	loginToggle(1);
+};
+
+
+//Handle tab toggle
 function loginToggle(b) {
-	let loginTabA = document.getElementById('loginTabA');
-	let loginTabB = document.getElementById('loginTabB');
 	if (b === 1) {
 		loginTabA.style.display = 'flex';
 		loginTabB.style.display = 'none';
@@ -11,9 +36,10 @@ function loginToggle(b) {
 }
 
 
+//Form validation
 function checkForm(id, nextNum) {
 	event.preventDefault();
-	let formId = document.getElementById(id);
+	let formId = id;
 	let formDataNode = formId.querySelectorAll('input');
 	let formAction = formId.action;
 	let emailTest = formId.querySelector('input[name="email"]');
@@ -59,18 +85,20 @@ function checkForm(id, nextNum) {
 	}
 }
 
+//Render all the server response if err
+const errorT = document.getElementById('error');
+
 function contentToView(json) {
-	let error = document.getElementById('error');
 	let obj = JSON.parse(json);
 	if (obj.err) {
-		error.innerText = obj.err;
+		errorT.innerText = obj.err;
 	} else {
-		error.innerText = 'Your login attempt was not successful. Please try again.';
+		errorT.innerText = 'Your login attempt was not successful. Please try again.';
 	}
 }
 
+//Send the form data as a formData object
 function postForm(file, formDataNode, id, nextNum) {
-
 	let i, pagePath, xhttp, formData;
 	formData = new FormData();
 	pagePath = file;
@@ -102,6 +130,7 @@ function postForm(file, formDataNode, id, nextNum) {
 	xhttp.send(formData);
 }
 
+//After logout the path get clan for security purposes
 function clearPath(path, x) {
 	if (window.location.pathname === path) {
 		window.location.pathname = '/';
