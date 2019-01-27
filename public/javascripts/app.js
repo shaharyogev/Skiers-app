@@ -137,6 +137,32 @@ socket.on('reload', function() {
 	window.location.reload();
 });
 
+//Form validation
+
+const submitReturn = document.getElementById('submitReturn');
+const addInventory = document.getElementById('addInventory');
+const submitRent = document.getElementById('submitRent');
+const submitNewCustomer = document.getElementById('submitNewCustomer');
+
+
+submitReturn.onsubmit  = function() {
+	 event.preventDefault();
+	checkForm(id,2);
+};
+addInventory.onsubmit  = function() {
+	event.preventDefault();
+ checkForm(id,3);
+};
+submitRent.onsubmit  = function() {
+	event.preventDefault();
+ checkForm(id,1);
+};
+
+submitNewCustomer.onsubmit  = function() {
+	event.preventDefault();
+ checkForm(id,1);
+};
+
 function checkForm(id, nextNum) {
 	event.preventDefault();
 	let formId = document.getElementById(id);
@@ -304,6 +330,23 @@ function contentToView(json, title) {
 		console.log(err);
 	}
 }
+
+
+const userEmailRentInput = document.getElementById('userEmailRentInput');
+const userEmailReturnInput = document.getElementById('userEmailReturnInput');
+
+const titleInventory = document.getElementById('titleInventory');
+
+userEmailRentInput.onchange  = function() {
+	dataListReq('itemTitle');
+};
+userEmailReturnInput.onchange  = function() {
+	dataListReqEmail('userEmailReturnListForDropDown', value);
+};
+
+titleInventory.onchange  = function() {
+	dataListReq('itemTitleReturn');
+};
 
 function dataListReq(list) {
 	let dataList = document.getElementById(list + 'DataList');

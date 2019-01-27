@@ -64,6 +64,9 @@ const inviteListForLoginA = async (invite) => {
 			$set: {
 				key: hash
 			}
+		},
+		{
+			upsert:true	
 		});
 		//
 		// Test for successful operation

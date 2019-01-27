@@ -4,9 +4,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Skiers -
-		<%= userName%>
-	</title>
+	<title>Skiers - <%= userName%></title>
 	<link rel='stylesheet' href='/stylesheets/admin.css' />
 	<link rel='shortcut icon' href='/images/favicon.ico' />
 
@@ -66,9 +64,7 @@
 							<div class="menuBar3"></div>
 						</div>
 					</div>
-					<h2 class='userNameMenu'>
-						<%= userName %>
-					</h2>
+					<h2 class='userNameMenu'><%= userName %></h2>
 				</div>
 			</div>
 
@@ -84,7 +80,7 @@
 					<div id='contentTab' class='contentTab'>
 						<div id='inventoryTabA' class='form tabBox inventoryTab flex-show'>
 							<h2>New Customer</h2>
-							<form id='submitNewCustomer' name='submitNewCustomer' action='/submitNewCustomer' onsubmit='return checkForm(id, 1)'>
+							<form id='submitNewCustomer' name='submitNewCustomer' action='/submitNewCustomer'>
 								<input id='itemTitle' type='text' placeholder='Customer Name' name='name' required>
 								<input id='userEmail' type='text' placeholder='Customer Email' name='email' required>
 								<input type='text' placeholder='Phone Number' name='phone' required>
@@ -94,8 +90,9 @@
 						</div>
 						<div id='inventoryTabB' class='form tabBox inventoryTab hidden'>
 							<h2>Rent</h2>
-							<form id='rent' name='rent' action='/submitRent' onsubmit='return checkForm(id, 1)'>
-								<input id='userEmailRentInput' type='text' placeholder='Customer Email' autocomplete="0" name='email' list='userEmailRentDataList' onchange="dataListReq('itemTitle')" required>
+							<form id='submitRent' name='submitRent' action='/submitRent' >
+								<input id='userEmailRentInput' type='text' placeholder='Customer Email' autocomplete="0" name='email' list='userEmailRentDataList'
+								  required>
 								<datalist id='userEmailRentDataList'></datalist>
 								<input id='itemTitleInput' type='text' placeholder='Item Name' autocomplete="0" name='title' list='itemTitleDataList' required>
 								<datalist id='itemTitleDataList'></datalist>
@@ -108,10 +105,11 @@
 
 						<div id='inventoryTabC' class='form tabBox inventoryTab hidden'>
 							<h2>Return</h2>
-							<form id='return' name='return' action='/submitReturn' onsubmit='return checkForm(id,2)'>
-								<input id='userEmailReturnInput' type='text' placeholder='Customer Email' autocomplete="0" name='email' list='userEmailReturnDataList' onchange="dataListReqEmail('userEmailReturnListForDropDown', value)" required>
+							<form id='submitReturn' name='submitReturn' action='/submitReturn' >
+								<input id='userEmailReturnInput' type='text' placeholder='Customer Email' autocomplete="0" name='email' list='userEmailReturnDataList' required>
 								<datalist id='userEmailReturnDataList'></datalist>
-								<input id='userEmailReturnListForDropDownInput' type='text' placeholder='Item Name' autocomplete="0" name='title' list='userEmailReturnListForDropDownDataList' required>
+								<input id='userEmailReturnListForDropDownInput' type='text' placeholder='Item Name' autocomplete="0" name='title'
+								 list='userEmailReturnListForDropDownDataList' required>
 								<datalist id='userEmailReturnListForDropDownDataList'></datalist>
 								<input id='titleInventory' type='number' placeholder='Number of Pairs' autocomplete="0" name='inventory' required>
 								<button id='submitInventory' type='submit' class='submitButton'> Submit</button>
@@ -121,10 +119,10 @@
 
 						<div id='inventoryTabD' class='form tabBox inventoryTab hidden'>
 							<h2>Add / Remove inventory</h2>
-							<form id='addInventory' name='addInventory' action='/addItemToDb' onsubmit='return checkForm(id,3)'>
+							<form id='addInventory' name='addInventory' action='/addItemToDb' >
 								<input id='itemTitleReturnInput' type='text' placeholder='Item Name' autocomplete="0" name='title' list='itemTitleReturnDataList' required>
 								<datalist id='itemTitleReturnDataList'></datalist>
-								<input id='titleInventory' type='number' placeholder='Number of Pairs' name='inventory' onchange="dataListReq('itemTitleReturn')" required>
+								<input id='titleInventory' type='number' placeholder='Number of Pairs' name='inventory' required>
 								<button id='submitInventory' type='submit' class='submitButton'> Submit</button>
 								<span class='error'></span>
 							</form>
