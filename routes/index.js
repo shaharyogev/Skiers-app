@@ -50,7 +50,7 @@ client.connect((err, db) => {
 		/* Session & cookies */
 
 		//
-		// Log user session to the cookie
+		// Log user session 
 		router.use(session({
 			key: 'user_id',
 			name: 'activeSession',
