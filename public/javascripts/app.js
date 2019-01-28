@@ -343,7 +343,7 @@ userEmailRentInput.onchange = function() {
 	dataListReq('itemTitle');
 };
 userEmailReturnInput.onchange = function() {
-	dataListReqEmail('userEmailReturnListForDropDown', value);
+	dataListReqEmail('userEmailReturnListForDropDown', userEmailReturnInput.value);
 };
 
 titleInventory.onchange = function() {

@@ -91,13 +91,13 @@
 						<div id='inventoryTabB' class='form tabBox inventoryTab hidden'>
 							<h2>Rent</h2>
 							<form id='submitRent' name='submitRent' action='/submitRent' >
-								<input id='userEmailRentInput' type='text' placeholder='Customer Email' autocomplete="0" name='email' list='userEmailRentDataList'
+								<input id='userEmailRentInput' type='text' placeholder='Customer Email' autocomplete="off" name='email' list='userEmailRentDataList'
 								  required>
 								<datalist id='userEmailRentDataList'></datalist>
-								<input id='itemTitleInput' type='text' placeholder='Item Name' autocomplete="0" name='title' list='itemTitleDataList' required>
+								<input id='itemTitleInput' type='text' placeholder='Item Name' autocomplete="off" name='title' list='itemTitleDataList' required>
 								<datalist id='itemTitleDataList'></datalist>
-								<input id='titleInventory' type='number' placeholder='Number of Pairs' name='inventory' required>
-								<input id='days' type='number' placeholder='Number of Days' name='days' required>
+<input id='titleInventory' type='number' placeholder='Number of Pairs' name='inventory' autocomplete="off" required>
+<input id='days' type='number' placeholder='Number of Days' name='days' autocomplete="off" required>
 								<button id='submitInventory' type='submit' class='submitButton '> Submit</button>
 								<span class='error'></span>
 							</form>
@@ -106,12 +106,12 @@
 						<div id='inventoryTabC' class='form tabBox inventoryTab hidden'>
 							<h2>Return</h2>
 							<form id='submitReturn' name='submitReturn' action='/submitReturn' >
-								<input id='userEmailReturnInput' type='text' placeholder='Customer Email' autocomplete="0" name='email' list='userEmailReturnDataList' required>
+								<input id='userEmailReturnInput' type='text' placeholder='Customer Email' autocomplete="off" name='email' list='userEmailReturnDataList' required>
 								<datalist id='userEmailReturnDataList'></datalist>
-								<input id='userEmailReturnListForDropDownInput' type='text' placeholder='Item Name' autocomplete="0" name='title'
+								<input id='userEmailReturnListForDropDownInput' type='text' placeholder='Item Name' autocomplete="off" name='title'
 								 list='userEmailReturnListForDropDownDataList' required>
 								<datalist id='userEmailReturnListForDropDownDataList'></datalist>
-								<input id='titleInventory' type='number' placeholder='Number of Pairs' autocomplete="0" name='inventory' required>
+								<input id='titleInventory' type='number' placeholder='Number of Pairs' autocomplete="off" name='inventory' required>
 								<button id='submitInventory' type='submit' class='submitButton'> Submit</button>
 								<span class='error'></span>
 							</form>
@@ -120,7 +120,7 @@
 						<div id='inventoryTabD' class='form tabBox inventoryTab hidden'>
 							<h2>Add / Remove inventory</h2>
 							<form id='addInventory' name='addInventory' action='/addItemToDb' >
-								<input id='itemTitleReturnInput' type='text' placeholder='Item Name' autocomplete="0" name='title' list='itemTitleReturnDataList' required>
+								<input id='itemTitleReturnInput' type='text' placeholder='Item Name' autocomplete="off" name='title' list='itemTitleReturnDataList' required>
 								<datalist id='itemTitleReturnDataList'></datalist>
 								<input id='titleInventory' type='number' placeholder='Number of Pairs' name='inventory' required>
 								<button id='submitInventory' type='submit' class='submitButton'> Submit</button>
@@ -180,7 +180,7 @@
 						</div>
 					</div>
 					<div id='chatInputDiv' class='chatInputDiv'>
-						<input class='chatInputTextBox' id='chatInput' type='text' placeholder='Type a message' spellcheck='true' required>
+<input class='chatInputTextBox' id='chatInput' type='text' placeholder='Type a message' spellcheck='true' autocomplete="off" required>
 						<a id='chatSend' class='chatSendBox' type='button'>
 							<?xml version="1.0" encoding="iso-8859-1" ?>
 							<!-- Generator: Adobe Illustrator 16.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -198,11 +198,7 @@
 			</div>
 		</div>
 	</div>
-
-	<!--<script src="/socket.io/socket.io.js"></script>-->
 	<script src="/javascripts/app-bundle.js"></script>
-
-
 </body>
 
 </html>
