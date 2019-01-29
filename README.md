@@ -37,7 +37,7 @@ The main functionality is for the group conversation and maybe one on one chat f
 * Full screen - show the chat module in the full available screen space. 
 * Close - the chat module will shrink to the chat icon. One click 
 
-## Technologies in this project: 
+# Technologies in this project: 
 
 ## Mongodb - Database
 
@@ -115,7 +115,7 @@ itemlist
         
 ## Socket.IO 
 
-Socket io made the chat module very easy to build, the documentation is great. 
+Socket io made the chat module very easy to build, the documentation is great. socket io use on and emit to start a function or send data to the users. You can send data to rooms (groups) or send to one user in particular.
 
 ````
 npm install --save socket.io 
@@ -127,13 +127,22 @@ npm install --save socket.io
 For GET or POST request live with no reloads or distractions to the user I use the xhttp request and render the json response to the user.
 
 express formidable is very good dataForm object reader for the POST requests, body parser cant handle this objects. 
-bcrypt - use to hash the passwords. 
+bcrypt - use to hash the passwords, no need to save the original password and risk the users data in case of a breach. 
+
+express session is the one module that help us keep all the users logged to the app and help with multi tabs open in the browser. 
+
 
 ````
 npm install --save express-formidable
 npm install --save express-session
 npm install --save bcrypt
 ````
+
+## Webpack 
+
+In this project I started using webpack, it will make fewer http requests to the server and the javascript files lighter. 
+I use multiple bundle files, one for the login and one for the main app it make the app more secure.
+
 
 ## Icons: 
 
